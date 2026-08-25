@@ -5,7 +5,6 @@
     <Project Path="src/EricksonLopez.Pagination.EntityFrameworkCore/EricksonLopez.Pagination.EntityFrameworkCore.csproj" />
     <Project Path="src/EricksonLopez.Pagination.AspNetCore/EricksonLopez.Pagination.AspNetCore.csproj" />
     <Project Path="src/EricksonLopez.Pagination.Dapper/EricksonLopez.Pagination.Dapper.csproj" />
-    <Project Path="src/EricksonLopez.Pagination.SqlBuilder/EricksonLopez.Pagination.SqlBuilder.csproj" />
     <Project Path="src/EricksonLopez.Pagination.Analyzers/EricksonLopez.Pagination.Analyzers.csproj" />
     <Project Path="src/EricksonLopez.Pagination.Blazor/EricksonLopez.Pagination.Blazor.csproj" />
     <Project Path="src/EricksonLopez.Pagination.Cosmos/EricksonLopez.Pagination.Cosmos.csproj" />
@@ -24,7 +23,6 @@
     <Project Path="tests/EricksonLopez.Pagination.EntityFrameworkCore.Tests/EricksonLopez.Pagination.EntityFrameworkCore.Tests.csproj" />
     <Project Path="tests/EricksonLopez.Pagination.AspNetCore.Tests/EricksonLopez.Pagination.AspNetCore.Tests.csproj" />
     <Project Path="tests/EricksonLopez.Pagination.Dapper.Tests/EricksonLopez.Pagination.Dapper.Tests.csproj" />
-    <Project Path="tests/EricksonLopez.Pagination.SqlBuilder.Tests/EricksonLopez.Pagination.SqlBuilder.Tests.csproj" />
     <Project Path="tests/EricksonLopez.Pagination.Analyzers.Tests/EricksonLopez.Pagination.Analyzers.Tests.csproj" />
     <Project Path="tests/EricksonLopez.Pagination.AotTest/EricksonLopez.Pagination.AotTest.csproj" />
     <Project Path="tests/EricksonLopez.Pagination.Benchmarks/EricksonLopez.Pagination.Benchmarks.csproj" />
