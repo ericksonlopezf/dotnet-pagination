@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="EricksonLopez.Pagination.Benchmarks.Benchmarks/EricksonLopez.Pagination.Benchmarks.Benchmarks.csproj" />
+  <Project Path="EricksonLopez.Pagination.Benchmarks.Common/EricksonLopez.Pagination.Benchmarks.Common.csproj" />
+  <Project Path="EricksonLopez.Pagination.Benchmarks.Database/EricksonLopez.Pagination.Benchmarks.Database.csproj" />
+  <Project Path="EricksonLopez.Pagination.Benchmarks.Libraries/EricksonLopez.Pagination.Benchmarks.Libraries.csproj" />
+  <Project Path="EricksonLopez.Pagination.Benchmarks.Runner/EricksonLopez.Pagination.Benchmarks.Runner.csproj" />
+  <Project Path="EricksonLopez.Pagination.Benchmarks.Seed/EricksonLopez.Pagination.Benchmarks.Seed.csproj" />
+</Solution>

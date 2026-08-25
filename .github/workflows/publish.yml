@@ -1,0 +1,197 @@
+# Copyright © Erickson Lopez. MIT License.
+name: Publish NuGet
+
+# ─── Triggers ─────────────────────────────────────────────────────────────────
+# 1. Automatic: Triggered by Release Please when a release PR is merged.
+#    The workflow_dispatch input 'version' will be set to the new SemVer.
+# 2. Manual: Also triggered by pushing a 'v*.*.*' tag manually (legacy support).
+# 3. Manual dispatch: Via GitHub UI for debugging.
+# ─────────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g. 1.2.3 — without 'v' prefix)"
+        required: false
+        type: string
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  publish:
+    name: Pack & Publish
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write        # Required for Sigstore OIDC attestation
+      contents: write        # Required for GitHub Release creation
+      attestations: write    # Required for actions/attest-build-provenance
+      statuses: read         # Required to query commit statuses for Stryker quality gate
+      actions: read          # Required to query workflow runs for Stryker quality gate
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ─── Resolve version ──────────────────────────────────────────────────────
+      - name: Resolve version
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "VERSION=$INPUT_VERSION" >> $GITHUB_OUTPUT
+            echo "Resolved version from workflow_dispatch input: $INPUT_VERSION"
+          elif [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "Resolved version from git tag: $VERSION"
+          else
+            VERSION=$(grep -oP '(?<=<VersionPrefix>)[^<]+' Directory.Build.props || echo "1.0.0")
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "Resolved version from Directory.Build.props: $VERSION"
+          fi
+
+      # ─── Validate Stryker Mutation Testing Quality Gate ───────────────────────
+      - name: Validate Stryker Mutation Quality Gate
+        id: mutation-gate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const verifyMutationGate = require('./scripts/verify-mutation-gate.js');
+            await verifyMutationGate({ github, context, core });
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      # ─── Strong Name key ──────────────────────────────────────────────────────
+      - name: Restore Strong Name key
+        env:
+          SNK_KEY: ${{ secrets.SNK_KEY }}
+        run: |
+          if [ -n "$SNK_KEY" ]; then
+            echo "$SNK_KEY" | tr -d '\n\r ' | base64 --decode > DummyDevelopmentKey.snk
+            echo "Strong Name key restored from secret."
+          else
+            echo "SNK_KEY secret not set — building without strong name signing."
+          fi
+
+      - name: Restore
+        run: dotnet restore EricksonLopez.Pagination.slnx
+
+      - name: Build (Release)
+        run: dotnet build EricksonLopez.Pagination.slnx --no-restore --configuration Release
+
+      # ─── Full test suite before publish ──────────────────────────────────────
+      - name: Run tests before publish
+        run: |
+          dotnet test EricksonLopez.Pagination.slnx \
+            --no-build \
+            --configuration Release \
+            --logger "trx;LogFileName=test-results.trx" \
+            --results-directory ./test-results \
+            --collect:"XPlat Code Coverage" \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+
+      - name: Upload coverage to Codecov (publish gate)
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: "**/coverage.opencover.xml"
+          fail_ci_if_error: false
+          flags: publish-gate
+          name: codecov-publish
+
+      # ─── Pack all packages ────────────────────────────────────────────────────
+      - name: Pack All Packages
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          PACK_ARGS="--no-build --configuration Release --output ./nupkgs -p:VersionPrefix=$VERSION -p:TreatWarningsAsErrors=true"
+          dotnet pack src/EricksonLopez.Pagination.Abstractions/EricksonLopez.Pagination.Abstractions.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination/EricksonLopez.Pagination.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.Analyzers/EricksonLopez.Pagination.Analyzers.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.SourceGenerators/EricksonLopez.Pagination.SourceGenerators.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.AspNetCore/EricksonLopez.Pagination.AspNetCore.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.Blazor/EricksonLopez.Pagination.Blazor.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.Cosmos/EricksonLopez.Pagination.Cosmos.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.Dapper/EricksonLopez.Pagination.Dapper.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.Elasticsearch/EricksonLopez.Pagination.Elasticsearch.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.EntityFrameworkCore/EricksonLopez.Pagination.EntityFrameworkCore.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.Grpc/EricksonLopez.Pagination.Grpc.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.LinqToDB/EricksonLopez.Pagination.LinqToDB.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.MongoDB/EricksonLopez.Pagination.MongoDB.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.OpenApi/EricksonLopez.Pagination.OpenApi.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.Redis/EricksonLopez.Pagination.Redis.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.Relay/EricksonLopez.Pagination.Relay.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.Result/EricksonLopez.Pagination.Result.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Pagination.SqlBuilder/EricksonLopez.Pagination.SqlBuilder.csproj $PACK_ARGS
+          echo "Packed packages:"
+          ls -la ./nupkgs/
+
+      # ─── Sigstore Provenance Attestation ─────────────────────────────────────
+      - name: Generate Sigstore Provenance Attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: './nupkgs/*.nupkg'
+
+      # ─── NuGet.org publish via OIDC ──────────────────────────────────────────
+      - name: NuGet login (OIDC)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ericksonlopezf
+
+      - name: Push to NuGet.org
+        run: >
+          dotnet nuget push ./nupkgs/*.nupkg
+          --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+      # ─── GitHub Release ───────────────────────────────────────────────────────
+      - name: Create GitHub Release (tag-triggered only)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          name: Release ${{ steps.version.outputs.VERSION }}
+          generate_release_notes: false
+          body: |
+            ## Ecosystem Packages in this release
+
+            | Package | Version |
+            |---------|---------|
+            | `EricksonLopez.Pagination.Abstractions` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.Analyzers` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.SourceGenerators` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.AspNetCore` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.Blazor` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.Cosmos` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.Dapper` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.Elasticsearch` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.EntityFrameworkCore` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.Grpc` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.LinqToDB` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.MongoDB` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.OpenApi` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.Redis` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.Relay` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.Result` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Pagination.SqlBuilder` | `${{ steps.version.outputs.VERSION }}` |
+
+            ---
+
+            For detailed changes, see [CHANGELOG.md](https://github.com/ericksonlopezf/dotnet-pagination/blob/${{ github.ref_name }}/CHANGELOG.md).
+          files: ./nupkgs/*.nupkg
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.VERSION, '-') }}

@@ -1,0 +1,23 @@
+{
+    "stryker-config":  {
+                           "project":  "EricksonLopez.Pagination.Grpc.csproj",
+                           "mutate":  [
+                                          "PaginationGrpcExtensions.cs"
+                                      ],
+                           "coverage-analysis":  "perTest",
+                           "concurrency":  2,
+                           "ignore-methods":  [
+                                                  "*ConfigureAwait*"
+                                              ],
+                           "reporters":  [
+                                             "html",
+                                             "json",
+                                             "progress"
+                                         ],
+                           "thresholds":  {
+                                              "high":  100,
+                                              "low":  98,
+                                              "break":  95
+                                          }
+                       }
+}

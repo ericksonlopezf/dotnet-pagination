@@ -1,0 +1,43 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EricksonLopez.Pagination.Abstractions/EricksonLopez.Pagination.Abstractions.csproj" />
+    <Project Path="src/EricksonLopez.Pagination/EricksonLopez.Pagination.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.EntityFrameworkCore/EricksonLopez.Pagination.EntityFrameworkCore.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.AspNetCore/EricksonLopez.Pagination.AspNetCore.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.Dapper/EricksonLopez.Pagination.Dapper.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.SqlBuilder/EricksonLopez.Pagination.SqlBuilder.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.Analyzers/EricksonLopez.Pagination.Analyzers.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.Blazor/EricksonLopez.Pagination.Blazor.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.Cosmos/EricksonLopez.Pagination.Cosmos.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.Elasticsearch/EricksonLopez.Pagination.Elasticsearch.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.Grpc/EricksonLopez.Pagination.Grpc.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.LinqToDB/EricksonLopez.Pagination.LinqToDB.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.MongoDB/EricksonLopez.Pagination.MongoDB.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.OpenApi/EricksonLopez.Pagination.OpenApi.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.Redis/EricksonLopez.Pagination.Redis.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.Relay/EricksonLopez.Pagination.Relay.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.SourceGenerators/EricksonLopez.Pagination.SourceGenerators.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EricksonLopez.Pagination.Abstractions.Tests/EricksonLopez.Pagination.Abstractions.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.Tests/EricksonLopez.Pagination.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.EntityFrameworkCore.Tests/EricksonLopez.Pagination.EntityFrameworkCore.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.AspNetCore.Tests/EricksonLopez.Pagination.AspNetCore.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.Dapper.Tests/EricksonLopez.Pagination.Dapper.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.SqlBuilder.Tests/EricksonLopez.Pagination.SqlBuilder.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.Analyzers.Tests/EricksonLopez.Pagination.Analyzers.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.AotTest/EricksonLopez.Pagination.AotTest.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.Benchmarks/EricksonLopez.Pagination.Benchmarks.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.Blazor.Tests/EricksonLopez.Pagination.Blazor.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.Cosmos.Tests/EricksonLopez.Pagination.Cosmos.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.Elasticsearch.Tests/EricksonLopez.Pagination.Elasticsearch.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.Grpc.Tests/EricksonLopez.Pagination.Grpc.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.IntegrationTests/EricksonLopez.Pagination.IntegrationTests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.LinqToDB.Tests/EricksonLopez.Pagination.LinqToDB.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.MongoDB.Tests/EricksonLopez.Pagination.MongoDB.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.OpenApi.Tests/EricksonLopez.Pagination.OpenApi.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.Redis.Tests/EricksonLopez.Pagination.Redis.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.Relay.Tests/EricksonLopez.Pagination.Relay.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.SourceGenerators.Tests/EricksonLopez.Pagination.SourceGenerators.Tests.csproj" />
+  </Folder>
+</Solution>

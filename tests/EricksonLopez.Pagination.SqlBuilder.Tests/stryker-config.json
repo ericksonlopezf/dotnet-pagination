@@ -1,0 +1,22 @@
+{
+  "stryker-config": {
+    "project": "EricksonLopez.Pagination.SqlBuilder.csproj",
+    "thresholds": {
+      "high": 100,
+      "low": 98,
+      "break": 95
+    },
+    "ignore-methods": [
+      "ConfigureAwait",
+      "Log*",
+      "Guard*"
+    ],
+    "reporters": [
+      "html",
+      "json",
+      "progress"
+    ],
+    "coverage-analysis": "perTest",
+    "concurrency": 2
+  }
+}

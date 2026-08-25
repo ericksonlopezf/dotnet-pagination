@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <IsAotCompatible>true</IsAotCompatible>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <IsPackable>true</IsPackable>
+    <DisablePackageValidationBaseline>true</DisablePackageValidationBaseline>
+    <PackageId>EricksonLopez.Pagination.Blazor</PackageId>
+    <Description>Headless Blazor pagination components for the EricksonLopez.Pagination ecosystem.</Description>
+    <PackageTags>pagination;blazor;headless;components</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Pagination.Abstractions\EricksonLopez.Pagination.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
+
+

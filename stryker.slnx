@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EricksonLopez.Pagination.Blazor/EricksonLopez.Pagination.Blazor.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.Grpc/EricksonLopez.Pagination.Grpc.csproj" />
+    <Project Path="src/EricksonLopez.Pagination.OpenApi/EricksonLopez.Pagination.OpenApi.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+  </Folder>
+  <Project Path="src\EricksonLopez.Pagination.Abstractions\EricksonLopez.Pagination.Abstractions.csproj" />
+  <Project Path="src\EricksonLopez.Pagination\EricksonLopez.Pagination.csproj" />
+  <Project Path="src\EricksonLopez.Pagination.AspNetCore\EricksonLopez.Pagination.AspNetCore.csproj" />
+  <Project Path="src\EricksonLopez.Pagination.Dapper\EricksonLopez.Pagination.Dapper.csproj" />
+  <Project Path="tests\EricksonLopez.Pagination.Tests\EricksonLopez.Pagination.Tests.csproj" />
+  <Project Path="tests\EricksonLopez.Pagination.Abstractions.Tests\EricksonLopez.Pagination.Abstractions.Tests.csproj" />
+  <Project Path="tests\EricksonLopez.Pagination.Dapper.Tests\EricksonLopez.Pagination.Dapper.Tests.csproj" />
+  <Project Path="tests\EricksonLopez.Pagination.AspNetCore.Tests\EricksonLopez.Pagination.AspNetCore.Tests.csproj" />
+  <Project Path="tests\EricksonLopez.Pagination.Blazor.Tests\EricksonLopez.Pagination.Blazor.Tests.csproj" />
+  <Project Path="tests\EricksonLopez.Pagination.Grpc.Tests\EricksonLopez.Pagination.Grpc.Tests.csproj" />
+  <Project Path="tests\EricksonLopez.Pagination.OpenApi.Tests\EricksonLopez.Pagination.OpenApi.Tests.csproj" />
+</Solution>

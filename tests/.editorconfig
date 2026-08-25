@@ -1,0 +1,49 @@
+[*.cs]
+# Disables IDE1006 (Naming Rule Violation) and CA1707 specifically for test projects
+# to permit the tripartite Method_Scenario_Result (Osherove) pattern,
+# enabling tests to act as human-readable living specifications in CI/CD.
+dotnet_diagnostic.IDE1006.severity = none
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.CA1852.severity = none
+dotnet_diagnostic.CA1305.severity = none
+dotnet_diagnostic.CS1591.severity = none
+dotnet_diagnostic.CS0618.severity = none
+dotnet_diagnostic.CA1861.severity = none
+dotnet_diagnostic.CA1062.severity = none
+dotnet_diagnostic.CA2007.severity = none
+dotnet_diagnostic.CA1822.severity = none
+dotnet_diagnostic.CA1815.severity = none
+dotnet_diagnostic.CA2012.severity = none
+dotnet_diagnostic.CA2100.severity = none
+dotnet_diagnostic.CA1036.severity = none
+dotnet_diagnostic.CA1805.severity = none
+dotnet_diagnostic.CA1069.severity = none
+dotnet_diagnostic.CA1825.severity = none
+dotnet_diagnostic.CA1307.severity = none
+dotnet_diagnostic.CA1310.severity = none
+dotnet_diagnostic.CA2201.severity = none
+dotnet_diagnostic.CA1862.severity = none
+dotnet_diagnostic.CA1866.severity = none
+dotnet_diagnostic.CA1000.severity = none
+dotnet_diagnostic.CA1001.severity = none
+dotnet_diagnostic.CA1002.severity = none
+dotnet_diagnostic.CA1008.severity = none
+dotnet_diagnostic.CA1031.severity = none
+dotnet_diagnostic.CA1034.severity = none
+dotnet_diagnostic.CA1051.severity = none
+dotnet_diagnostic.CA1304.severity = none
+dotnet_diagnostic.CA1502.severity = none
+dotnet_diagnostic.CA1508.severity = none
+dotnet_diagnostic.CA1806.severity = none
+dotnet_diagnostic.CA1812.severity = none
+dotnet_diagnostic.CA1849.severity = none
+dotnet_diagnostic.CA1859.severity = none
+dotnet_diagnostic.CA1860.severity = none
+dotnet_diagnostic.CA2000.severity = none
+dotnet_diagnostic.CA2225.severity = none
+dotnet_diagnostic.CA2227.severity = none
+dotnet_diagnostic.CA2234.severity = none
+dotnet_diagnostic.CA5394.severity = none
+dotnet_diagnostic.xUnit1000.severity = none
+dotnet_diagnostic.xUnit1030.severity = none
+dotnet_diagnostic.xUnit1051.severity = none

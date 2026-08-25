@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <AssemblyName>EricksonLopez.Pagination</AssemblyName>
+    <RootNamespace>EricksonLopez.Pagination</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <PackageId>EricksonLopez.Pagination</PackageId>
+    <Description>Zero-allocation pagination lists and core implementations.</Description>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Pagination.Abstractions\EricksonLopez.Pagination.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.AspNetCore" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.Dapper" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.EntityFrameworkCore" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.LinqToDB" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.Dapper.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.EntityFrameworkCore.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.LinqToDB.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.MongoDB" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.MongoDB.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.Benchmarks" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.SqlBuilder" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.SqlBuilder.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.AotTest" />
+  </ItemGroup>
+
+</Project>
+

@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AssemblyName>EricksonLopez.Pagination.SqlBuilder</AssemblyName>
+    <RootNamespace>EricksonLopez.Pagination.SqlBuilder</RootNamespace>
+    
+    <!-- NuGet Packaging Properties -->
+    <IsPackable>true</IsPackable>
+    <Title>EricksonLopez.Pagination.SqlBuilder</Title>
+    <Description>SqlBuilder integration for EricksonLopez.Pagination. Provides offset and keyset cursor pagination extension methods for SelectQuery AST.</Description>
+    <PackageTags>pagination;sqlbuilder;keyset;cursor;offset;sql;ast</PackageTags>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Pagination.Abstractions\EricksonLopez.Pagination.Abstractions.csproj" Aliases="PagAbstractions" />
+    <ProjectReference Include="..\EricksonLopez.Pagination\EricksonLopez.Pagination.csproj" Aliases="PagCore" />
+    <ProjectReference Include="..\..\..\dotnet-sql-builder\src\EricksonLopez.SqlBuilder\EricksonLopez.SqlBuilder.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.SqlBuilder.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);NU1901;NU1902;NU1903;NU1904;CS0618;S6966;CS1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" VersionOverride="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" VersionOverride="10.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" VersionOverride="9.0.4" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Testcontainers.MsSql" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="AwesomeAssertions" />
+    <PackageReference Include="Xunit.SkippableFact" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EricksonLopez.Pagination\EricksonLopez.Pagination.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Pagination.EntityFrameworkCore\EricksonLopez.Pagination.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Pagination.Dapper\EricksonLopez.Pagination.Dapper.csproj" />
+  </ItemGroup>
+</Project>
+
+

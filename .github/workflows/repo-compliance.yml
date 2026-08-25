@@ -1,0 +1,23 @@
+# Copyright © Erickson Lopez. MIT License.
+name: Repository Compliance
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  compliance:
+    name: Architecture & Policy Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PowerShell
+        run: pwsh --version
+
+      - name: Run Repository Compliance Gate
+        shell: pwsh
+        run: ./scripts/verify-compliance.ps1
