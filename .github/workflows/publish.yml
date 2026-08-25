@@ -139,7 +139,7 @@ jobs:
 
       # ─── Sigstore Provenance Attestation ─────────────────────────────────────
       - name: Generate Sigstore Provenance Attestation
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: './nupkgs/*.nupkg'
 
