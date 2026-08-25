@@ -132,8 +132,6 @@ jobs:
           dotnet pack src/EricksonLopez.Pagination.OpenApi/EricksonLopez.Pagination.OpenApi.csproj $PACK_ARGS
           dotnet pack src/EricksonLopez.Pagination.Redis/EricksonLopez.Pagination.Redis.csproj $PACK_ARGS
           dotnet pack src/EricksonLopez.Pagination.Relay/EricksonLopez.Pagination.Relay.csproj $PACK_ARGS
-          dotnet pack src/EricksonLopez.Pagination.Result/EricksonLopez.Pagination.Result.csproj $PACK_ARGS
-          dotnet pack src/EricksonLopez.Pagination.SqlBuilder/EricksonLopez.Pagination.SqlBuilder.csproj $PACK_ARGS
           echo "Packed packages:"
           ls -la ./nupkgs/
 
@@ -186,8 +184,6 @@ jobs:
             | `EricksonLopez.Pagination.OpenApi` | `${{ steps.version.outputs.VERSION }}` |
             | `EricksonLopez.Pagination.Redis` | `${{ steps.version.outputs.VERSION }}` |
             | `EricksonLopez.Pagination.Relay` | `${{ steps.version.outputs.VERSION }}` |
-            | `EricksonLopez.Pagination.Result` | `${{ steps.version.outputs.VERSION }}` |
-            | `EricksonLopez.Pagination.SqlBuilder` | `${{ steps.version.outputs.VERSION }}` |
 
             ---
 
