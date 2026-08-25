@@ -1,0 +1,20 @@
+{
+  "stryker-config": {
+    "project": "EricksonLopez.Pagination.EntityFrameworkCore.csproj",
+    "coverage-analysis": "perTest",
+    "concurrency": 4,
+    "thresholds": {
+      "high": 100,
+      "low": 98,
+      "break": 95
+    },
+    "reporters": [
+      "html",
+      "json",
+      "cleartext"
+    ],
+    "ignore-methods": [
+      "*ConfigureAwait*"
+    ]
+  }
+}

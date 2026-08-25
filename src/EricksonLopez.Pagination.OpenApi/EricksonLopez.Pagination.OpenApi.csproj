@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Pagination\EricksonLopez.Pagination.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.OpenApi" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net8.0'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.OpenApi" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.OpenApi.Tests" />
+  </ItemGroup>
+  
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);NU1903;NU1605</NoWarn>
+    <IsPackable>true</IsPackable>
+    <DisablePackageValidationBaseline>true</DisablePackageValidationBaseline>
+    <PackageId>EricksonLopez.Pagination.OpenApi</PackageId>
+    <Description>Swagger and OpenAPI pagination documentation extensions for the EricksonLopez.Pagination ecosystem.</Description>
+    <PackageTags>pagination;openapi;swagger;swashbuckle</PackageTags>
+  </PropertyGroup>
+  
+</Project>
+

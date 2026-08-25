@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Pagination.Benchmarks.Libraries\EricksonLopez.Pagination.Benchmarks.Libraries.csproj" />
+    <ProjectReference Include="..\EricksonLopez.Pagination.Benchmarks.Seed\EricksonLopez.Pagination.Benchmarks.Seed.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
+
+

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <!-- Sample project â€” suppress audit warnings for transitive deps and deprecated API warnings.
+         ASPDEPR002: WithOpenApi() deprecated in .NET 10 â€” use MapOpenApi() instead.
+         NU1903: transitive Microsoft.OpenApi 2.0.0 vulnerability (direct dep is 10.0.10).
+    -->
+    <NuGetAuditSuppress>GHSA-v5pm-xwqc-g5wc</NuGetAuditSuppress>
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);NU1903;NU1902;NU1901;CS1591</NoWarn>
+    <!-- Suppress obsolete usage warnings as errors â€” sample intentionally shows API evolution -->
+    <WarningsNotAsErrors>ASPDEPR002</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DemoApp.Application\DemoApp.Application.csproj" />
+    <ProjectReference Include="..\DemoApp.Infrastructure\DemoApp.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination.AspNetCore\EricksonLopez.Pagination.AspNetCore.csproj" />
+  </ItemGroup>
+
+</Project>
+
+

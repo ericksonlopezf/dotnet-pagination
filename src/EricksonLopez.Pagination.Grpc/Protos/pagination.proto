@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package EricksonLopez.Pagination.Grpc;
+
+option csharp_namespace = "EricksonLopez.Pagination.Grpc";
+
+
+
+// Represents offset-based pagination parameters.
+message PaginationParametersMessage {
+  // The page number, 1-indexed. Default is 1.
+  int32 page = 1;
+  // The page size limit.
+  int32 page_size = 2;
+}
+
+// Represents cursor-based pagination parameters.
+message CursorPaginationParametersMessage {
+  // The number of items to take from the beginning of the result set.
+  int32 first = 1;
+  // Opaque cursor after which to take items.
+  string after = 2;
+  // The number of items to take from the end of the result set.
+  int32 last = 3;
+  // Opaque cursor before which to take items.
+  string before = 4;
+}
+
+// Represents advanced filter parameters (DSL string).
+message FilterParametersMessage {
+  // The filter string in DSL format (e.g. "name~=John,age>=18")
+  string value = 1;
+}
+
+// Represents sorting parameters (comma-separated fields with optional desc).
+message SortParametersMessage {
+  // The sort string (e.g. "name,age desc")
+  string value = 1;
+}
+
+// Represents metadata for an offset-based paginated list.
+message PagedListMetadataMessage {
+  // The total number of items across all pages.
+  optional int64 total_count = 1;
+  // The current page number.
+  int32 page = 2;
+  // The number of items in this page.
+  int32 page_size = 3;
+  // The total number of pages.
+  optional int64 total_pages = 4;
+  // Indicates if a previous page exists.
+  bool has_previous_page = 5;
+  // Indicates if a next page exists.
+  bool has_next_page = 6;
+}
+
+// Represents metadata for a cursor-based paginated list.
+message CursorPagedListMetadataMessage {
+  // Opaque cursor to the first item in the current page.
+  string start_cursor = 1;
+  // Opaque cursor to the last item in the current page.
+  string end_cursor = 2;
+  // Indicates if a previous page exists.
+  bool has_previous_page = 3;
+  // Indicates if a next page exists.
+  bool has_next_page = 4;
+}
+

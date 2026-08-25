@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <AssemblyName>EricksonLopez.Pagination.Abstractions</AssemblyName>
+    <RootNamespace>EricksonLopez.Pagination.Abstractions</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <PackageId>EricksonLopez.Pagination.Abstractions</PackageId>
+    <Description>Standard pagination primitives and parameters interfaces.</Description>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="EricksonLopez.Pagination" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.AspNetCore" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.Dapper" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.EntityFrameworkCore" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.LinqToDB" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.MongoDB" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.Dapper.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.EntityFrameworkCore.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.LinqToDB.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.MongoDB.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Pagination.AotTest" />
+  </ItemGroup>
+</Project>
+

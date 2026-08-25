@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <Description>ASP.NET Core Minimal APIs and MVC integration for EricksonLopez.Pagination.</Description>
+    <IsPackable>true</IsPackable>
+    <PackageTags>pagination;aspnetcore;minimal-api;mvc;etag;hateoas;cursor</PackageTags>
+    <AssemblyName>EricksonLopez.Pagination.AspNetCore</AssemblyName>
+    <RootNamespace>EricksonLopez.Pagination.AspNetCore</RootNamespace>
+    <PackageId>EricksonLopez.Pagination.AspNetCore</PackageId>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Pagination\EricksonLopez.Pagination.csproj" />
+  </ItemGroup>
+
+</Project>
+
+
