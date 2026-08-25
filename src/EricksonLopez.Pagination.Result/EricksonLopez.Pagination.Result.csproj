@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageId>EricksonLopez.Pagination.Result</PackageId>
+    <Description>Result pattern integration extensions for EricksonLopez.Pagination.</Description>
+    <PackageTags>pagination;result;error-handling;functional;aot</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Pagination.Abstractions\EricksonLopez.Pagination.Abstractions.csproj" />
+    <PackageReference Include="EricksonLopez.Result" />
+  </ItemGroup>
+
+</Project>

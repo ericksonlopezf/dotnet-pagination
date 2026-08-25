@@ -1,0 +1,27 @@
+{
+  "stryker-config": {
+    "project": "EricksonLopez.Pagination.Dapper.csproj",
+    "project-info": {
+      "name": "EricksonLopez.Pagination.Dapper",
+      "module": "EricksonLopez.Pagination.Dapper",
+      "version": "1.0.0"
+    },
+    "thresholds": {
+      "high": 100,
+      "low": 98,
+      "break": 95
+    },
+    "ignore-methods": [
+      "ConfigureAwait",
+      "Log*",
+      "Guard*"
+    ],
+    "reporters": [
+      "html",
+      "json",
+      "progress"
+    ],
+    "coverage-analysis": "perTest",
+    "concurrency": 2
+  }
+}

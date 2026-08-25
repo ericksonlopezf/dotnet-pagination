@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <Exclude>[*]System.Text.RegularExpressions.*,[*]*.PaginationJsonSerializerContext*,[*]__OptionValidationGeneratedAttributes,[*]__OptionValidationStaticInstances,[*]EricksonLopez.Pagination.Grpc.*Message,[*]EricksonLopez.Pagination.Grpc.PaginationReflection,[*]System.Text.Json.SourceGeneration.*</Exclude>
+          <ExcludeByFile>**/*.g.cs,**/*.Designer.cs,**/obj/**/*.cs,**/Microsoft.CodeAnalysis.CodeGen/**/*.cs</ExcludeByFile>
+          <ExcludeByAttribute>CompilerGeneratedAttribute,GeneratedCodeAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

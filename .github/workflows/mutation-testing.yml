@@ -1,0 +1,168 @@
+# Copyright © Erickson Lopez. MIT License.
+name: Mutation Testing (Stryker)
+
+# ─── Purpose ─────────────────────────────────────────────────────────────────
+# Runs Stryker.NET mutation testing against EricksonLopez.Pagination.
+# Mutation testing operates as an asynchronous deferred quality gate on `main`
+# (push to main, manual workflow_dispatch, and scheduled runs), preventing heavy
+# runs (>1 hour) from blocking Pull Requests.
+#
+# Threshold Policy (Single Source of Truth defined in stryker-config.json):
+#   • high  (≥100%) — ✅ HIGH (target mutation score)
+#   • low   (≥ 98%) — 🟡 LOW (acceptable quality)
+#   • break (< 95%) — ❌ FAILED (hard quality gate: non-zero exit code)
+#
+# Scores between 95% and 98% yield 🟠 WARNING, but satisfy the break gate (≥95%).
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  workflow_dispatch:
+    inputs:
+      mutation-level:
+        description: "Stryker mutation level (Basic, Standard, Advanced)"
+        required: false
+        default: "Standard"
+        type: choice
+        options:
+          - Basic
+          - Standard
+          - Advanced
+  # Run weekly on Sunday at 04:00 UTC (asynchronous deferred quality gate)
+  schedule:
+    - cron: "0 4 * * 0"
+
+concurrency:
+  group: mutation-testing-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  statuses: write
+  actions: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  mutation-test:
+    name: Stryker Mutation Testing
+    runs-on: ubuntu-latest
+    # 240-minute timeout: Solution contains 14 test projects, analyzers, and source generators.
+    # A full mutation run typically requires over 60 minutes. Setting 240 minutes prevents
+    # premature abortion of valid executions while safeguarding against infinite runner hangs.
+    timeout-minutes: 480
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore Strong Name key
+        env:
+          SNK_KEY: ${{ secrets.SNK_KEY }}
+        run: |
+          if [ -n "$SNK_KEY" ]; then
+            echo "$SNK_KEY" | tr -d '\n\r ' | base64 --decode > DummyDevelopmentKey.snk
+          fi
+
+      - name: Restore dependencies
+        run: dotnet restore EricksonLopez.Pagination.slnx
+
+      - name: Build (Release)
+        run: dotnet build EricksonLopez.Pagination.slnx --no-restore --configuration Release
+
+      - name: Install Stryker
+        run: dotnet tool install --global dotnet-stryker
+
+      # Stryker reads thresholds directly from stryker-config.json.
+      - name: Run Stryker Mutation Testing
+        id: stryker
+        run: |
+          set +e
+          dotnet-stryker \
+            --config-file stryker-config.json \
+            --mutation-level ${{ inputs.mutation-level || 'Standard' }} \
+            --output StrykerOutput/ci
+          STRYKER_EXIT_CODE=$?
+          echo "exit_code=$STRYKER_EXIT_CODE" >> $GITHUB_OUTPUT
+          echo "Stryker finished with exit code: $STRYKER_EXIT_CODE"
+          exit 0
+
+      - name: Upload Stryker report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stryker-report-${{ github.run_id }}
+          path: StrykerOutput/
+          retention-days: 30
+
+      # ─── Extract and report mutation score ───────────────────────────────
+      - name: Extract and report mutation score
+        id: report
+        if: always()
+        run: node scripts/record-stryker-result.js
+
+      - name: Upload Stryker metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stryker-metadata-${{ github.sha }}
+          path: stryker-metadata.json
+          retention-days: 30
+
+      # ─── Post GitHub Commit Status ──────────────────────────────────────────
+      - name: Publish Commit Status
+        if: always() && steps.report.outputs.score != ''
+        uses: actions/github-script@v7
+        env:
+          SCORE: ${{ steps.report.outputs.score }}
+          PASSED_GATE: ${{ steps.report.outputs.passed_gate }}
+          STATUS: ${{ steps.report.outputs.status }}
+          KILLED: ${{ steps.report.outputs.killed }}
+          TOTAL: ${{ steps.report.outputs.total }}
+        with:
+          script: |
+            const serverUrl = process.env.GITHUB_SERVER_URL || 'https://github.com';
+            const sha = context.sha;
+            const score = process.env.SCORE;
+            const passed = process.env.PASSED_GATE === 'true';
+            const statusLabel = process.env.STATUS;
+            const killed = process.env.KILLED;
+            const total = process.env.TOTAL;
+
+            const state = passed ? 'success' : 'failure';
+            const description = `Stryker: ${score}% (${killed}/${total} killed) - ${statusLabel}`;
+            const targetUrl = `${serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            try {
+              await github.rest.repos.createCommitStatus({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                sha: sha,
+                state: state,
+                context: 'mutation-testing/stryker',
+                description: description.substring(0, 140),
+                target_url: targetUrl
+              });
+              console.log(`Commit status successfully published as '${state}' on ${sha}`);
+            } catch (err) {
+              console.warn(`Could not set commit status: ${err.message}`);
+            }
+
+      # ─── Enforce Stryker Quality Gate ───────────────────────────────────────
+      - name: Enforce Stryker Quality Gate
+        if: always()
+        run: |
+          STRYKER_CODE="${{ steps.stryker.outputs.exit_code }}"
+          PASSED_GATE="${{ steps.report.outputs.passed_gate }}"
+
+          if [ "$STRYKER_CODE" != "0" ] || [ "$PASSED_GATE" != "true" ]; then
+            echo "❌ Stryker mutation testing quality gate failed (Exit code: $STRYKER_CODE, Passed Gate: $PASSED_GATE)."
+            exit 1
+          fi
+          echo "✅ Stryker mutation testing quality gate passed successfully."

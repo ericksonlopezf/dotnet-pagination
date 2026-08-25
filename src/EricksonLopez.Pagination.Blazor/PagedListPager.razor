@@ -1,0 +1,349 @@
+@using System.Threading
+@using EricksonLopez.Pagination.Abstractions
+@namespace EricksonLopez.Pagination.Blazor
+@using Microsoft.AspNetCore.Components
+@using Microsoft.Extensions.Options
+
+@inject IOptions<PaginationUIOptions>? UIOptions
+
+@if (HeadlessTemplate != null)
+{
+    @HeadlessTemplate(this)
+}
+else if (ShouldShowPager)
+{
+    @if (PagedList != null)
+    {
+        <nav aria-label="Page navigation" aria-live="polite" class="@EffectiveContainerClass">
+        <ul class="@EffectiveListClass @EffectivePaginationClass">
+            @if (ShowFirstLast && PagedList.TotalPages.HasValue)
+            {
+                <li class="@EffectiveItemClass @(PagedList.HasPreviousPage && !IsLoading ? "" : EffectiveDisabledClass)">
+                    <button type="button" class="@EffectiveLinkClass" @onclick="() => GoToPage(1)" disabled="@(!PagedList.HasPreviousPage || IsLoading)" aria-label="First" aria-busy="@(IsLoading ? "true" : "false")">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </button>
+                </li>
+            }
+
+            <li class="@EffectiveItemClass @(PagedList.HasPreviousPage && !IsLoading ? "" : EffectiveDisabledClass)">
+                <button type="button" class="@EffectiveLinkClass" @onclick="() => GoToPage(PagedList.Page - 1)" disabled="@(!PagedList.HasPreviousPage || IsLoading)" aria-label="Previous" aria-busy="@(IsLoading ? "true" : "false")">
+                    <span aria-hidden="true">&laquo;</span>
+                </button>
+            </li>
+
+            @if (_visiblePages != null)
+            {
+                foreach (var pageNumber in _visiblePages)
+                {
+                    if (pageNumber == -1)
+                    {
+                        <li class="@EffectiveItemClass @EffectiveDisabledClass"><span class="@EffectiveLinkClass" aria-label="More pages">...</span></li>
+                    }
+                    else
+                    {
+                        <li class="@EffectiveItemClass @(PagedList.Page == pageNumber ? EffectiveActiveClass : "") @(IsLoading ? EffectiveDisabledClass : "")" aria-setsize="@(PagedList.TotalPages ?? -1)" aria-posinset="@pageNumber">
+                            <button type="button" class="@EffectiveLinkClass" @onclick="() => GoToPage(pageNumber)" disabled="@IsLoading" aria-current="@(PagedList.Page == pageNumber ? "page" : null)" aria-busy="@(IsLoading ? "true" : "false")">
+                                @pageNumber
+                            </button>
+                        </li>
+                    }
+                }
+            }
+
+            <li class="@EffectiveItemClass @(PagedList.HasNextPage && !IsLoading ? "" : EffectiveDisabledClass)">
+                <button type="button" class="@EffectiveLinkClass" @onclick="() => GoToPage(PagedList.Page + 1)" disabled="@(!PagedList.HasNextPage || IsLoading)" aria-label="Next" aria-busy="@(IsLoading ? "true" : "false")">
+                    <span aria-hidden="true">&raquo;</span>
+                </button>
+            </li>
+
+            @if (ShowFirstLast && PagedList.TotalPages.HasValue)
+            {
+                <li class="@EffectiveItemClass @(PagedList.HasNextPage && !IsLoading ? "" : EffectiveDisabledClass)">
+                    <button type="button" class="@EffectiveLinkClass" @onclick="() => GoToPage((int)Math.Min(PagedList.TotalPages.Value, int.MaxValue))" disabled="@(!PagedList.HasNextPage || IsLoading)" aria-label="Last" aria-busy="@(IsLoading ? "true" : "false")">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </button>
+                </li>
+            }
+        </ul>
+    </nav>
+    }
+}
+
+@code {
+    /// <summary>
+    /// Gets or sets the paginated list containing offset pagination metadata.
+    /// </summary>
+    [Parameter]
+    public IPagedList? PagedList { get; set; }
+
+    /// <summary>
+    /// Gets or sets a custom render fragment template used for headless rendering.
+    /// </summary>
+    [Parameter]
+    public RenderFragment<PagedListPager>? HeadlessTemplate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the event callback invoked when a page button is clicked.
+    /// </summary>
+    [Parameter]
+    public EventCallback<int> OnPageChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the pager is displayed even when there is only one page.
+    /// </summary>
+    [Parameter]
+    public bool AlwaysShow { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the maximum number of visible numeric page links to display.
+    /// </summary>
+    [Parameter]
+    public int MaxVisiblePages { get; set; } = 5;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether first and last navigation buttons are rendered.
+    /// </summary>
+    [Parameter]
+    public bool ShowFirstLast { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets additional CSS classes for the navigation container element.
+    /// </summary>
+    [Parameter]
+    public string ContainerClass { get; set; } = "";
+
+    /// <summary>
+    /// Gets or sets additional CSS classes for the pagination container element.
+    /// </summary>
+    [Parameter]
+    public string PaginationClass { get; set; } = "";
+
+    /// <summary>
+    /// Gets or sets the CSS class for the unordered list element.
+    /// </summary>
+    [Parameter]
+    public string ListClass { get; set; } = "";
+
+    /// <summary>
+    /// Gets or sets the CSS class for list item elements.
+    /// </summary>
+    [Parameter]
+    public string ItemClass { get; set; } = "";
+
+    /// <summary>
+    /// Gets or sets the CSS class for link and button elements.
+    /// </summary>
+    [Parameter]
+    public string LinkClass { get; set; } = "";
+
+    /// <summary>
+    /// Gets or sets the CSS class applied to the active page item.
+    /// </summary>
+    [Parameter]
+    public string ActiveClass { get; set; } = "";
+
+    /// <summary>
+    /// Gets or sets the CSS class applied to disabled page items.
+    /// </summary>
+    [Parameter]
+    public string DisabledClass { get; set; } = "";
+
+    private bool ShouldShowPager => PagedList != null && (PagedList.TotalPages > 1 || AlwaysShow || PagedList.Page > 1 || (!PagedList.TotalPages.HasValue && (PagedList.HasNextPage || PagedList.HasPreviousPage)));
+
+    /// <summary>
+    /// Gets or sets the preset UI configuration used for styling.
+    /// </summary>
+    [Parameter]
+    public PaginationUIOptions? Preset { get; set; }
+
+    // Effective CSS class properties — computed on each render by merging the explicit [Parameter]
+    // value with the Preset/UIOptions fallback. This replaces the OnInitialized mutation pattern
+    // which violated Blazor's [Parameter] contract: parameters must be treated as readonly by the
+    // component, because the parent may re-render and pass new values at any time.
+    //
+    // The old approach mutated ContainerClass (etc.) in OnInitialized, which meant:
+    //   1. If the parent later changed ContainerClass, the override was silently ignored.
+    //   2. If the Preset changed (e.g., from Bootstrap to Tailwind), the overridden values stayed.
+    // The computed property approach correctly resolves the priority chain on every render:
+    //   explicit [Parameter] > Preset > IOptions<PaginationUIOptions> > empty string.
+    private PaginationUIOptions? EffectivePreset => Preset ?? UIOptions?.Value;
+    private string EffectiveContainerClass  => !string.IsNullOrEmpty(ContainerClass)  ? ContainerClass  : EffectivePreset?.ContainerClass  ?? "";
+    private string EffectivePaginationClass => !string.IsNullOrEmpty(PaginationClass) ? PaginationClass : EffectivePreset?.PaginationClass ?? "";
+    private string EffectiveListClass       => !string.IsNullOrEmpty(ListClass)       ? ListClass       : EffectivePreset?.ListClass       ?? "";
+    private string EffectiveItemClass       => !string.IsNullOrEmpty(ItemClass)       ? ItemClass       : EffectivePreset?.ItemClass       ?? "";
+    private string EffectiveLinkClass       => !string.IsNullOrEmpty(LinkClass)       ? LinkClass       : EffectivePreset?.LinkClass       ?? "";
+    private string EffectiveActiveClass     => !string.IsNullOrEmpty(ActiveClass)     ? ActiveClass     : EffectivePreset?.ActiveClass     ?? "";
+    private string EffectiveDisabledClass   => !string.IsNullOrEmpty(DisabledClass)   ? DisabledClass   : EffectivePreset?.DisabledClass   ?? "";
+
+    private List<int>? _visiblePages;
+
+    // F-013 fix: atomic navigation guard to prevent re-entrant GoToPage calls.
+    // In Blazor Server, `await` yields the synchronization context, so rapid double-clicks
+    // or concurrent UI interactions can call GoToPage before a previous call sets IsLoading=true.
+    // The non-atomic `if (IsLoading)` check at the start of GoToPage is not sufficient.
+    // Using Interlocked.CompareExchange ensures that only one navigation can proceed at a time:
+    //   0 = idle, 1 = navigating
+    private int _isNavigating;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        CalculateVisiblePages();
+    }
+
+    /// <summary>
+    /// Gets or sets the event callback invoked when the loading state changes.
+    /// </summary>
+    [Parameter]
+    public EventCallback<bool> IsLoadingChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether a pagination request is currently in progress.
+    /// </summary>
+    [Parameter]
+    public bool IsLoading { get; set; }
+
+    private async Task SetIsLoadingAsync(bool value)
+    {
+        if (IsLoading != value)
+        {
+            IsLoading = value;
+            if (IsLoadingChanged.HasDelegate)
+            {
+                await IsLoadingChanged.InvokeAsync(value);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Navigates to the specified page number and triggers the page change callback.
+    /// </summary>
+    /// <param name="page">The 1-indexed target page number.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    protected async Task GoToPage(int page)
+    {
+        // F-013 fix: atomic guard prevents re-entrant navigation on rapid double-click.
+        // IsLoading alone is insufficient because `await SetIsLoadingAsync(true)` yields
+        // the Blazor Server synchronization context — a second click can enter GoToPage
+        // before the first call reaches the `await` that sets IsLoading=true.
+        // Interlocked.CompareExchange atomically swaps _isNavigating from 0→1.
+        // If it was already 1 (navigating), we return immediately without proceeding.
+        if (Interlocked.CompareExchange(ref _isNavigating, 1, 0) != 0)
+            return;
+
+        try
+        {
+            if (PagedList == null || page == PagedList.Page || page < 1)
+                return;
+
+            if (PagedList.TotalPages.HasValue && page > PagedList.TotalPages.Value)
+                return;
+
+            await SetIsLoadingAsync(true);
+            try
+            {
+                await OnPageChanged.InvokeAsync(page);
+            }
+            finally
+            {
+                await SetIsLoadingAsync(false);
+            }
+        }
+        finally
+        {
+            // Release the navigation lock so future clicks are accepted.
+            Interlocked.Exchange(ref _isNavigating, 0);
+        }
+    }
+
+    private void CalculateVisiblePages()
+    {
+        // Maximum capacity: MaxVisiblePages page links + first + last boundary + 2 ellipsis (-1) markers.
+        // Pre-allocating with this capacity avoids the List<int>'s internal array copies that occur when
+        // items are added one-by-one starting from the default capacity of 4.
+        var requiredCapacity = MaxVisiblePages + 4;
+        if (_visiblePages == null) _visiblePages = new List<int>(requiredCapacity);
+        else _visiblePages.Clear();
+
+        if (PagedList == null || !PagedList.TotalPages.HasValue)
+        {
+            if (PagedList != null)
+            {
+                _visiblePages.Add(PagedList.Page);
+            }
+            return;
+        }
+
+        int current = PagedList.Page;
+        // NOTE: TotalPages is long? to support tables with > 2B rows. We truncate to int here
+        // because the pager UI uses int-based page numbers. Tables with more than int.MaxValue
+        // pages (billions of rows with pageSize=1) will have the 'Last' button capped at 2,147,483,647.
+        // For such extreme datasets, offset-based pagination is unsuitable anyway — use cursor pagination instead.
+        int total = (int)Math.Min(PagedList.TotalPages.Value, int.MaxValue);
+
+        if (total <= MaxVisiblePages)
+        {
+            for (int i = 1; i <= total; i++) _visiblePages.Add(i);
+            return;
+        }
+
+        int start = Math.Max(1, current - MaxVisiblePages / 2);
+        int end = Math.Min(total, start + MaxVisiblePages - 1);
+
+        if (end - start + 1 < MaxVisiblePages)
+        {
+            start = Math.Max(1, end - MaxVisiblePages + 1);
+        }
+
+        if (start > 1)
+        {
+            _visiblePages.Add(1);
+            if (start > 2) _visiblePages.Add(-1); // ellipsis
+        }
+
+        for (int i = start; i <= end; i++)
+        {
+            _visiblePages.Add(i);
+        }
+
+        if (end < total)
+        {
+            if (end < total - 1) _visiblePages.Add(-1); // ellipsis
+            _visiblePages.Add(total);
+        }
+    }
+
+    private int _previousPage;
+    private long? _previousTotalPages;
+    private bool _previousHasNextPage;
+    private bool _previousHasPreviousPage;
+    private bool _previousIsLoading;
+
+    protected override bool ShouldRender()
+    {
+        if (PagedList == null) return true;
+
+        bool changed = false;
+
+        if (_previousPage != PagedList.Page ||
+            _previousTotalPages != PagedList.TotalPages ||
+            _previousHasNextPage != PagedList.HasNextPage ||
+            _previousHasPreviousPage != PagedList.HasPreviousPage ||
+            _previousIsLoading != IsLoading)
+        {
+            changed = true;
+        }
+
+        if (changed)
+        {
+            _previousPage = PagedList.Page;
+            _previousTotalPages = PagedList.TotalPages;
+            _previousHasNextPage = PagedList.HasNextPage;
+            _previousHasPreviousPage = PagedList.HasPreviousPage;
+            _previousIsLoading = IsLoading;
+            return true;
+        }
+
+        return false;
+    }
+}

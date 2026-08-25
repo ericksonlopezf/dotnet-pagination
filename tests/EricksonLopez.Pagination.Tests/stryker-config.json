@@ -1,0 +1,20 @@
+{
+    "stryker-config": {
+        "coverage-analysis": "perTest",
+        "concurrency": 4,
+        "ignore-methods": [
+            "*ConfigureAwait*"
+        ],
+        "reporters": [
+            "html",
+            "json",
+            "progress"
+        ],
+        "thresholds": {
+            "low": 98,
+            "break": 95,
+            "high": 100
+        },
+        "project": "EricksonLopez.Pagination.csproj"
+    }
+}

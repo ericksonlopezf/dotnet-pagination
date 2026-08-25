@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pagination_benchmark_pg
+    environment:
+      POSTGRES_USER: benchmark_user
+      POSTGRES_PASSWORD: benchmark_password
+      POSTGRES_DB: pagination_benchmark
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    command: >
+      postgres
+      -c shared_buffers=1GB
+      -c work_mem=32MB
+      -c maintenance_work_mem=256MB
+      -c random_page_cost=1.1
+      -c temp_file_limit=10GB
+      -c max_connections=100
+
+  mysql:
+    image: mysql:8.0
+    container_name: pagination_benchmark_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: benchmark_password
+      MYSQL_DATABASE: pagination_benchmark
+      MYSQL_USER: benchmark_user
+      MYSQL_PASSWORD: benchmark_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --innodb_buffer_pool_size=1G --max_connections=100
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: pagination_benchmark_sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Benchmark_password_123!"
+    ports:
+      - "14330:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+
+  oracle:
+    image: gvenzl/oracle-free:latest
+    container_name: pagination_benchmark_oracle
+    environment:
+      ORACLE_PASSWORD: benchmark_password
+      APP_USER: benchmark_user
+      APP_USER_PASSWORD: benchmark_password
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+
+volumes:
+  postgres_data:
+  mysql_data:
+  sqlserver_data:
+  oracle_data:

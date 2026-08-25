@@ -1,0 +1,23 @@
+{
+    "stryker-config":  {
+                           "coverage-analysis":  "off",
+                           "ignore-methods":  [
+                                                  "*ConfigureAwait*"
+                                              ],
+                           "reporters":  [
+                                             "html",
+                                             "json",
+                                             "progress"
+                                         ],
+                           "thresholds":  {
+                                              "low":  98,
+                                              "break":  95,
+                                              "high":  100
+                                          },
+                           "ignore-mutations":  [
+                                                    "string",
+                                                    "boolean"
+                                                ],
+                           "project":  "EricksonLopez.Pagination.Benchmarks"
+                       }
+}

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <DisablePackageValidationBaseline>true</DisablePackageValidationBaseline>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <PackageId>EricksonLopez.Pagination.Relay</PackageId>
+    <Description>GraphQL Relay Cursor Connections specification adapter for the EricksonLopez.Pagination ecosystem.</Description>
+    <PackageTags>pagination;graphql;relay;cursor-connection;edges;pageinfo</PackageTags>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Pagination.Abstractions\EricksonLopez.Pagination.Abstractions.csproj" />
+    <ProjectReference Include="..\EricksonLopez.Pagination\EricksonLopez.Pagination.csproj" />
+  </ItemGroup>
+
+</Project>

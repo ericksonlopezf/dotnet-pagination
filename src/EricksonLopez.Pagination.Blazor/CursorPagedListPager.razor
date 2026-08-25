@@ -1,0 +1,193 @@
+@using EricksonLopez.Pagination.Abstractions
+@namespace EricksonLopez.Pagination.Blazor
+@using Microsoft.AspNetCore.Components
+@using Microsoft.Extensions.Options
+
+@inject IOptions<PaginationUIOptions>? UIOptions
+
+@if (PagedList != null && (PagedList.HasPreviousPage || PagedList.HasNextPage || AlwaysShow))
+{
+    @if (HeadlessTemplate != null)
+    {
+        @HeadlessTemplate(this)
+    }
+    else
+    {
+        <nav aria-label="Page navigation" aria-live="polite" class="@EffectiveContainerClass">
+            <ul class="@EffectiveListClass @EffectivePaginationClass">
+                <li class="@EffectiveItemClass @(PagedList.HasPreviousPage && !IsLoading ? "" : EffectiveDisabledClass)">
+                    <button type="button" class="@EffectiveLinkClass" @onclick="GoPreviousAsync" disabled="@(!PagedList.HasPreviousPage || IsLoading)" aria-label="Previous" aria-busy="@(IsLoading ? "true" : "false")">
+                        <span aria-hidden="true">&laquo; Previous</span>
+                    </button>
+                </li>
+
+                <li class="@EffectiveItemClass @(PagedList.HasNextPage && !IsLoading ? "" : EffectiveDisabledClass)">
+                    <button type="button" class="@EffectiveLinkClass" @onclick="GoNextAsync" disabled="@(!PagedList.HasNextPage || IsLoading)" aria-label="Next" aria-busy="@(IsLoading ? "true" : "false")">
+                        <span aria-hidden="true">Next &raquo;</span>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    }
+}
+
+@code {
+    /// <summary>
+    /// Gets or sets the paginated list containing cursor metadata.
+    /// </summary>
+    [Parameter]
+    public ICursorPagedList? PagedList { get; set; }
+
+    /// <summary>
+    /// Gets or sets the event callback invoked when the previous page is requested.
+    /// </summary>
+    [Parameter]
+    public EventCallback<string> OnPreviousPage { get; set; }
+
+    /// <summary>
+    /// Gets or sets the event callback invoked when the next page is requested.
+    /// </summary>
+    [Parameter]
+    public EventCallback<string> OnNextPage { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the pager is displayed even when there are no next or previous pages.
+    /// </summary>
+    [Parameter]
+    public bool AlwaysShow { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets additional CSS classes for the navigation container element.
+    /// </summary>
+    [Parameter]
+    public string ContainerClass { get; set; } = "";
+
+    /// <summary>
+    /// Gets or sets additional CSS classes for the pagination container element.
+    /// </summary>
+    [Parameter]
+    public string PaginationClass { get; set; } = "";
+
+    /// <summary>
+    /// Gets or sets the CSS class for the unordered list element.
+    /// </summary>
+    [Parameter]
+    public string ListClass { get; set; } = "";
+
+    /// <summary>
+    /// Gets or sets the CSS class for list item elements.
+    /// </summary>
+    [Parameter]
+    public string ItemClass { get; set; } = "";
+
+    /// <summary>
+    /// Gets or sets the CSS class for link and button elements.
+    /// </summary>
+    [Parameter]
+    public string LinkClass { get; set; } = "";
+
+    /// <summary>
+    /// Gets or sets the CSS class applied to disabled page items.
+    /// </summary>
+    [Parameter]
+    public string DisabledClass { get; set; } = "";
+
+    /// <summary>
+    /// Gets or sets the preset UI configuration used for styling.
+    /// </summary>
+    [Parameter]
+    public PaginationUIOptions? Preset { get; set; }
+
+    private PaginationUIOptions? EffectivePreset => Preset ?? UIOptions?.Value;
+    private string EffectiveContainerClass  => !string.IsNullOrEmpty(ContainerClass)  ? ContainerClass  : EffectivePreset?.ContainerClass  ?? "";
+    private string EffectivePaginationClass => !string.IsNullOrEmpty(PaginationClass) ? PaginationClass : EffectivePreset?.PaginationClass ?? "";
+    private string EffectiveListClass       => !string.IsNullOrEmpty(ListClass)       ? ListClass       : EffectivePreset?.ListClass       ?? "";
+    private string EffectiveItemClass       => !string.IsNullOrEmpty(ItemClass)       ? ItemClass       : EffectivePreset?.ItemClass       ?? "";
+    private string EffectiveLinkClass       => !string.IsNullOrEmpty(LinkClass)       ? LinkClass       : EffectivePreset?.LinkClass       ?? "";
+    private string EffectiveDisabledClass   => !string.IsNullOrEmpty(DisabledClass)   ? DisabledClass   : EffectivePreset?.DisabledClass   ?? "";
+
+    /// <summary>
+    /// Gets or sets a custom render fragment template used for headless rendering.
+    /// </summary>
+    [Parameter]
+    public RenderFragment<CursorPagedListPager>? HeadlessTemplate { get; set; }
+
+    /// <summary>
+    /// Gets a value indicating whether a pagination request is currently in progress.
+    /// </summary>
+    public bool IsLoading { get; private set; }
+
+    /// <summary>
+    /// Navigates to the preceding page by invoking the previous page callback with the start cursor.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public async Task GoPreviousAsync()
+    {
+        if (IsLoading || PagedList == null || !PagedList.HasPreviousPage || string.IsNullOrEmpty(PagedList.StartCursor))
+            return;
+
+        IsLoading = true;
+        try
+        {
+            await OnPreviousPage.InvokeAsync(PagedList.StartCursor);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    /// <summary>
+    /// Navigates to the subsequent page by invoking the next page callback with the end cursor.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public async Task GoNextAsync()
+    {
+        if (IsLoading || PagedList == null || !PagedList.HasNextPage || string.IsNullOrEmpty(PagedList.EndCursor))
+            return;
+
+        IsLoading = true;
+        try
+        {
+            await OnNextPage.InvokeAsync(PagedList.EndCursor);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private string? _previousStartCursor;
+    private string? _previousEndCursor;
+    private bool _previousHasNextPage;
+    private bool _previousHasPreviousPage;
+    private bool _previousIsLoading;
+
+    protected override bool ShouldRender()
+    {
+        if (PagedList == null) return true;
+
+        bool changed = false;
+
+        if (_previousStartCursor != PagedList.StartCursor ||
+            _previousEndCursor != PagedList.EndCursor ||
+            _previousHasNextPage != PagedList.HasNextPage ||
+            _previousHasPreviousPage != PagedList.HasPreviousPage ||
+            _previousIsLoading != IsLoading)
+        {
+            changed = true;
+        }
+
+        if (changed)
+        {
+            _previousStartCursor = PagedList.StartCursor;
+            _previousEndCursor = PagedList.EndCursor;
+            _previousHasNextPage = PagedList.HasNextPage;
+            _previousHasPreviousPage = PagedList.HasPreviousPage;
+            _previousIsLoading = IsLoading;
+            return true;
+        }
+
+        return false;
+    }
+}

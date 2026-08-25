@@ -1,0 +1,87 @@
+# Copyright © Erickson Lopez. MIT License.
+name: NativeAOT Smoke Test
+
+# ─── Purpose ────────────────────────────────────────────────────────────────
+# This workflow validates that EricksonLopez.Pagination packages are genuinely
+# NativeAOT-compatible, not just declared as such via IsAotCompatible=true.
+#
+# The smoke test:
+#   1. Restores and builds the solution in Release mode.
+#   2. Publishes the AotTest console app with PublishAot=true.
+#   3. Runs the published native binary and asserts a zero exit code.
+# ────────────────────────────────────────────────────────────────────────────
+
+on:
+  workflow_call:
+    secrets:
+      SNK_KEY:
+        description: "Base64-encoded Strong Name key (.snk) for assembly signing"
+        required: false
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  aot-smoke-test:
+    name: NativeAOT Smoke Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore Strong Name key
+        env:
+          SNK_KEY: ${{ secrets.SNK_KEY }}
+        run: |
+          if [ -n "$SNK_KEY" ]; then
+            echo "$SNK_KEY" | tr -d '\n\r ' | base64 --decode > DummyDevelopmentKey.snk
+          fi
+
+      - name: Install NativeAOT prerequisites (clang, lld, zlib)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends clang lld zlib1g-dev
+
+      - name: Restore dependencies
+        run: dotnet restore EricksonLopez.Pagination.slnx
+
+      - name: Build (Release)
+        run: dotnet build EricksonLopez.Pagination.slnx --no-restore --configuration Release
+
+      - name: Publish AotTest (NativeAOT)
+        run: >
+          dotnet publish
+          tests/EricksonLopez.Pagination.AotTest/EricksonLopez.Pagination.AotTest.csproj
+          --configuration Release
+          --runtime linux-x64
+          --self-contained
+          -p:PublishAot=true
+          -p:TargetFramework=net10.0
+          --output ./aot-output
+
+      - name: Run NativeAOT binary
+        run: |
+          chmod +x ./aot-output/EricksonLopez.Pagination.AotTest
+          ./aot-output/EricksonLopez.Pagination.AotTest
+          echo "Exit code: $?"
+
+      - name: Upload AOT artifacts (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aot-output-${{ github.run_id }}
+          path: ./aot-output/
+          retention-days: 7

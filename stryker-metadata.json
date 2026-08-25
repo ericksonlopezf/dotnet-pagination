@@ -1,0 +1,14 @@
+{
+  "commit_sha": "unknown",
+  "execution_date": "2026-08-25T02:09:49.761Z",
+  "mutation_score": 99.96,
+  "mutants_killed": 2310,
+  "total_mutants": 6714,
+  "threshold_high": 100,
+  "threshold_low": 98,
+  "threshold_break": 95,
+  "status": "🟡 LOW",
+  "passed": true,
+  "run_url": "",
+  "report_source": "StrykerOutput\\mutation-summary.json"
+}

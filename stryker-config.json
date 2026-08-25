@@ -1,0 +1,53 @@
+{
+  "stryker-config": {
+    "solution": "EricksonLopez.Pagination.slnx",
+    "concurrency": 4,
+    "thresholds": {
+      "high": 100,
+      "low": 98,
+      "break": 95
+    },
+    "reporters": [
+      "html",
+      "json",
+      "progress",
+      "cleartext"
+    ],
+    "ignore-methods": [
+      "*ConfigureAwait*",
+      "Dispose*",
+      "Clear",
+      "SuppressFinalize",
+      "*Log*"
+    ],
+
+    "mutate": [
+      "**/*.cs",
+      "!**/*.g.cs",
+      "!**/*.Designer.cs",
+      "!**/obj/**/*.cs",
+      "!**/*Generated*.cs",
+      "!**/CursorPaginationLinqToDBExtensions.cs",
+      "!**/Microsoft.CodeAnalysis.CodeGen/**/*.cs"
+    ],
+    "test-projects": [
+      "tests/EricksonLopez.Pagination.Tests/EricksonLopez.Pagination.Tests.csproj",
+      "tests/EricksonLopez.Pagination.AspNetCore.Tests/EricksonLopez.Pagination.AspNetCore.Tests.csproj",
+      "tests/EricksonLopez.Pagination.Dapper.Tests/EricksonLopez.Pagination.Dapper.Tests.csproj",
+      "tests/EricksonLopez.Pagination.Blazor.Tests/EricksonLopez.Pagination.Blazor.Tests.csproj",
+      "tests/EricksonLopez.Pagination.Grpc.Tests/EricksonLopez.Pagination.Grpc.Tests.csproj",
+      "tests/EricksonLopez.Pagination.Abstractions.Tests/EricksonLopez.Pagination.Abstractions.Tests.csproj",
+      "tests/EricksonLopez.Pagination.EntityFrameworkCore.Tests/EricksonLopez.Pagination.EntityFrameworkCore.Tests.csproj",
+      "tests/EricksonLopez.Pagination.MongoDB.Tests/EricksonLopez.Pagination.MongoDB.Tests.csproj",
+      "tests/EricksonLopez.Pagination.OpenApi.Tests/EricksonLopez.Pagination.OpenApi.Tests.csproj",
+      "tests/EricksonLopez.Pagination.IntegrationTests/EricksonLopez.Pagination.IntegrationTests.csproj",
+      "tests/EricksonLopez.Pagination.Cosmos.Tests/EricksonLopez.Pagination.Cosmos.Tests.csproj",
+      "tests/EricksonLopez.Pagination.Elasticsearch.Tests/EricksonLopez.Pagination.Elasticsearch.Tests.csproj",
+      "tests/EricksonLopez.Pagination.Redis.Tests/EricksonLopez.Pagination.Redis.Tests.csproj",
+      "tests/EricksonLopez.Pagination.SourceGenerators.Tests/EricksonLopez.Pagination.SourceGenerators.Tests.csproj",
+      "tests/EricksonLopez.Pagination.Analyzers.Tests/EricksonLopez.Pagination.Analyzers.Tests.csproj",
+      "tests/EricksonLopez.Pagination.LinqToDB.Tests/EricksonLopez.Pagination.LinqToDB.Tests.csproj",
+      "tests/EricksonLopez.Pagination.Result.Tests/EricksonLopez.Pagination.Result.Tests.csproj"
+    ]
+  }
+}
