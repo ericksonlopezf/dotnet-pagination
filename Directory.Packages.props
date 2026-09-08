@@ -8,11 +8,11 @@
     <PackageVersion Include="AutoFixture" Version="4.18.1" />
     <PackageVersion Include="AutoFixture.AutoNSubstitute" Version="4.18.1" />
     <PackageVersion Include="AutoQueryable" Version="1.7.0" />
-    <PackageVersion Include="AwesomeAssertions" Version="9.5.0" />
+    <PackageVersion Include="AwesomeAssertions" Version="9.6.0" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
     <PackageVersion Include="Bogus" Version="35.6.5" />
     <PackageVersion Include="bunit" Version="1.31.3" />
-    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+    <PackageVersion Include="coverlet.collector" Version="10.0.1" />
     <PackageVersion Include="Dapper" Version="2.1.79" />
     <PackageVersion Include="Dapper.StrongName" Version="2.1.79" />
     <PackageVersion Include="FsCheck.Xunit" Version="3.0.0-rc3" />
@@ -78,8 +78,8 @@
     <PackageVersion Include="X.PagedList" Version="10.5.9" />
     <PackageVersion Include="X.PagedList.EF" Version="10.5.9" />
     <PackageVersion Include="xunit" Version="2.9.3" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
-    <PackageVersion Include="Xunit.SkippableFact" Version="1.5.61" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
+    <PackageVersion Include="Xunit.SkippableFact" Version="1.5.85" />
     <PackageVersion Include="EricksonLopez.Result" Version="2.0.0" />
   </ItemGroup>
 </Project>
