@@ -18,6 +18,10 @@ namespace EricksonLopez.Pagination.Dapper;
 /// </summary>
 public static class DbConnectionPaginationExtensions
 {
+    private const string SkipParamName = "__Pagination_Skip__";
+    private const string PageSizeParamName = "__Pagination_PageSize__";
+    private const string LimitParamName = "__Pagination_Limit__";
+
     /// <summary>
     /// Executes a paginated SQL query and returns a <see cref="PagedList{T}"/>.
     /// </summary>
@@ -59,12 +63,12 @@ public static class DbConnectionPaginationExtensions
         // populates them internally — the old post-construction check could not catch collisions
         // for objects passed as `new { __Pagination_Skip__ = 1 }`. We now inspect the raw param
         // before construction using a helper that covers DynamicParameters, dictionaries, and POCOs.
-        ThrowIfReservedKeyConflict(param, "__Pagination_Skip__", "__Pagination_PageSize__");
+        ThrowIfReservedKeyConflict(param, SkipParamName, PageSizeParamName);
 
         var dynParams = new DynamicParameters(param);
         var effectiveSkip = (long)(parameters.Page - 1) * (long)effectivePageSize;
-        dynParams.Add("__Pagination_Skip__", effectiveSkip);
-        dynParams.Add("__Pagination_PageSize__", effectivePageSize);
+        dynParams.Add(SkipParamName, effectiveSkip);
+        dynParams.Add(PageSizeParamName, effectivePageSize);
         // DA-1: Do NOT prefix parameter names with '@' here. Dapper adds the provider-specific
         // prefix automatically based on the underlying connection. Passing '@__Pagination_Skip__'
         // produces double '@@__Pagination_Skip__' in ODBC and MySQL Connector/NET drivers.
@@ -80,7 +84,7 @@ public static class DbConnectionPaginationExtensions
             try
             {
                 // Stryker disable once boolean
-totalCount = await multi.ReadSingleAsync<long>().ConfigureAwait(false);
+                totalCount = await multi.ReadSingleAsync<long>().ConfigureAwait(false);
             }
             // Stryker disable once all : Exception rewrapping guard
             catch (Exception ex) when (ex is System.InvalidCastException || ex is System.FormatException || ex is System.InvalidOperationException || ex is System.Data.DataException)
@@ -103,7 +107,7 @@ totalCount = await multi.ReadSingleAsync<long>().ConfigureAwait(false);
         }
         else
         {
-            dynParams.Add("@__Pagination_Limit__", effectivePageSize + 1);
+            dynParams.Add("__Pagination_Limit__", effectivePageSize + 1); // DA-1: no @ prefix — Dapper adds provider-specific prefix automatically
 
             // Stryker disable once boolean
             var items = await connection.QueryAsync<T>(
@@ -150,21 +154,21 @@ totalCount = await multi.ReadSingleAsync<long>().ConfigureAwait(false);
         var effectivePageSize = System.Math.Min(parameters.PageSize, actualMaxPageSize);
 
         // F-007 fix: inspect param BEFORE wrapping in DynamicParameters (same as ToPagedListAsync).
-        ThrowIfReservedKeyConflict(param, "__Pagination_Skip__", "__Pagination_Limit__");
+        ThrowIfReservedKeyConflict(param, SkipParamName, LimitParamName);
 
         var dynParams = new DynamicParameters(param);
-        
+
         // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
         var effectiveSkip = (long)(parameters.Page - 1) * (long)effectivePageSize;
-        dynParams.Add("@__Pagination_Skip__", effectiveSkip);
-        dynParams.Add("@__Pagination_Limit__", effectivePageSize);
+        dynParams.Add(SkipParamName, effectiveSkip); // DA-1: no @ prefix
+        dynParams.Add(LimitParamName, effectivePageSize); // DA-1: no @ prefix
 
-        using var reader = (System.Data.Common.DbDataReader) await connection.ExecuteReaderAsync(
+        using var reader = (System.Data.Common.DbDataReader)await connection.ExecuteReaderAsync(
             new CommandDefinition(sql, dynParams, transaction, commandTimeout, commandType, cancellationToken: cancellationToken))
             .ConfigureAwait(false);
 
         var rowParser = reader.GetRowParser<T>();
-        
+
         // Stryker disable once all
         while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -232,9 +236,9 @@ totalCount = await multi.ReadSingleAsync<long>().ConfigureAwait(false);
                 {
                     throw new InvalidOperationException(
                         $"The param object contains the reserved pagination parameter name '{reserved}'. " +
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+                        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
                         $"Rename your parameter to avoid conflicts with the library's internal parameters: " +
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+                        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
                         $"{string.Join(", ", reservedNames.Select(r => $"'{r}'"))}.");
                 }
             }

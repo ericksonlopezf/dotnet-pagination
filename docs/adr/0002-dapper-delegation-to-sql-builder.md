@@ -3,6 +3,9 @@
 ## Status
 Amended — August 2026 (see Decision 2 below)
 
+## Date
+2026-09-04
+
 > **Note**: This ADR documents two related decisions: (1) the initial reversal of the plan to delegate to an external SQL builder, and (2) the subsequent internal `CursorSqlBuilder` design for keyset pagination within the Dapper package.
 
 ---

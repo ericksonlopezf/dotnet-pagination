@@ -28,9 +28,9 @@ public class FilterPredicateBuilderTests
     {
         [Filterable]
         public int AllowedId { get; set; }
-        
+
         public int DeniedId { get; set; }
-        
+
         [Filterable]
         public FilterableNestedModel Nested { get; set; } = new();
     }
@@ -63,7 +63,7 @@ public class FilterPredicateBuilderTests
     public void Build_CustomMaxPropertyDepth_RespectsConfiguredLimit()
     {
         var filter = new FilterParameters { Value = "N1.N2.N3.N4=1" };
-        
+
         // With depth=3: 4 parts > 3 → should throw an InvalidOperationException about depth
         var actTooDeep = () => FilterExpression.Build<DeepNested>(filter, unknownFieldBehavior: FilterUnknownFieldBehavior.ThrowException, maxPropertyDepth: 3);
         actTooDeep.Should().Throw<InvalidOperationException>()
@@ -172,7 +172,7 @@ public class FilterPredicateBuilderTests
         var containsExpr = FilterExpression.Build<DummyModel>(containsFilter, unknownFieldBehavior: FilterUnknownFieldBehavior.ThrowException);
         containsExpr.Should().NotBeNull();
         containsExpr!.Body.NodeType.Should().Be(ExpressionType.Call);
-        
+
         var startsWithFilter = new FilterParameters { Value = "Name^=Jo" };
         var startsWithExpr = FilterExpression.Build<DummyModel>(startsWithFilter, unknownFieldBehavior: FilterUnknownFieldBehavior.ThrowException);
         startsWithExpr.Should().NotBeNull();
@@ -183,12 +183,12 @@ public class FilterPredicateBuilderTests
         endsWithExpr.Should().NotBeNull();
         endsWithExpr!.Body.NodeType.Should().Be(ExpressionType.Call);
     }
-    
+
     [Fact]
     public void Build_ComparisonOperations_BuildsCorrectExpressions()
     {
-        var ops = new[] 
-        { 
+        var ops = new[]
+        {
             ("=", ExpressionType.Equal),
             ("!=", ExpressionType.NotEqual),
             (">", ExpressionType.GreaterThan),
@@ -205,7 +205,7 @@ public class FilterPredicateBuilderTests
             expr!.Body.NodeType.Should().Be(exprType);
         }
     }
-    
+
     [Fact]
     public void Build_NullableType_BuildsCorrectExpression()
     {

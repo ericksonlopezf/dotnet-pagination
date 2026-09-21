@@ -3,6 +3,9 @@
 ## Status
 Accepted — August 2026
 
+## Date
+2026-09-04
+
 ## Context
 
 The library markets itself as "AOT-compatible." The `CursorDecoderGenerator` source generator and `ICursorDecoderRegistry` infrastructure correctly supports Native AOT for cursor decoding. However, the filtering DSL (`FilterExpression`) uses:

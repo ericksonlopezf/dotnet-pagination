@@ -1,5 +1,4 @@
 // Copyright © Erickson Lopez. MIT License.
-using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +8,7 @@ using AwesomeAssertions;
 using EricksonLopez.Pagination;
 using EricksonLopez.Pagination.Abstractions;
 using EricksonLopez.Pagination.EntityFrameworkCore;
+using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
@@ -18,10 +18,10 @@ public class KeysetBuilderTests
 {
     private static TestDbContext GetContext(int entityCount = 0) => TestDbContext.CreateInMemory(entityCount);
 
-    
 
-    
-    
+
+
+
 
 
     [Fact]
@@ -31,7 +31,7 @@ public class KeysetBuilderTests
         var builder = context.Entities.AsQueryable().Keyset(new CursorPaginationParameters());
 
         Func<Task> act = async () => await builder.ToCursorPagedListAsync();
-        
+
         var ex = await act.Should().ThrowAsync<InvalidOperationException>();
         ex.WithMessage("At least one column must be specified for keyset pagination.");
     }
@@ -173,7 +173,7 @@ public class KeysetBuilderTests
         // Tests fix for P1-001 (NullReferenceException in KeysetBuilder with nullable columns)
         var context = GetContext(5);
         var parameters = new CursorPaginationParametersBuilder().WithFirst(2).Build();
-        
+
         Action act = () => context.Entities.AsQueryable()
             .Keyset(parameters)
             .Ascending(e => e.NullableId) // Contains nulls
@@ -253,6 +253,25 @@ public class KeysetBuilderTests
 
         fingerprint.Should().HaveLength(8);
         fingerprint.Should().MatchRegex("^[0-9A-F]{8}$");
+    }
+
+    private sealed class OtherEntity { public int Id { get; set; } }
+
+    [Fact]
+    public void GetKeysetSchemaFingerprint_DifferentEntitiesWithSameColumnTypes_ReturnsDifferentFingerprints()
+    {
+        // Finding: HIGH-05 regression test
+        var context = GetContext(1);
+        var b1 = context.Entities.AsQueryable()
+            .Keyset(CursorPaginationParameters.Default)
+            .Ascending(e => e.Id);
+
+        var otherList = new List<OtherEntity>().AsQueryable();
+        var b2 = otherList
+            .Keyset(CursorPaginationParameters.Default)
+            .Ascending(e => e.Id);
+
+        b1.GetKeysetSchemaFingerprint().Should().NotBe(b2.GetKeysetSchemaFingerprint());
     }
     [Fact]
     public async Task ToStreamingAsyncEnumerable_StreamsAllRecordsInChunks()
@@ -384,6 +403,100 @@ public class KeysetBuilderTests
         var resultAsc = await builderAsc.ToCursorPagedListAsync();
         resultAsc[0].Id.Should().Be(1);
         resultAsc[4].Id.Should().Be(5);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void WithTenant_EmptyOrWhitespace_ThrowsArgumentException(string tenantId)
+    {
+        var context = GetContext(1);
+        var builder = context.Entities.AsQueryable().Keyset(new CursorPaginationParameters());
+        var act = () => builder.WithTenant(tenantId);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void WithTenant_ProducesDifferentFingerprintPerTenant()
+    {
+        var context = GetContext(1);
+        var builderBase = context.Entities.AsQueryable()
+            .Keyset(new CursorPaginationParameters())
+            .Ascending(e => e.Id);
+
+        var builderTenant1 = builderBase.WithTenant("tenant-1");
+        var builderTenant2 = builderBase.WithTenant("tenant-2");
+
+        var fpBase = builderBase.GetKeysetSchemaFingerprint();
+        var fpTenant1 = builderTenant1.GetKeysetSchemaFingerprint();
+        var fpTenant2 = builderTenant2.GetKeysetSchemaFingerprint();
+
+        fpTenant1.Should().NotBe(fpBase);
+        fpTenant2.Should().NotBe(fpBase);
+        fpTenant1.Should().NotBe(fpTenant2);
+    }
+
+    [Fact]
+    public async Task WithTenant_RejectsCursorFromDifferentTenant()
+    {
+        var context = GetContext(10);
+        var paramsPage1 = new CursorPaginationParametersBuilder().WithFirst(2).Build();
+
+        // Page 1 for tenant-A
+        var builderTenantA = context.Entities.AsQueryable()
+            .Keyset(paramsPage1)
+            .WithTenant("tenant-A")
+            .Ascending(e => e.Id);
+
+        var page1 = await builderTenantA.ToCursorPagedListAsync();
+        page1.EndCursor.Should().NotBeNullOrEmpty();
+
+        // Attempt to use tenant-A cursor in tenant-B query
+        var paramsPage2 = new CursorPaginationParametersBuilder()
+            .WithFirst(2)
+            .WithAfter(page1.EndCursor)
+            .Build();
+
+        var builderTenantB = context.Entities.AsQueryable()
+            .Keyset(paramsPage2)
+            .WithTenant("tenant-B")
+            .Ascending(e => e.Id);
+
+        var act = async () => await builderTenantB.ToCursorPagedListAsync();
+        var ex = await act.Should().ThrowAsync<InvalidPaginationCursorException>();
+        ex.WithMessage("*different keyset*");
+    }
+
+    [Fact]
+    public async Task WithTenant_AcceptsCursorFromSameTenant()
+    {
+        var context = GetContext(10);
+        var paramsPage1 = new CursorPaginationParametersBuilder().WithFirst(2).Build();
+
+        // Page 1 for tenant-A
+        var builderTenantA = context.Entities.AsQueryable()
+            .Keyset(paramsPage1)
+            .WithTenant("tenant-A")
+            .Ascending(e => e.Id);
+
+        var page1 = await builderTenantA.ToCursorPagedListAsync();
+        page1.EndCursor.Should().NotBeNullOrEmpty();
+
+        // Page 2 for tenant-A using same tenant
+        var paramsPage2 = new CursorPaginationParametersBuilder()
+            .WithFirst(2)
+            .WithAfter(page1.EndCursor)
+            .Build();
+
+        var builderTenantAPage2 = context.Entities.AsQueryable()
+            .Keyset(paramsPage2)
+            .WithTenant("tenant-A")
+            .Ascending(e => e.Id);
+
+        var page2 = await builderTenantAPage2.ToCursorPagedListAsync();
+        page2.Count.Should().Be(2);
+        page2[0].Id.Should().Be(3);
+        page2[1].Id.Should().Be(4);
     }
 }
 

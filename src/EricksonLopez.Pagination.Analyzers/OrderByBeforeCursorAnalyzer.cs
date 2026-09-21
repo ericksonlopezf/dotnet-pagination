@@ -70,7 +70,7 @@ public sealed class OrderByBeforeCursorAnalyzer : DiagnosticAnalyzer
         invalidMethod = "";
         while (expression != null)
         {
-            if (expression is InvocationExpressionSyntax invocation && 
+            if (expression is InvocationExpressionSyntax invocation &&
                 invocation.Expression is MemberAccessExpressionSyntax memberAccess)
             {
                 var name = memberAccess.Name.Identifier.Text;

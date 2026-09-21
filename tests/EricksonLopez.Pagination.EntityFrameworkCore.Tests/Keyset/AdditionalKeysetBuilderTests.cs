@@ -1,5 +1,4 @@
 // Copyright © Erickson Lopez. MIT License.
-using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using System;
 using System.Linq;
 using System.Threading;
@@ -7,6 +6,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using EricksonLopez.Pagination.Abstractions;
 using EricksonLopez.Pagination.EntityFrameworkCore;
+using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using Xunit;
@@ -15,7 +15,7 @@ namespace EricksonLopez.Pagination.EntityFrameworkCore.Tests;
 
 public class AdditionalKeysetBuilderTests
 {
-    
+
 
     private TestDbContext GetContext(int entityCount)
     {
@@ -43,7 +43,7 @@ public class AdditionalKeysetBuilderTests
             .Ascending(e => e.Id);
 
         var result = await builder.ToCursorPagedListAsync(e => new { DtoId = e.Id, DtoName = e.Name });
-        
+
         result.Count.Should().Be(3);
         result[0].DtoId.Should().Be(1);
         result[0].DtoName.Should().Be("Entity 1");
@@ -155,7 +155,7 @@ public class AdditionalKeysetBuilderTests
         Func<Task> act = async () => await builder.ToCursorPagedListAsync();
         await act.Should().ThrowAsync<InvalidPaginationCursorException>();
     }
-    
+
     [Fact]
     public async Task InvalidCursor_WrongParts_Throws()
     {
@@ -175,7 +175,7 @@ public class AdditionalKeysetBuilderTests
         var builder = context.Entities.AsQueryable().Keyset(new CursorPaginationParameters());
         builder.Should().NotBeNull();
     }
-    
+
     [Fact]
     public async Task ToCursorPagedListAsync_GenericType_NullFullName()
     {
@@ -185,7 +185,7 @@ public class AdditionalKeysetBuilderTests
         var res = await builder.ToCursorPagedListAsync();
         res.Should().NotBeNull();
     }
-    
+
     [Fact]
     public async Task ToCursorPagedListAsync_NullStringColumn()
     {
@@ -193,25 +193,25 @@ public class AdditionalKeysetBuilderTests
         var entity = await context.Entities.FirstAsync();
         entity.Name2 = null;
         await context.SaveChangesAsync();
-        
+
         var builder = context.Entities.AsQueryable().Keyset(new CursorPaginationParametersBuilder().WithFirst(1).Build()).Ascending(e => e.Name2);
         var res = await builder.ToCursorPagedListAsync();
         res.Should().NotBeNull();
     }
-    
+
     [Fact]
     public async Task ToCursorPagedListAsync_DecoderReturnsEmpty_ReturnsNullCursor()
     {
         using var context = GetContext(1);
-        
+
         var mockEncoder = NSubstitute.Substitute.For<ICursorEncoder>();
         mockEncoder.Decode(Arg.Any<string>()).Returns("");
-        
+
         var builder = context.Entities.AsQueryable().Keyset(new CursorPaginationParametersBuilder().WithFirst(1).WithAfter("something").Build(), cursorEncoder: mockEncoder).Ascending(e => e.Id);
         var res = await builder.ToCursorPagedListAsync();
         res.Should().NotBeNull();
     }
-    
+
     [Fact]
     public async Task ToCursorPagedListAsync_LoggerNull_NoException()
     {
@@ -224,7 +224,7 @@ public class AdditionalKeysetBuilderTests
     }
 
 
-    
+
     [Fact]
     public void KeysetBuilder_DeserializeCursorParts_LessPartsThanColumns()
     {
@@ -234,23 +234,23 @@ public class AdditionalKeysetBuilderTests
         var cursor = encoder.Encode("M|v2|hash|1");
         var builder = context.Entities.AsQueryable().Keyset(new CursorPaginationParametersBuilder().WithFirst(1).WithAfter(cursor).Build())
             .Ascending(e => e.Id).Ascending(e => e.Name);
-            
+
         Func<Task> act = async () => await builder.ToCursorPagedListAsync();
         act.Should().ThrowAsync<InvalidPaginationCursorException>();
     }
-    
+
     [Fact]
-        public async Task KeysetBuilder_CompareTo_LessThan()
+    public async Task KeysetBuilder_CompareTo_LessThan()
     {
         using var context = GetContext(2);
         var builder1 = context.Entities.AsQueryable().Keyset(new CursorPaginationParametersBuilder().WithFirst(1).Build()).Descending(e => e.Name);
         var paged = await builder1.ToCursorPagedListAsync();
-        
+
         var builder2 = context.Entities.AsQueryable().Keyset(new CursorPaginationParametersBuilder().WithFirst(1).WithAfter(paged.EndCursor).Build()).Descending(e => e.Name);
         var res = await builder2.ToCursorPagedListAsync();
         res.Should().NotBeNull();
     }
-        [Fact]
+    [Fact]
     public async Task KeysetBuilder_CompareToFallback_UsesIComparable()
     {
         // Act: Custom struct that implements IComparable but does not have < or > operators
@@ -258,22 +258,22 @@ public class AdditionalKeysetBuilderTests
         (await context.Entities.FirstAsync(e => e.Id == 1)).BooleanValue = true;
         (await context.Entities.FirstAsync(e => e.Id == 2)).BooleanValue = false;
         await context.SaveChangesAsync();
-        
+
         var items = context.Entities.AsQueryable();
-        
+
         var builder = items.Keyset(new CursorPaginationParametersBuilder().WithFirst(1).Build())
             .Ascending(x => x.BooleanValue);
 
         // Let's invoke the filter directly to hit the generated expression
         var paged = await builder.ToCursorPagedListAsync();
-        
+
         var builder2 = items.Keyset(new CursorPaginationParametersBuilder().WithFirst(1).WithAfter(paged.EndCursor).Build())
             .Ascending(x => x.BooleanValue);
-            
+
         var list2 = await builder2.ToCursorPagedListAsync();
         list2.Should().HaveCount(1);
     }
-    
+
     [Fact]
     public async Task KeysetBuilder_StringCoalesce_HandlesNullStrings()
     {
@@ -282,19 +282,19 @@ public class AdditionalKeysetBuilderTests
         (await context.Entities.FirstAsync(e => e.Id == 1)).Name2 = null;
         (await context.Entities.FirstAsync(e => e.Id == 2)).Name2 = "B";
         await context.SaveChangesAsync();
-        
+
         var items = context.Entities.AsQueryable();
-        
+
         var builder = items.Keyset(new CursorPaginationParametersBuilder().WithFirst(1).Build())
             .Descending(x => x.Name2)
             .Ascending(x => x.Id);
 
         var paged = await builder.ToCursorPagedListAsync();
-        
+
         var builder2 = items.Keyset(new CursorPaginationParametersBuilder().WithFirst(1).WithAfter(paged.EndCursor).Build())
             .Descending(x => x.Name2)
             .Ascending(x => x.Id);
-            
+
         var list2 = await builder2.ToCursorPagedListAsync();
         list2.Should().HaveCount(1);
     }
@@ -303,13 +303,13 @@ public class AdditionalKeysetBuilderTests
     {
         using var context = GetContext(1);
         var items = context.Entities.AsQueryable();
-        
+
         var cursor = HmacCursorEncoder.DevelopmentDefault.Encode("M|v2|TestFingerprint|1|2|3");
         var builder = items.Keyset(new CursorPaginationParametersBuilder().WithFirst(10).WithAfter(cursor).Build())
             .Ascending(x => x.Id);
-            
+
         var act = async () => await builder.ToCursorPagedListAsync();
-        
+
         await act.Should().ThrowAsync<InvalidPaginationCursorException>().WithMessage("*Cursor has * parts but keyset expects*");
     }
 
@@ -318,11 +318,11 @@ public class AdditionalKeysetBuilderTests
     {
         using var context = GetContext(2);
         var items = context.Entities.AsQueryable();
-        
+
         var builder = items.Keyset(new CursorPaginationParametersBuilder().WithFirst(1).Build())
             .Ascending(x => x.Id)
             .Ascending("Name");
-            
+
         var paged = await builder.ToCursorPagedListAsync();
         paged.Should().HaveCount(1);
     }
@@ -332,11 +332,11 @@ public class AdditionalKeysetBuilderTests
     {
         using var context = GetContext(2);
         var items = context.Entities.AsQueryable();
-        
+
         var builder = items.Keyset(new CursorPaginationParametersBuilder().WithFirst(1).Build())
             .Ascending(x => x.Id)
             .Descending("Name");
-            
+
         var paged = await builder.ToCursorPagedListAsync();
         paged.Should().HaveCount(1);
     }

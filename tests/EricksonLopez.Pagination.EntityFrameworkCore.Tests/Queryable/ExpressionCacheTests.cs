@@ -29,7 +29,7 @@ public class ExpressionCacheTests
 
         // Assert
         compiled1.Should().BeSameAs(compiled2);
-        
+
         var entity = new DummyEntity { Id = 42 };
         compiled1(entity).Should().Be(42);
     }

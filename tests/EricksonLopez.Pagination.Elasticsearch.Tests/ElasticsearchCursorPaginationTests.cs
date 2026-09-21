@@ -311,7 +311,7 @@ public class ElasticsearchCursorPaginationTests
         pagedList.EndCursor.Should().Be("CUSTOM_END");
     }
 
-private static int? GetDescriptorSize<T>(SearchRequestDescriptor<T> descriptor)
+    private static int? GetDescriptorSize<T>(SearchRequestDescriptor<T> descriptor)
     {
         var client = new ElasticsearchClient();
         var stream = new System.IO.MemoryStream();
@@ -333,12 +333,12 @@ private static int? GetDescriptorSize<T>(SearchRequestDescriptor<T> descriptor)
         if (jdoc.RootElement.TryGetProperty("search_after", out var searchAfterProp))
         {
             var arr = new List<FieldValue>();
-            foreach (var el in searchAfterProp.EnumerateArray())
+            foreach (var element in searchAfterProp.EnumerateArray())
             {
-                if (el.ValueKind == System.Text.Json.JsonValueKind.Number)
-                    arr.Add(FieldValue.Long(el.GetInt64()));
-                else if (el.ValueKind == System.Text.Json.JsonValueKind.String)
-                    arr.Add(FieldValue.String(el.GetString()!));
+                if (element.ValueKind == System.Text.Json.JsonValueKind.Number)
+                    arr.Add(FieldValue.Long(element.GetInt64()));
+                else if (element.ValueKind == System.Text.Json.JsonValueKind.String)
+                    arr.Add(FieldValue.String(element.GetString()!));
             }
             return arr;
         }

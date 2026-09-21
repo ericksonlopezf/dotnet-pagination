@@ -4,12 +4,14 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <NoWarn>$(NoWarn);CA1707;CA1515;CA1861;CA1822;CA1001;CS0619</NoWarn>
-    <WarningsNotAsErrors>CS0619</WarningsNotAsErrors>
+    <NoWarn>$(NoWarn);CA1707;CA1515;CA1861;CA1822;CA1001</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="bunit" />
-    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   
   <ItemGroup>

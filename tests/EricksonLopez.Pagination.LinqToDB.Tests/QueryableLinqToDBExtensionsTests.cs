@@ -28,43 +28,43 @@ public class TestEntity
 {
     [global::LinqToDB.Mapping.PrimaryKey, global::LinqToDB.Mapping.Identity]
     public int Id { get; set; }
-    
+
     [global::LinqToDB.Mapping.Column]
     public int? NullableId { get; set; }
-    
+
     [global::LinqToDB.Mapping.Column]
     public string Name { get; set; } = string.Empty;
-    
+
     [global::LinqToDB.Mapping.Column]
     public string? NullableString { get; set; }
-    
+
     [global::LinqToDB.Mapping.Column]
     public TestState StateValue { get; set; }
-    
+
     [global::LinqToDB.Mapping.Column]
     public Guid GuidValue { get; set; }
-    
+
     [global::LinqToDB.Mapping.Column]
     public int AdditionalValue { get; set; }
-    
+
     [global::LinqToDB.Mapping.Column]
     public string? Name2 { get; set; }
-    
+
     [global::LinqToDB.Mapping.Column]
     public string? Name3 { get; set; }
-    
+
     [global::LinqToDB.Mapping.Column]
     public bool BooleanValue { get; set; }
-    
+
     [global::LinqToDB.Mapping.Column]
     public string? Name4 { get; set; }
-    
+
     [global::LinqToDB.Mapping.Column]
     public string? Name5 { get; set; }
-    
+
     [global::LinqToDB.Mapping.Column(DataType = global::LinqToDB.DataType.Int32)]
     public int CustomStructValueInt { get; set; }
-    
+
     [global::LinqToDB.Mapping.Column]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
@@ -121,7 +121,7 @@ public sealed partial class QueryableLinqToDBExtensionsTests : IDisposable
         paged.HasNextPage.Should().BeTrue();
         paged.HasPreviousPage.Should().BeTrue();
     }
-    
+
     [Fact]
     public async Task ToPagedListAsync_WithCount_EmptyResult_ReturnsEmptyList()
     {
@@ -152,7 +152,7 @@ public sealed partial class QueryableLinqToDBExtensionsTests : IDisposable
         paged.HasNextPage.Should().BeFalse();
         paged.HasPreviousPage.Should().BeTrue();
     }
-    
+
     [Fact]
     public async Task ToPagedListAsync_WithoutCount_WithNextPage_ReturnsHasNextPageTrue()
     {

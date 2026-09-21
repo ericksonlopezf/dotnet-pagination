@@ -29,6 +29,9 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
     private readonly ICursorReplayStore? _replayStore;
     private readonly TimeSpan _nonceTtl;
     private readonly Microsoft.Extensions.Logging.ILogger? _logger;
+    private readonly Func<string?>? _tenantContextProvider;
+    private const string TamperedErrorReason = "tampered";
+    private const string UnrecognizedCursorMessage = "The cursor format is unrecognized or has been tampered with.";
 
     /// <summary>
     /// Gets a fallback HMAC encoder instance configured with a development key.
@@ -44,6 +47,7 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
     /// <param name="clockSkewTolerance">An optional tolerance for clock skew in distributed environments. Defaults to 30 seconds.</param>
     /// <param name="replayStore">An optional replay store for single-use cursor validation.</param>
     /// <param name="logger">An optional logger for cursor security and expiration events.</param>
+    /// <param name="tenantContextProvider">An optional provider for current tenant context to scope cursors to tenants.</param>
     /// <exception cref="ArgumentNullException"><paramref name="secretKey"/> is <see langword="null"/></exception>
     /// <exception cref="ArgumentException"><paramref name="secretKey"/> is shorter than 32 bytes after UTF-8 encoding</exception>
     public HmacCursorEncoder(
@@ -52,10 +56,11 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
         TimeSpan? timeToLive = null,
         TimeSpan? clockSkewTolerance = null,
         ICursorReplayStore? replayStore = null,
-        Microsoft.Extensions.Logging.ILogger? logger = null)
+        Microsoft.Extensions.Logging.ILogger? logger = null,
+        Func<string?>? tenantContextProvider = null)
     {
         ArgumentNullException.ThrowIfNull(secretKey);
-        
+
         _key = Encoding.UTF8.GetBytes(secretKey);
         if (_key.Length < 32)
             throw new ArgumentException("Secret key must be at least 32 bytes (256 bits) long after UTF-8 encoding for secure HMAC signing.", nameof(secretKey));
@@ -66,6 +71,7 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
         _replayStore = replayStore;
         _nonceTtl = timeToLive ?? TimeSpan.FromHours(1);
         _logger = logger;
+        _tenantContextProvider = tenantContextProvider;
     }
 
     /// <inheritdoc/>
@@ -77,26 +83,33 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
         ObjectDisposedException.ThrowIf(_disposed == 1 || key is null, this);
         if (string.IsNullOrWhiteSpace(rawCursor)) return rawCursor;
 
+        string tenantPrefix = string.Empty;
+        var tenant = _tenantContextProvider?.Invoke();
+        if (!string.IsNullOrEmpty(tenant))
+        {
+            tenantPrefix = $"CTX:{Uri.EscapeDataString(tenant)}:";
+        }
+
         string noncePrefix = _replayStore != null ? $"R{Guid.NewGuid():N}:" : string.Empty;
 
         string contentToSign;
         if (_ttl.HasValue)
         {
             long expiresAt = DateTimeOffset.UtcNow.Add(_ttl.Value).ToUnixTimeSeconds();
-            contentToSign = $"T{expiresAt}:{noncePrefix}{rawCursor}";
+            contentToSign = $"T{expiresAt}:{tenantPrefix}{noncePrefix}{rawCursor}";
         }
         else if (_replayStore != null)
         {
-            contentToSign = $"{noncePrefix}{rawCursor}";
+            contentToSign = $"{tenantPrefix}{noncePrefix}{rawCursor}";
         }
         else
         {
-            contentToSign = $"N:{rawCursor}";
+            contentToSign = $"N:{tenantPrefix}{rawCursor}";
         }
 
         Span<byte> hash = stackalloc byte[32];
         SignToSpan(contentToSign.AsSpan(), hash, key);
-        
+
 #if NET9_0_OR_GREATER
         var base64UrlHash = System.Buffers.Text.Base64Url.EncodeToString(hash);
 #else
@@ -119,8 +132,22 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
         ObjectDisposedException.ThrowIf(_disposed == 1 || key is null, this);
         if (string.IsNullOrWhiteSpace(opaqueCursor)) return opaqueCursor;
 
+        // CURSOR-006 / ATTACK-RT-003 fix: reject cursors that exceed the maximum allowed length
+        // to prevent DoS via enormous inputs that would allocate gigantic ArrayPool buffers and
+        // spend significant CPU time computing HMAC over megabytes of attacker-controlled data.
+        const int MaxCursorInputLength = 8192;
+        if (opaqueCursor.Length > MaxCursorInputLength)
+        {
+            // Stryker disable once all : Length violation telemetry and exception
+            PaginationMetrics.RecordCursorError(TamperedErrorReason);
+            PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
+            throw new InvalidPaginationCursorException(
+                $"The cursor exceeds the maximum allowed length of {MaxCursorInputLength} characters.",
+                opaqueCursor);
+        }
+
         var payload = _innerEncoder.Decode(opaqueCursor);
-        
+
         if (payload == null) return null;
 
         var dotIndex = payload.LastIndexOf('.');
@@ -175,7 +202,7 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
         {
             // Stryker disable once all : OpenTelemetry instrumentation metrics
 
-            PaginationMetrics.RecordCursorError("tampered");
+            PaginationMetrics.RecordCursorError(TamperedErrorReason);
             // Stryker disable once all : Structured logging events
             PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
             // Stryker disable once all : Exception message text
@@ -186,10 +213,72 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
         // Stryker disable once all : CS0165 variable initialization
         string rawCursorStr = string.Empty;
         string? extractedNonce = null;
+        string? extractedTenant = null;
 
         if (contentToSignStr.StartsWith("N:", StringComparison.Ordinal))
         {
-            rawCursorStr = contentToSignStr.Substring(2);
+            var remaining = contentToSignStr.Substring(2);
+            if (remaining.StartsWith("CTX:", StringComparison.Ordinal))
+            {
+                var nextColon = remaining.IndexOf(':', 4);
+                // Stryker disable once Equality : Boundary check for empty tenant
+                if (nextColon > 4)
+                {
+                    extractedTenant = Uri.UnescapeDataString(remaining.Substring(4, nextColon - 4));
+                    rawCursorStr = remaining.Substring(nextColon + 1);
+                }
+                else
+                {
+                    // Stryker disable once all : Tampered error telemetry and exception
+                    PaginationMetrics.RecordCursorError(TamperedErrorReason);
+                    PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
+                    throw new InvalidPaginationCursorException(UnrecognizedCursorMessage, opaqueCursor);
+                }
+            }
+            else
+            {
+                rawCursorStr = remaining;
+            }
+        }
+        else if (contentToSignStr.StartsWith("CTX:", StringComparison.Ordinal))
+        {
+            var nextColon = contentToSignStr.IndexOf(':', 4);
+            // Stryker disable once Equality : Boundary check for empty tenant
+            if (nextColon > 4)
+            {
+                extractedTenant = Uri.UnescapeDataString(contentToSignStr.Substring(4, nextColon - 4));
+                var remaining = contentToSignStr.Substring(nextColon + 1);
+                // Stryker disable once all : Nonce prefix check in replay-protected tenant cursor
+                if (remaining.StartsWith("R", StringComparison.Ordinal))
+                {
+                    var nonceColon = remaining.IndexOf(':');
+                    // Stryker disable once Equality, Arithmetic : Nonce colon boundary check
+                    if (nonceColon > 1)
+                    {
+                        extractedNonce = remaining.Substring(1, nonceColon - 1);
+                        rawCursorStr = remaining.Substring(nonceColon + 1);
+                    }
+                    else
+                    {
+                        // Stryker disable once all : Tampered error telemetry and exception
+                        PaginationMetrics.RecordCursorError(TamperedErrorReason);
+                        PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
+                        throw new InvalidPaginationCursorException(UnrecognizedCursorMessage, opaqueCursor);
+                    }
+                }
+                else
+                {
+                    // Stryker disable once all : Fallback for non-nonce tenant content
+                    rawCursorStr = remaining;
+                }
+            }
+            else
+            {
+                // Stryker disable once all : Tampered error telemetry and exception
+                PaginationMetrics.RecordCursorError(TamperedErrorReason);
+                PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
+                throw new InvalidPaginationCursorException(UnrecognizedCursorMessage, opaqueCursor);
+            }
         }
         else if (contentToSignStr.StartsWith("R", StringComparison.Ordinal))
         {
@@ -203,12 +292,12 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
             {
                 // Stryker disable once all : OpenTelemetry instrumentation metrics
 
-                PaginationMetrics.RecordCursorError("tampered");
+                PaginationMetrics.RecordCursorError(TamperedErrorReason);
                 // Stryker disable once all : Structured logging events
                 PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
                 // Stryker disable once all : Exception message text
 
-                throw new InvalidPaginationCursorException("The cursor format is unrecognized or has been tampered with.", opaqueCursor);
+                throw new InvalidPaginationCursorException(UnrecognizedCursorMessage, opaqueCursor);
             }
         }
         else if (contentToSignStr.StartsWith("T", StringComparison.Ordinal))
@@ -235,6 +324,23 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
                     }
 
                     var remaining = contentToSignStr.Substring(colonIndex + 1);
+                    if (remaining.StartsWith("CTX:", StringComparison.Ordinal))
+                    {
+                        var nextColon = remaining.IndexOf(':', 4);
+                        if (nextColon > 4)
+                        {
+                            extractedTenant = Uri.UnescapeDataString(remaining.Substring(4, nextColon - 4));
+                            remaining = remaining.Substring(nextColon + 1);
+                        }
+                        else
+                        {
+                            // Stryker disable once all : Tampered error telemetry and exception
+                            PaginationMetrics.RecordCursorError(TamperedErrorReason);
+                            PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
+                            throw new InvalidPaginationCursorException(UnrecognizedCursorMessage, opaqueCursor);
+                        }
+                    }
+
                     if (remaining.StartsWith("R", StringComparison.Ordinal))
                     {
                         var nonceColon = remaining.IndexOf(':');
@@ -247,12 +353,12 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
                         {
                             // Stryker disable once all : OpenTelemetry instrumentation metrics
 
-                            PaginationMetrics.RecordCursorError("tampered");
+                            PaginationMetrics.RecordCursorError(TamperedErrorReason);
                             // Stryker disable once all : Structured logging events
                             PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
                             // Stryker disable once all : Exception message text
 
-                            throw new InvalidPaginationCursorException("The cursor format is unrecognized or has been tampered with.", opaqueCursor);
+                            throw new InvalidPaginationCursorException(UnrecognizedCursorMessage, opaqueCursor);
                         }
                     }
                     else
@@ -264,36 +370,69 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
                 {
                     // Stryker disable once all : OpenTelemetry instrumentation metrics
 
-                    PaginationMetrics.RecordCursorError("tampered");
+                    PaginationMetrics.RecordCursorError(TamperedErrorReason);
                     // Stryker disable once all : Structured logging events
                     PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
                     // Stryker disable once all : Exception message text
 
-                    throw new InvalidPaginationCursorException("The cursor format is unrecognized or has been tampered with.", opaqueCursor);
+                    throw new InvalidPaginationCursorException(UnrecognizedCursorMessage, opaqueCursor);
                 }
             }
             else
             {
                 // Stryker disable once all : OpenTelemetry instrumentation metrics
 
-                PaginationMetrics.RecordCursorError("tampered");
+                PaginationMetrics.RecordCursorError(TamperedErrorReason);
                 // Stryker disable once all : Structured logging events
                 PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
                 // Stryker disable once all : Exception message text
 
-                throw new InvalidPaginationCursorException("The cursor format is unrecognized or has been tampered with.", opaqueCursor);
+                throw new InvalidPaginationCursorException(UnrecognizedCursorMessage, opaqueCursor);
             }
         }
         else
         {
             // Stryker disable once all : OpenTelemetry instrumentation metrics
 
-            PaginationMetrics.RecordCursorError("tampered");
+            PaginationMetrics.RecordCursorError(TamperedErrorReason);
             // Stryker disable once all : Structured logging events
             PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
             // Stryker disable once all : Exception message text
 
-            throw new InvalidPaginationCursorException("The cursor format is unrecognized or has been tampered with.", opaqueCursor);
+            throw new InvalidPaginationCursorException(UnrecognizedCursorMessage, opaqueCursor);
+        }
+
+        var currentTenant = _tenantContextProvider?.Invoke();
+        if (!string.IsNullOrEmpty(currentTenant))
+        {
+            if (string.IsNullOrEmpty(extractedTenant))
+            {
+                // Stryker disable once all : Telemetry and exception for tenant mismatch
+                PaginationMetrics.RecordCursorError("tenant_mismatch");
+                PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
+                throw new InvalidPaginationCursorException(
+                    "The cursor is missing required tenant context.", // CURSOR-007: tenant name sanitized
+                    opaqueCursor);
+            }
+
+            if (!string.Equals(extractedTenant, currentTenant, StringComparison.Ordinal))
+            {
+                // Stryker disable once all : Telemetry and exception for tenant mismatch
+                PaginationMetrics.RecordCursorError("tenant_mismatch");
+                PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
+                throw new InvalidPaginationCursorException(
+                    "The cursor is invalid for the current tenant context.", // CURSOR-007: tenant name sanitized to prevent information disclosure
+                    opaqueCursor);
+            }
+        }
+        else if (!string.IsNullOrEmpty(extractedTenant))
+        {
+            // Stryker disable once all : Telemetry and exception for tenant mismatch
+            PaginationMetrics.RecordCursorError("tenant_mismatch");
+            PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
+            throw new InvalidPaginationCursorException(
+                "The cursor is scoped to a specific tenant but no tenant context was provided.", // CURSOR-007: tenant name sanitized
+                opaqueCursor);
         }
 
         if (_replayStore != null)
@@ -302,7 +441,7 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
             {
                 // Stryker disable once all : OpenTelemetry instrumentation metrics
 
-                PaginationMetrics.RecordCursorError("tampered");
+                PaginationMetrics.RecordCursorError(TamperedErrorReason);
                 // Stryker disable once all : Structured logging events
                 PaginationLogEvents.LogCursorTampered(_logger, opaqueCursor);
                 // Stryker disable once all : Exception message text
@@ -327,12 +466,12 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
     // key is passed as a parameter (captured by caller before the disposed check) to avoid a
     // TOCTOU race where Dispose() zeros the backing array between the null check here and the
     // HMACSHA256.TryHashData call. The caller is responsible for capturing _key via Volatile.Read.
-    
+
     private static void SignToSpan(ReadOnlySpan<char> value, Span<byte> destinationHash, byte[] key)
     {
         var maxByteCount = Encoding.UTF8.GetMaxByteCount(value.Length);
         byte[]? arrayToReturnToPool = null;
-        
+
         // Stryker disable all : stackalloc micro-optimization, tested functionally
         if (maxByteCount > 768)
         {
@@ -344,7 +483,7 @@ public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
             : stackalloc byte[maxByteCount];
         // Stryker restore all
         // Stryker restore all
-            
+
         try
         {
             var bytesWritten = Encoding.UTF8.GetBytes(value, valueBytes);

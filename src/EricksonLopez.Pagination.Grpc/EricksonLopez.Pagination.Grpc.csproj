@@ -11,7 +11,7 @@
     <DisablePackageValidationBaseline>true</DisablePackageValidationBaseline>
     <PackageId>EricksonLopez.Pagination.Grpc</PackageId>
     <Description>gRPC protobuf message mappings and utilities for the EricksonLopez.Pagination ecosystem.</Description>
-    <PackageTags>pagination;grpc;protobuf</PackageTags>
+    <PackageTags>$(CommonPackageTags);grpc;protobuf;rpc;cursor-pagination;native-aot</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

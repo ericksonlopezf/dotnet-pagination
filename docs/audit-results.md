@@ -109,13 +109,9 @@
 ### Audit Pass 2 — Expansion (Added in this pass)
 14. **`docs/system-overview.md`** was 23 lines (sparse). Expanded to a complete system overview including package ecosystem table, feature table, performance model, and architecture overview.
 
-### Structural Issues (Documented, Not Modified)
-15. **ADR Naming Conflict**: Two ADR files share the number `0001`:
-    - `docs/adr/0001-core-and-orm-architecture.md`
-    - `docs/adr/0001-use-of-dummy-snk.md`
-    These coexist historically; renaming would break existing cross-references. Documented here for awareness.
-16. **`.editorconfig`** contains only `root = true` with no style rules. Not a documentation issue but noted for future development experience.
-17. **`TESTING-roadmap.md`** at repository root uses neither `SCREAMING_CASE.md` (standard for root health files) nor `kebab-case.md` (standard for `/docs/` files). It is an existing historical document — not moved to avoid breaking cross-references.
+15. **ADR Naming**: `docs/adr/0040-use-of-dummy-snk.md` disambiguates the dummy SNK strategy from `docs/adr/0001-core-and-orm-architecture.md`.
+16: **`.editorconfig`** enforces code quality, analyzer severities (including CA1305 warning, IDE1006, CA1707), and C# 12/13 conventions across the solution.
+17. **`docs/testing-roadmap.md`** standardized in `/docs/` following `kebab-case.md` conventions.
 
 ## 5. Architectural Findings (Verified)
 
@@ -174,7 +170,7 @@
 | Static `NUGET_API_KEY` secret | Medium | `publish.yml` uses a long-lived API key. If the key is compromised, packages can be published impersonating the maintainer. | Migrate to OIDC Trusted Publishing (keyless). `SECURITY.md` already documents this as a planned upgrade. |
 | `Base64CursorEncoder` as current default | Medium | Without `HmacCursorEncoder`, cursor values are Base64-encoded only (not signed). Clients can decode and manipulate cursor contents, potentially bypassing authorization bounds. | Documented in `SECURITY.md`. Library logs a startup warning when no HMAC encoder is configured. `HmacCursorEncoder` is production-ready and opt-in. |
 | No `global.json` SDK pin | Low | Without a pinned SDK, developers may build with different .NET SDK versions, leading to subtle behavioral differences. `dotnet-tools.json` pins `dotnet-stryker` v4.16.0 but the main SDK is unpinned. | Add `global.json` pinning the SDK to a specific `10.0.x` patch. |
-| `DummyDevelopmentKey.snk` in repository | Low | The development strong name key is checked in (by design, as documented in [ADR-0001](adr/0001-use-of-dummy-snk.md)). The production key is injected from `SIGNING_KEY_BASE64` CI secret. | Documented in ADR-0001. The dev key provides assembly identity for local builds; it does not provide security guarantees. Risk is accepted by design. |
+| `DummyDevelopmentKey.snk` in repository | Low | The development strong name key is checked in (by design, as documented in [ADR-0040](adr/0040-use-of-dummy-snk.md)). The production key is injected from `SIGNING_KEY_BASE64` CI secret. | Documented in ADR-0040. The dev key provides assembly identity for local builds; it does not provide security guarantees. Risk is accepted by design. |
 
 ### Compatibility Risks
 
@@ -190,6 +186,6 @@
 | Risk | Severity | Details |
 |---|---|---|
 | Keyset fingerprint FNV-1a change (v2 cursor invalidation) | High (one-time) | [ADR-0007](adr/0007-keyset-fingerprint-fnv1a.md): The keyset fingerprint algorithm changed from `HashCode` (process-local randomized seed) to FNV-1a 32-bit (deterministic). Existing cursors from pre-FNV-1a builds are invalidated on upgrade. Clients receive `InvalidPaginationCursorException`. This is a one-time, fully documented migration cost. |
-| `EffectivePageSize` deprecation | Low | `CursorPaginationParameters.EffectivePageSize` is `[Obsolete]`. Code using this property will generate compiler warning `CS0618`. Migration: use `GetPageSize(int defaultSize)`. Removal scheduled for a future major version. |
-| `AsPagedAsyncEnumerable` → `ToPagedAsyncEnumerable` rename | Low | The old name is retained as an `[Obsolete]` overload. No runtime breakage — compiler warning only. |
+| `EffectivePageSize` removal | Resolved | `CursorPaginationParameters.EffectivePageSize` was cleanly replaced with `GetPageSize(int defaultSize)` under the Zero-Obsolete policy. |
+| `AsPagedAsyncEnumerable` rename | Resolved | Replaced with `ToPagedAsyncEnumerable` across the entire codebase under the Zero-Obsolete policy. |
 

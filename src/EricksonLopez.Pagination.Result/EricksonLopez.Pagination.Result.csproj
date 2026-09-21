@@ -8,7 +8,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>EricksonLopez.Pagination.Result</PackageId>
     <Description>Result pattern integration extensions for EricksonLopez.Pagination.</Description>
-    <PackageTags>pagination;result;error-handling;functional;aot</PackageTags>
+    <PackageTags>$(CommonPackageTags);result-pattern;error-handling;functional-programming;railway-oriented-programming;native-aot;trimming</PackageTags>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 

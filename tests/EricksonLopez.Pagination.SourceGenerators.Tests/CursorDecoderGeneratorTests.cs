@@ -42,7 +42,7 @@ public class CursorDecoderGeneratorTests
         var generator = new CursorDecoderGenerator();
         var driver = CSharpGeneratorDriver.Create(generator);
         driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
-        
+
         var generatedSyntaxTree = outputCompilation.SyntaxTrees
             .FirstOrDefault(t => t.FilePath.EndsWith("CursorDecoderInitializer.g.cs", StringComparison.Ordinal));
 
@@ -61,7 +61,7 @@ public class CursorDecoderGeneratorTests
         var source = GeneratorTestSnippets.Generator_WithoutPaginationInvocations_DoesNotGenerateSource_Source;
 
         var (diagnostics, generatedSource) = RunGenerator(source);
-        
+
         diagnostics.Should().BeEmpty();
         generatedSource.ReplaceLineEndings("\n").Should().Be(GeneratorTestSnippets.ExpectedEmptyRegistry.ReplaceLineEndings("\n"));
     }
@@ -85,7 +85,7 @@ public class CursorDecoderGeneratorTests
         generatedSource.Should().Contain("registry.Register<global::Test.MyCustomType>");
         generatedSource.Should().Contain("global::Test.MyCustomType.TryParse(s, System.Globalization.CultureInfo.InvariantCulture, out global::Test.MyCustomType result)");
     }
-    
+
     [Fact]
     public void Generator_WithCustomTypeWithoutTryParse_GeneratesRegistrationWithConvert()
     {
@@ -285,7 +285,8 @@ public class CursorDecoderGeneratorTests
         generatedSource.Should().NotBeEmpty();
         generatedSource.Should().Contain("global::Test.FormatProviderParseType.Parse(s, System.Globalization.CultureInfo.InvariantCulture)");
     }
-    [Property(MaxTest = 20)]
+
+    [Property(MaxTest = 20)]
     public bool Generator_IsDeterministic_ForAnyValidTypeName(NonNull<string> typeNameInput)
     {
         var raw = typeNameInput.Get;
@@ -359,8 +360,8 @@ public class CursorDecoderGeneratorTests
         }}";
 
         var (diagnostics, generatedSource) = RunGenerator(source, "EricksonLopez.Pagination.EntityFrameworkCore");
-        return diagnostics.IsEmpty && 
-               generatedSource.Contains($"registry.Register<global::TestModel.CustomId{suffix}>") && 
+        return diagnostics.IsEmpty &&
+               generatedSource.Contains($"registry.Register<global::TestModel.CustomId{suffix}>") &&
                generatedSource.Contains($"global::TestModel.CustomId{suffix}.TryParse(s, System.Globalization.CultureInfo.InvariantCulture, out global::TestModel.CustomId{suffix} result)");
     }
 }

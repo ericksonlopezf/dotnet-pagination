@@ -78,13 +78,13 @@ public static class DbConnectionCursorExtensions
         object? afterVal = null;
         if (!string.IsNullOrEmpty(parameters.After))
         {
-            afterVal = DecodeCursor(parameters.After!, encoder, cursorDecoder, decoderRegistry);
+            afterVal = DecodeCursor(parameters.After, encoder, cursorDecoder, decoderRegistry);
         }
 
         object? beforeVal = null;
         if (!string.IsNullOrEmpty(parameters.Before))
         {
-            beforeVal = DecodeCursor(parameters.Before!, encoder, cursorDecoder, decoderRegistry);
+            beforeVal = DecodeCursor(parameters.Before, encoder, cursorDecoder, decoderRegistry);
         }
 
         dynParams.Add("@Cursor", isBackward ? beforeVal : afterVal);
@@ -92,7 +92,7 @@ public static class DbConnectionCursorExtensions
         // Stryker disable once boolean
         var items = await connection.QueryAsync<T>(
             new CommandDefinition(sql, dynParams, transaction, commandTimeout, commandType, cancellationToken: cancellationToken))
-            // Stryker disable once boolean
+// Stryker disable once boolean
 .ConfigureAwait(false);
 
         // Dapper.AsList() uses Dapper's internal knowledge of the collection type to avoid a
@@ -117,7 +117,7 @@ public static class DbConnectionCursorExtensions
             {
                 list.Reverse();
             }
-            
+
             hasPreviousPage = hasMore;
             hasNextPage = parameters.Before != null;
         }
@@ -219,7 +219,7 @@ public static class DbConnectionCursorExtensions
         // Stryker disable once boolean
         var items = await connection.QueryAsync<T>(
             new CommandDefinition(sql, dynParams, transaction, commandTimeout, commandType, cancellationToken: cancellationToken))
-            // Stryker disable once boolean
+// Stryker disable once boolean
 .ConfigureAwait(false);
 
         var list = items.AsList();
@@ -288,7 +288,7 @@ public static class DbConnectionCursorExtensions
         ICursorEncoder? cursorEncoder = null,
         ICursorDecoderRegistry? decoderRegistry = null,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+    // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
     {
         var dynParams = new DynamicParameters(param);
         var actualMaxPageSize = maxPageSize ?? PaginationSettings.MaxPageSize;
@@ -300,7 +300,7 @@ public static class DbConnectionCursorExtensions
         if (isBackward)
         {
             throw new InvalidOperationException("Streaming is not supported when paginating backwards because it requires materializing the result set to reverse it.");
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+            // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
         }
 
         var encoder = cursorEncoder ?? HmacCursorEncoder.DevelopmentDefault;
@@ -308,7 +308,7 @@ public static class DbConnectionCursorExtensions
         object? afterVal = null;
         if (!string.IsNullOrEmpty(parameters.After))
         {
-            afterVal = DecodeCursor(parameters.After!, encoder, cursorDecoder, decoderRegistry);
+            afterVal = DecodeCursor(parameters.After, encoder, cursorDecoder, decoderRegistry);
         }
 
         dynParams.Add("@Cursor", afterVal);
@@ -316,9 +316,9 @@ public static class DbConnectionCursorExtensions
         using var reader = await connection.ExecuteReaderAsync(
             new CommandDefinition(sql, dynParams, transaction, commandTimeout, commandType, cancellationToken: cancellationToken))
             .ConfigureAwait(false);
-            
+
         var rowParser = reader.GetRowParser<T>();
-        
+
         var dbReader = (System.Data.Common.DbDataReader)reader;
         while (await dbReader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -388,7 +388,7 @@ public static class DbConnectionCursorExtensions
         if (parts.Length != 2)
         {
             throw new InvalidOperationException($"Expected 2 parts in composite cursor, got {parts.Length}.");
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+            // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
         }
         // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
 
@@ -440,7 +440,7 @@ public static class DbConnectionCursorExtensions
         var encoder = cursorEncoder ?? HmacCursorEncoder.DevelopmentDefault;
         var dynParams = new DynamicParameters(param);
         dynParams.Add("@__Pagination_Limit__", chunkSize);
-        
+
         var isBackward = parameters.Last.HasValue && !parameters.First.HasValue;
         if (isBackward)
         {
@@ -450,7 +450,7 @@ public static class DbConnectionCursorExtensions
         object? currentCursorVal = null;
         if (!string.IsNullOrEmpty(parameters.After))
         {
-            currentCursorVal = DecodeCursor(parameters.After!, encoder, cursorDecoder, decoderRegistry);
+            currentCursorVal = DecodeCursor(parameters.After, encoder, cursorDecoder, decoderRegistry);
         }
 
         while (!cancellationToken.IsCancellationRequested)
@@ -471,7 +471,7 @@ public static class DbConnectionCursorExtensions
             {
                 break;
             }
-            
+
             var lastItem = list[list.Count - 1];
             currentCursorVal = keySelector(lastItem);
         }
@@ -518,7 +518,7 @@ public static class DbConnectionCursorExtensions
         var encoder = cursorEncoder ?? HmacCursorEncoder.DevelopmentDefault;
         var dynParams = new DynamicParameters(param);
         dynParams.Add("@__Pagination_Limit__", chunkSize);
-        
+
         var isBackward = parameters.Last.HasValue && !parameters.First.HasValue;
         if (isBackward)
         {
@@ -527,10 +527,10 @@ public static class DbConnectionCursorExtensions
 
         object? cursor1Val = null;
         object? cursor2Val = null;
-        
+
         if (!string.IsNullOrEmpty(parameters.After))
         {
-            var tuple = DecodeCursor(parameters.After!, encoder, cursorDecoder, decoderRegistry);
+            var tuple = DecodeCursor(parameters.After, encoder, cursorDecoder, decoderRegistry);
             cursor1Val = tuple.Item1;
             cursor2Val = tuple.Item2;
         }
@@ -554,7 +554,7 @@ public static class DbConnectionCursorExtensions
             {
                 break;
             }
-            
+
             var lastItem = list[list.Count - 1];
             cursor1Val = key1Selector(lastItem);
             cursor2Val = key2Selector(lastItem);

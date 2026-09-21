@@ -114,7 +114,7 @@ public class TestClass
     {
         var analyzer = new CursorSecurityAnalyzer();
         var rule = analyzer.SupportedDiagnostics[0];
-        
+
         rule.Id.Should().Be("PAG006");
         rule.Title.ToString().Should().Be("Insecure Default Cursor Encoder");
         rule.MessageFormat.ToString().Should().Be("Ensure a secure ICursorEncoder (like HmacCursorEncoder) is configured. Base64CursorEncoder is insecure and can allow cursor tampering.");

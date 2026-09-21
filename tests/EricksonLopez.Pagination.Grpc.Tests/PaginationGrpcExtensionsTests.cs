@@ -17,7 +17,7 @@ public class PaginationGrpcExtensionsTests
     {
         PaginationParametersMessage? message = null;
         var result = message!.ToParameters();
-        
+
         result.Should().NotBeNull();
         result.Page.Should().Be(1);
         result.PageSize.Should().Be(10);
@@ -28,7 +28,7 @@ public class PaginationGrpcExtensionsTests
     {
         var message = new PaginationParametersMessage { Page = 2, PageSize = 25 };
         var result = message.ToParameters();
-        
+
         result.Page.Should().Be(2);
         result.PageSize.Should().Be(25);
     }
@@ -39,9 +39,9 @@ public class PaginationGrpcExtensionsTests
         var message = new PaginationParametersMessage { Page = 2, PageSize = 25 };
         var options = Substitute.For<IPaginationOptions>();
         options.MaxPageSize.Returns(50);
-        
+
         var result = message.ToParameters(options);
-        
+
         result.Page.Should().Be(2);
         result.PageSize.Should().Be(25);
     }
@@ -51,7 +51,7 @@ public class PaginationGrpcExtensionsTests
     {
         var message = new PaginationParametersMessage { Page = -1, PageSize = -5 };
         var result = message.ToParameters();
-        
+
         result.Page.Should().Be(1);
         result.PageSize.Should().Be(10);
     }
@@ -61,7 +61,7 @@ public class PaginationGrpcExtensionsTests
     {
         var message = new PaginationParametersMessage { Page = 0, PageSize = 0 };
         var result = message.ToParameters();
-        
+
         result.Page.Should().Be(1);
         result.PageSize.Should().Be(10);
     }
@@ -71,7 +71,7 @@ public class PaginationGrpcExtensionsTests
     {
         CursorPaginationParametersMessage? message = null;
         var result = message!.ToParameters();
-        
+
         result.Should().NotBeNull();
         result.First.Should().BeNull();
         result.After.Should().BeNull();
@@ -88,7 +88,7 @@ public class PaginationGrpcExtensionsTests
             After = "afterCursor"
         };
         var result = message.ToParameters();
-        
+
         result.First.Should().Be(10);
         result.After.Should().Be("afterCursor");
         result.Last.Should().BeNull();
@@ -105,9 +105,9 @@ public class PaginationGrpcExtensionsTests
         };
         var options = Substitute.For<IPaginationOptions>();
         options.MaxPageSize.Returns(50);
-        
+
         var result = message.ToParameters(options);
-        
+
         result.First.Should().Be(10);
         result.After.Should().Be("afterCursor");
         result.Last.Should().BeNull();
@@ -123,7 +123,7 @@ public class PaginationGrpcExtensionsTests
             Before = "beforeCursor"
         };
         var result = message.ToParameters();
-        
+
         result.Last.Should().Be(5);
         result.Before.Should().Be("beforeCursor");
         result.First.Should().BeNull();
@@ -153,7 +153,7 @@ public class PaginationGrpcExtensionsTests
             Before = string.Empty
         };
         var result = message.ToParameters();
-        
+
         result.First.Should().BeNull();
         result.After.Should().BeNull();
         result.Last.Should().BeNull();
@@ -165,7 +165,7 @@ public class PaginationGrpcExtensionsTests
     {
         FilterParametersMessage? message = null;
         var result = message!.ToParameters();
-        
+
         result.Should().Be(FilterParameters.Empty);
     }
 
@@ -174,7 +174,7 @@ public class PaginationGrpcExtensionsTests
     {
         var message = new FilterParametersMessage { Value = "   " };
         var result = message.ToParameters();
-        
+
         result.Should().Be(FilterParameters.Empty);
     }
 
@@ -183,7 +183,7 @@ public class PaginationGrpcExtensionsTests
     {
         var message = new FilterParametersMessage { Value = "Name:eq:Test" };
         var result = message.ToParameters();
-        
+
         result.Value.Should().Be("Name:eq:Test");
     }
 
@@ -199,9 +199,9 @@ public class PaginationGrpcExtensionsTests
     public void ToMessage_FromIPagedList_Valid_ReturnsMappedMessage()
     {
         var pagedList = PagedList<string>.WithCount(new List<string> { "A", "B" }, new PaginationParameters { Page = 2, PageSize = 10 }, 30);
-        
+
         var message = pagedList.ToMessage();
-        
+
         message.TotalCount.Should().Be(30);
         message.Page.Should().Be(2);
         message.PageSize.Should().Be(10);
@@ -214,9 +214,9 @@ public class PaginationGrpcExtensionsTests
     public void ToMessage_FromIPagedList_WithoutCount_ReturnsDefaultTotalCount()
     {
         var pagedList = PagedList<string>.WithoutCount(new List<string> { "A", "B" }, new PaginationParameters { Page = 2, PageSize = 10 }, false);
-        
+
         var message = pagedList.ToMessage();
-        
+
         message.HasTotalCount.Should().BeFalse();
         message.HasTotalPages.Should().BeFalse();
     }
@@ -233,9 +233,9 @@ public class PaginationGrpcExtensionsTests
     public void ToMessage_FromICursorPagedList_Valid_ReturnsMappedMessage()
     {
         var pagedList = CursorPagedList<string>.Create(new List<string> { "A" }, "start", "end", true, false);
-        
+
         var message = pagedList.ToMessage();
-        
+
         message.StartCursor.Should().Be("start");
         message.EndCursor.Should().Be("end");
         message.HasPreviousPage.Should().BeTrue();
@@ -246,9 +246,9 @@ public class PaginationGrpcExtensionsTests
     public void ToMessage_FromICursorPagedList_NullCursors_ReturnsEmptyString()
     {
         var pagedList = CursorPagedList<string>.Create(new List<string>(), null, null, false, false);
-        
+
         var message = pagedList.ToMessage();
-        
+
         message.StartCursor.Should().BeEmpty();
         message.EndCursor.Should().BeEmpty();
     }
@@ -321,7 +321,7 @@ public class PaginationGrpcExtensionsTests
         IPagedList<string>? nullList = null;
         var list = PagedList<string>.WithoutCount(new List<string>(), new PaginationParameters(), false);
         var response = new PagedListMetadataMessage();
-        
+
         Action act1 = () => nullList!.ToMessage<string, PagedListMetadataMessage>(response, (r, m) => { });
         act1.Should().Throw<ArgumentNullException>().WithMessage("*pagedList*");
 
@@ -337,9 +337,9 @@ public class PaginationGrpcExtensionsTests
     {
         var pagedList = PagedList<string>.WithoutCount(new List<string> { "A" }, new PaginationParameters { Page = 1, PageSize = 10 }, false);
         var response = new FilterParametersMessage(); // Just using as a dummy response message
-        
+
         PagedListMetadataMessage? configuredMetadata = null;
-        
+
         var result = pagedList.ToMessage<string, FilterParametersMessage>(response, (r, m) =>
         {
             configuredMetadata = m;
@@ -356,7 +356,7 @@ public class PaginationGrpcExtensionsTests
         ICursorPagedList<string>? nullList = null;
         var list = CursorPagedList<string>.Create(new List<string>(), null, null, false, false);
         var response = new CursorPagedListMetadataMessage();
-        
+
         Action act1 = () => nullList!.ToMessage<string, CursorPagedListMetadataMessage>(response, (r, m) => { });
         act1.Should().Throw<ArgumentNullException>().WithMessage("*pagedList*");
 
@@ -372,9 +372,9 @@ public class PaginationGrpcExtensionsTests
     {
         var pagedList = CursorPagedList<string>.Create(new List<string> { "A" }, "start", "end", true, false);
         var response = new FilterParametersMessage(); // Dummy response message
-        
+
         CursorPagedListMetadataMessage? configuredMetadata = null;
-        
+
         var result = pagedList.ToMessage<string, FilterParametersMessage>(response, (r, m) =>
         {
             configuredMetadata = m;
@@ -399,7 +399,7 @@ public class PaginationGrpcExtensionsTests
         var message = new PaginationParametersMessage { PageSize = 100 };
         var options = Substitute.For<IPaginationOptions>();
         options.MaxPageSize.Returns(50);
-        
+
         Action act = () => message.ToParameters(options);
         act.Should().Throw<ArgumentOutOfRangeException>().WithMessage("*PageSize cannot exceed 50.*");
     }
@@ -427,7 +427,7 @@ public class PaginationGrpcExtensionsTests
         var result = message.ToParameters();
         result.First.Should().Be(1000);
     }
-    
+
     [Fact]
     public void ToParameters_FromCursorPaginationParametersMessage_LastEqualsMax_ReturnsMapped()
     {
@@ -442,7 +442,7 @@ public class PaginationGrpcExtensionsTests
         var message = new CursorPaginationParametersMessage { First = 100 };
         var options = Substitute.For<IPaginationOptions>();
         options.MaxPageSize.Returns(50);
-        
+
         Action act = () => message.ToParameters(options);
         act.Should().Throw<ArgumentOutOfRangeException>().WithMessage("*Cursor connection parameters 'First' and 'Last' cannot exceed 50.*");
     }
@@ -461,7 +461,7 @@ public class PaginationGrpcExtensionsTests
         var message = new CursorPaginationParametersMessage { Last = 100 };
         var options = Substitute.For<IPaginationOptions>();
         options.MaxPageSize.Returns(50);
-        
+
         Action act = () => message.ToParameters(options);
         act.Should().Throw<ArgumentOutOfRangeException>().WithMessage("*Cursor connection parameters 'First' and 'Last' cannot exceed 50.*");
     }

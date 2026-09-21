@@ -1,7 +1,10 @@
 # ADR-0026 — Null Sorting Behavior (NULLS FIRST / NULLS LAST)
 
 ## Status
-**Accepted** — August 2026
+Accepted — August 2026
+
+## Date
+2026-09-04
 
 ## Context
 

@@ -7,11 +7,21 @@
     <NoWarn>$(NoWarn);CA1707;CA1515;CA1861;CA1822;CA1001;CA1305;CA1812;xUnit1000;CA1852;CA1806;CS7036</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\..\src\EricksonLopez.Pagination\EricksonLopez.Pagination.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Update="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>
 
