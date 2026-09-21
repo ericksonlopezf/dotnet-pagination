@@ -23,11 +23,14 @@ graph TD
         Encoder["ICursorEncoder\n(Base64 / HMAC)"]
     end
 
-    subgraph "Persistence"
+    subgraph "Persistence & Caching"
         EF["EF Core\n(QueryableExtensions\nKeysetBuilder)"]
-        Dapper["Dapper\n(DbConnectionPaginationExtensions)"]
-        Mongo["MongoDB\n(MongoQueryableExtensions)"]
-        Cosmos["Cosmos DB"]
+        Dapper["Dapper\n(DbConnectionPaginationExtensions\nDapperKeysetBuilder)"]
+        LinqDB["LinqToDB\n(LinqToDBKeysetBuilder)"]
+        Mongo["MongoDB\n(MongoQueryableExtensions\nFindFluentExtensions)"]
+        Cosmos["Cosmos DB\n(Continuation Token Translators)"]
+        Elastic["Elasticsearch\n(search_after Mappers)"]
+        RedisStore["Redis\n(RedisCursorReplayStore)"]
     end
 
     subgraph "DI / Configuration"
@@ -43,13 +46,18 @@ graph TD
 
     API --> EF
     API --> Dapper
+    API --> LinqDB
     API --> Mongo
     API --> Cosmos
+    API --> Elastic
 
     EF --> List
     Dapper --> List
+    LinqDB --> List
     Mongo --> List
     Cosmos --> List
+    Elastic --> List
+    Encoder -.-> RedisStore
 
     List --> Response
     Response --> API
@@ -289,3 +297,53 @@ sequenceDiagram
     end
     Ext-->>App: (end of stream)
 ```
+
+---
+
+## 11. Flow — Parallel Keyset Partitioning (SplitKeysetPartitionsAsync)
+
+```mermaid
+sequenceDiagram
+    participant Worker as Background Task / ETL
+    participant Ext as KeysetPartitioningExtensions
+    participant DB as Database Engine
+
+    Worker->>Ext: db.Products.SplitKeysetPartitionsAsync(p => p.Id, partitionCount: 4)
+    Ext->>DB: SELECT MIN(Id), MAX(Id) FROM Products
+    DB-->>Ext: minId = 1, maxId = 1000000
+    Ext->>Ext: Calculates step = 250000
+    Ext-->>Worker: List of 4 KeysetPartition<int>
+    par Worker 1
+        Worker->>DB: WHERE Id >= 1 AND Id <= 250000
+    and Worker 2
+        Worker->>DB: WHERE Id >= 250001 AND Id <= 500000
+    and Worker 3
+        Worker->>DB: WHERE Id >= 500001 AND Id <= 750000
+    and Worker 4
+        Worker->>DB: WHERE Id >= 750001 AND Id <= 1000000
+    end
+```
+
+---
+
+## 12. Flow — Error Handling & Typed Exception Pipeline
+
+```mermaid
+flowchart TD
+    Client["Client HTTP Request"] --> API["Minimal API Endpoint"]
+    API --> Decoder{"ICursorEncoder.Decode(cursor)"}
+    Decoder -- "Tampered or Malformed" --> Ex1["InvalidPaginationCursorException"]
+    Decoder -- "Signature Valid, but UtcNow > ExpiredAt" --> Ex2["ExpiredPaginationCursorException"]
+    Decoder -- "Signature Valid, but Nonce Already Acquired" --> Ex3["ReplayedPaginationCursorException"]
+    Decoder -- "Valid & Fresh" --> Query["Execute Keyset / Offset Query"]
+    
+    Ex1 --> Handler["PaginationExceptionHandler (IExceptionHandler)"]
+    Ex2 --> Handler
+    Ex3 --> Handler
+
+    Handler --> Log["PaginationLogEvents / PaginationMetrics"]
+    Handler --> ProblemDetails["RFC 7807 ProblemDetails JSON\nHTTP 400 Bad Request\n(or 410 Gone / 409 Conflict)"]
+    ProblemDetails --> ReturnClient["Returned to Client"]
+    Query --> SuccessResponse["HTTP 200 OK + PagedResponse<T> / ETag"]
+```
+

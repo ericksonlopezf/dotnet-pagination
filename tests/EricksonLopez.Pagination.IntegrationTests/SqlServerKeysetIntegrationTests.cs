@@ -23,8 +23,7 @@ public class SqlServerKeysetIntegrationTests : IAsyncLifetime
     {
         try
         {
-            _dbContainer = new MsSqlBuilder()
-                .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+            _dbContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest")
                 .Build();
             await _dbContainer.StartAsync();
         }
@@ -74,7 +73,7 @@ public class SqlServerKeysetIntegrationTests : IAsyncLifetime
         Skip.If(!_dockerAvailable || _dbContext == null, "Docker is not available or SQL Server container failed to start.");
 
         var parameters = new CursorPaginationParameters { Last = 10 };
-        
+
         var pagedList = await _dbContext!.Users
             .Keyset(parameters)
             .Ascending(u => u.Id)

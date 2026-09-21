@@ -3,6 +3,9 @@
 ## Status
 Accepted — August 2026
 
+## Date
+2026-09-04
+
 ## Context
 
 `KeysetBuilder<T>` generates a cursor fingerprint embedded in every keyset cursor token:

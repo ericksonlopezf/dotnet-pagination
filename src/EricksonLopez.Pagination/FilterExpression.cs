@@ -11,6 +11,7 @@ using System.Threading;
 using EricksonLopez.Pagination.Internal;
 
 namespace EricksonLopez.Pagination;
+
 using EricksonLopez.Pagination.Abstractions;
 
 /// <summary>

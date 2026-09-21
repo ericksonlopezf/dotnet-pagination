@@ -92,15 +92,15 @@ public readonly partial record struct SortParameters
             var segment = commaIdx != -1 ? span[..commaIdx] : span;
             span = commaIdx != -1 ? span[(commaIdx + 1)..] : ReadOnlySpan<char>.Empty;
             // Stryker restore all
-            
+
             var part = segment.Trim();
             if (part.IsEmpty) continue;
-            
+
             var spaceIndex = part.LastIndexOf(' ');
             if (spaceIndex != -1)
             {
                 var suffix = part[(spaceIndex + 1)..];
-                if (!suffix.Equals("asc", StringComparison.OrdinalIgnoreCase) && 
+                if (!suffix.Equals("asc", StringComparison.OrdinalIgnoreCase) &&
                     !suffix.Equals("desc", StringComparison.OrdinalIgnoreCase))
                 {
                     result = default;
@@ -135,7 +135,7 @@ public readonly partial record struct SortParameters
     public override string ToString() => Value ?? string.Empty;
 
 #if NET7_0_OR_GREATER
-    
+
     [System.Text.RegularExpressions.GeneratedRegex(@"^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*$")]
     private static partial System.Text.RegularExpressions.Regex ValidColumnNameRegex();
 #else

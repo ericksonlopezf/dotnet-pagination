@@ -1,7 +1,10 @@
 # ADR-0035 — Cursor Replay Protection and Nonce Store
 
 ## Status
-**Accepted** — August 2026
+Accepted — August 2026
+
+## Date
+2026-09-04
 
 ## Context
 In high-security environments (audit trails, one-time export tokens, zero-trust financial pipelines), pagination cursors should only be consumed once. Without replay protection, an interceptor or client could replay a previously generated cursor multiple times.

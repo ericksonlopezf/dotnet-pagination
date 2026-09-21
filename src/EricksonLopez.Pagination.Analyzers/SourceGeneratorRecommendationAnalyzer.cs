@@ -38,12 +38,12 @@ public sealed class SourceGeneratorRecommendationAnalyzer : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        
+
         context.RegisterCompilationStartAction(compilationContext =>
         {
             // Check if the source generator type exists in the compilation
             var generatedType = compilationContext.Compilation.GetTypeByMetadataName("EricksonLopez.Pagination.Generated.CursorDecoderServiceCollectionExtensions");
-            
+
             // If it exists, the source generator is installed and running
             if (generatedType != null)
                 return;

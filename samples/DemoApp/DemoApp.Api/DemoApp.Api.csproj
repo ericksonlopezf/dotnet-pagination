@@ -8,8 +8,8 @@
          NU1903: transitive Microsoft.OpenApi 2.0.0 vulnerability (direct dep is 10.0.10).
     -->
     <NuGetAuditSuppress>GHSA-v5pm-xwqc-g5wc</NuGetAuditSuppress>
-    <IsPackable>false</IsPackable>
-    <NoWarn>$(NoWarn);NU1903;NU1902;NU1901;CS1591</NoWarn>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);NU1903;NU1902;NU1901</NoWarn>
     <!-- Suppress obsolete usage warnings as errors â€” sample intentionally shows API evolution -->
     <WarningsNotAsErrors>ASPDEPR002</WarningsNotAsErrors>
   </PropertyGroup>
@@ -19,12 +19,26 @@
     <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="NSubstitute" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DemoApp.Application\DemoApp.Application.csproj" />
     <ProjectReference Include="..\DemoApp.Infrastructure\DemoApp.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination\EricksonLopez.Pagination.csproj" />
+    <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination.Abstractions\EricksonLopez.Pagination.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination.AspNetCore\EricksonLopez.Pagination.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination.Blazor\EricksonLopez.Pagination.Blazor.csproj" />
+    <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination.Dapper\EricksonLopez.Pagination.Dapper.csproj" />
+    <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination.Elasticsearch\EricksonLopez.Pagination.Elasticsearch.csproj" />
+    <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination.EntityFrameworkCore\EricksonLopez.Pagination.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination.Grpc\EricksonLopez.Pagination.Grpc.csproj" />
+    <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination.LinqToDB\EricksonLopez.Pagination.LinqToDB.csproj" />
+    <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination.MongoDB\EricksonLopez.Pagination.MongoDB.csproj" />
+    <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination.OpenApi\EricksonLopez.Pagination.OpenApi.csproj" />
+    <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination.Redis\EricksonLopez.Pagination.Redis.csproj" />
+    <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination.Relay\EricksonLopez.Pagination.Relay.csproj" />
+    <ProjectReference Include="..\..\..\src\EricksonLopez.Pagination.Result\EricksonLopez.Pagination.Result.csproj" />
   </ItemGroup>
 
 </Project>

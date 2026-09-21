@@ -84,7 +84,7 @@ public class QueryableExtensionsApproximateCountTests
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddDbContext<TestDbContext>();
-        
+
         using var provider = services.BuildServiceProvider();
         using var ctx = provider.GetRequiredService<TestDbContext>();
         ctx.Database.OpenConnection();
@@ -94,18 +94,18 @@ public class QueryableExtensionsApproximateCountTests
 
         var parameters = new PaginationParametersBuilder().WithPage(1).WithPageSize(10).Build();
         var act = async () => await ctx.Entities.ToPagedListAsync(parameters, useApproximateCount: true);
-        
+
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*useApproximateCount*");
     }
-    
+
     [Fact]
     public async Task ToPagedListAsync_UseApproximateCount_UnmappedType_FallsBackToStandardCount()
     {
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddDbContext<PostgresFakeDbContext>(opts => opts.UseSqlite($"DataSource=file:{Guid.NewGuid()}?mode=memory&cache=shared"));
-        
+
         using var provider = services.BuildServiceProvider();
         using var ctx = provider.GetRequiredService<PostgresFakeDbContext>();
         ctx.Database.OpenConnection();
@@ -115,18 +115,18 @@ public class QueryableExtensionsApproximateCountTests
         var unmappedQuery = ctx.Views.AsQueryable();
         var parameters = new PaginationParametersBuilder().WithPage(1).WithPageSize(10).Build();
         var result = await unmappedQuery.ToPagedListAsync(parameters, useApproximateCount: true);
-        
+
         result.Count.Should().Be(1);
         result.TotalCount.Should().Be(1);
     }
-    
+
     [Fact]
     public async Task ToPagedListAsync_UseApproximateCount_Postgres_DbException_FallsBackToStandardCount()
     {
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddDbContext<PostgresFakeDbContext>(opts => opts.UseSqlite($"DataSource=file:{Guid.NewGuid()}?mode=memory&cache=shared"));
-        
+
         using var provider = services.BuildServiceProvider();
         using var ctx = provider.GetRequiredService<PostgresFakeDbContext>();
         ctx.Database.OpenConnection();
@@ -139,7 +139,7 @@ public class QueryableExtensionsApproximateCountTests
         // This will trigger GetApproximateCountAsync, which will execute postgres-specific SQL on SQLite
         // This will throw a SqliteException (which is DbException), catch it, and fallback to exact count
         var result = await query.ToPagedListAsync(parameters, useApproximateCount: true);
-        
+
         result.Count.Should().Be(1);
         result.TotalCount.Should().Be(1);
     }
@@ -150,7 +150,7 @@ public class QueryableExtensionsApproximateCountTests
         var loggerProvider = new TestLoggerProvider();
         services.AddLogging(b => b.AddProvider(loggerProvider));
         services.AddDbContext<TestDbContext>(opts => opts.UseSqlite($"DataSource=file:{Guid.NewGuid()}?mode=memory&cache=shared"));
-        
+
         using var provider = services.BuildServiceProvider();
         using var ctx = provider.GetRequiredService<TestDbContext>();
         ctx.Database.OpenConnection();
@@ -162,7 +162,7 @@ public class QueryableExtensionsApproximateCountTests
         // This will be capped to 50 by options, so effective is less than original
         var options = new PaginationCoreOptions { MaxPageSize = 50 };
         await ctx.Entities.ToPagedListAsync(parameters, options: options);
-        
+
         // Assert log contains warning
         loggerProvider.Logs.Should().Contain(msg => msg.Contains("exceeds the maximum allowed"));
     }
@@ -174,7 +174,7 @@ public class QueryableExtensionsApproximateCountTests
         var loggerProvider = new TestLoggerProvider();
         services.AddLogging(b => b.AddProvider(loggerProvider));
         services.AddDbContext<TestDbContext>(opts => opts.UseSqlite($"DataSource=file:{Guid.NewGuid()}?mode=memory&cache=shared"));
-        
+
         using var provider = services.BuildServiceProvider();
         using var ctx = provider.GetRequiredService<TestDbContext>();
         ctx.Database.OpenConnection();
@@ -182,9 +182,9 @@ public class QueryableExtensionsApproximateCountTests
 
         var parameters = new PaginationParametersBuilder().WithPage(150).WithPageSize(100).Build();
         var options = new PaginationCoreOptions { DeepOffsetWarningThreshold = 10_000 };
-        
+
         await ctx.Entities.ToPagedListAsync(parameters, options: options);
-        
+
         // Assert log contains warning
         loggerProvider.Logs.Should().Contain(msg => msg.Contains("deep offset"));
     }
@@ -200,14 +200,14 @@ public sealed class TestLoggerProvider : ILoggerProvider, ILogger
     {
         return null;
     }
-    
+
     public bool IsEnabled(LogLevel logLevel) => true;
-    
+
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         Logs.Add(formatter(state, exception));
     }
-    
+
     public void Dispose()
     {
     }

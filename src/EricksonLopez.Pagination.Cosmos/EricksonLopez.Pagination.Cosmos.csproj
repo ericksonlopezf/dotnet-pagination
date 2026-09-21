@@ -10,7 +10,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <PackageId>EricksonLopez.Pagination.Cosmos</PackageId>
     <Description>Azure Cosmos DB pagination extensions for the EricksonLopez.Pagination ecosystem.</Description>
-    <PackageTags>pagination;cosmosdb;cosmos;nosql</PackageTags>
+    <PackageTags>$(CommonPackageTags);azure-cosmos-db;cosmosdb;cosmos;nosql;continuation-token;cursor-pagination</PackageTags>
     <LangVersion>latest</LangVersion>
     <IsAotCompatible>false</IsAotCompatible>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

@@ -29,6 +29,7 @@ The `DemoApp` is a runnable reference implementation structured in Clean Archite
 | **Level 8** | Customization & Security | [`Level8Customization.cs`](DemoApp/DemoApp.Api/Levels/Level8Customization.cs) | [`level-08-customization-security.md`](docs/showcase/level-08-customization-security.md) | Custom `ICursorEncoder`, `HmacCursorEncoder` (with/without TTL), `ICursorReplayStore`, `FilterableAttribute` |
 | **Level 9** | Complex Architecture | [`Level9Extensions.cs`](DemoApp/DemoApp.Api/Levels/Level9Extensions.cs) | [`level-09-complex-architecture.md`](docs/showcase/level-09-complex-architecture.md) | Multi-column Keyset, descending keyset, backward pagination, `SplitKeysetPartitionsAsync`, PostgreSQL approximate count |
 | **Level 10** | Enterprise Best Practices | [`Level10EnterpriseArchitecture.cs`](DemoApp/DemoApp.Api/Levels/Level10EnterpriseArchitecture.cs) | [`level-10-enterprise-practices.md`](docs/showcase/level-10-enterprise-practices.md) | `ToPagedResult` with deterministic ETag (304 Not Modified), `OutputCaching`, endpoint `maxPageSize`, `PaginationMetrics` & `PaginationDiagnostics` |
+| **Level 11** | Comprehensive API Verification | [`Level11ComprehensiveApiCoverage.cs`](DemoApp/DemoApp.Api/Levels/Level11ComprehensiveApiCoverage.cs) | [`api-inventory.md`](docs/api-inventory.md) | Runtime contracts and end-to-end execution testing all 104 public APIs across all 15 Core & Infrastructure packages |
 
 ---
 
@@ -39,15 +40,40 @@ cd samples/DemoApp/DemoApp.Api
 dotnet run
 ```
 
-Then open `http://localhost:5000/swagger` or browse the endpoints via your HTTP client.
+Running without arguments executes the self-testing verification suite across all 104 public APIs (exiting with code 0).  
+To run as an interactive web server hosting the Swagger UI and REST endpoints:
+
+```bash
+dotnet run -- --server
+```
+
+Then open `http://localhost:5000/swagger` or navigate to `/health`.
 
 ---
 
 ## Documentation Index
 
 - [Public API Inventory](docs/api-inventory.md)
+- [Functional Architecture Map](docs/functional-map.md)
 - [Conceptual Map](docs/conceptual-map.md)
-- [Cookbook & Recipes](docs/cookbook.md)
-- [Architecture Diagrams](docs/diagrams.md)
+- [Quick Start Guide](docs/quick-start.md)
+- [Getting Started Guide](docs/getting-started.md)
+- [Cookbook & Recipes (22 Production Recipes)](docs/cookbook.md)
+- [Architecture Diagrams (12 Mermaid Diagrams)](docs/diagrams.md)
+- [Architecture & Design Guide](docs/architecture-guide.md)
+- [Performance & Optimization Guide](docs/performance-guide.md)
+- [Best Practices Guide](docs/best-practices.md)
+- [Troubleshooting & Diagnostics](docs/troubleshooting.md)
+- [Migration Guide](docs/migration-guide.md)
+- [Frequently Asked Questions (FAQ)](docs/faq.md)
 - [Advanced Scenarios](docs/advanced-scenarios.md)
-- [API Reference](docs/api-reference/index.md)
+- [API Reference Index](docs/api-reference/index.md)
+  - [Abstractions](docs/api-reference/abstractions.md)
+  - [Core Library](docs/api-reference/core.md)
+  - [ASP.NET Core Integration](docs/api-reference/aspnetcore.md)
+  - [Entity Framework Core](docs/api-reference/efcore.md)
+  - [Dapper Micro-ORM](docs/api-reference/dapper.md)
+  - [NoSQL & Specialized](docs/api-reference/nosql.md)
+  - [Extensions & Ecosystem](docs/api-reference/extensions.md)
+- [CHANGELOG Release Example](docs/changelog-example.md)
+

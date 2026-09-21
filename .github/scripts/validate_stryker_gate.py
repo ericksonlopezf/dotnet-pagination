@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# Copyright © Erickson Lopez. MIT License.
 """
 Stryker.NET Release Quality Gate Validator
 Validates that the target commit or recent main branch has a passing Stryker.NET
@@ -67,9 +68,9 @@ def get_workflow_run_status(repo, commit_sha, token):
     # First check runs for specific commit_sha
     urls = []
     if commit_sha:
-        urls.append(f"https://api.github.com/repos/{repo}/actions/workflows/stryker.yml/runs?head_sha={commit_sha}&per_page=5")
+        urls.append(f"https://api.github.com/repos/{repo}/actions/workflows/mutation-testing.yml/runs?head_sha={commit_sha}&per_page=5")
     # Fallback to latest main runs
-    urls.append(f"https://api.github.com/repos/{repo}/actions/workflows/stryker.yml/runs?branch=main&status=completed&per_page=5")
+    urls.append(f"https://api.github.com/repos/{repo}/actions/workflows/mutation-testing.yml/runs?branch=main&status=completed&per_page=5")
 
     for url in urls:
         try:
@@ -115,7 +116,7 @@ def check_local_metadata(stryker_output_dir="StrykerOutput"):
 
 def parse_score_from_desc(desc):
     # Format: "Score: 99.96% (Break: 95%) - LOW"
-    m = re.search(r"Score:\s*([0-9]+(?:\.[0-9]+)?)\s*%", desc)
+    m = re.search(r"Score:\s*(\d+(?:\.\d+)?)\s*%", desc)
     if m:
         try:
             return float(m.group(1))

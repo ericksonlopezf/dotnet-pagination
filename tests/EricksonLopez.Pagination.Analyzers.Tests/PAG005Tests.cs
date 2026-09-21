@@ -110,7 +110,7 @@ public class TestClass
     {
         var analyzer = new SourceGeneratorRecommendationAnalyzer();
         var rule = analyzer.SupportedDiagnostics[0];
-        
+
         AwesomeAssertions.AssertionExtensions.Should(rule.Id).Be("PAG005");
         AwesomeAssertions.AssertionExtensions.Should(rule.Title.ToString()).Be("Consider using EricksonLopez.Pagination.SourceGenerators");
         AwesomeAssertions.AssertionExtensions.Should(rule.MessageFormat.ToString()).Be("Cursor pagination methods rely on reflection if the EricksonLopez.Pagination.SourceGenerators package is not installed. Install the package to enable AOT support and zero-allocation decoders.");

@@ -1,7 +1,10 @@
 # ADR-0027 — Tenant Isolation Responsibility Boundary
 
 ## Status
-**Accepted** — August 2026
+Accepted — August 2026
+
+## Date
+2026-09-04
 
 ## Context
 

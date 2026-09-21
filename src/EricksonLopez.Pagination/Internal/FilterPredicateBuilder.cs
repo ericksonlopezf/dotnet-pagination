@@ -24,8 +24,8 @@ namespace EricksonLopez.Pagination.Internal;
 internal static partial class FilterPredicateBuilder
 {
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, bool> _filterableTypeCache = new();
-    
-    
+
+
     [System.Text.RegularExpressions.GeneratedRegex(@"^[a-zA-Z0-9_]+$")]
     private static partial System.Text.RegularExpressions.Regex SafeFieldRegex();
 
@@ -62,7 +62,7 @@ internal static partial class FilterPredicateBuilder
         // while preserving a sensible default of 3 (e.g., Customer.Address.City).
         if (parts.Length > maxPropertyDepth)
         {
-             throw new InvalidOperationException($"Filter field '{clause.FieldName}' exceeds the maximum allowed nesting depth of {maxPropertyDepth}. Configure PaginationCoreOptions.MaxPropertyDepth to increase the limit.");
+            throw new InvalidOperationException($"Filter field '{clause.FieldName}' exceeds the maximum allowed nesting depth of {maxPropertyDepth}. Configure PaginationCoreOptions.MaxPropertyDepth to increase the limit.");
         }
 
         Expression propExpr = param;
@@ -100,7 +100,7 @@ internal static partial class FilterPredicateBuilder
             property = currentType.GetProperty(
                 part,
                 BindingFlags.Public | BindingFlags.Instance);
-                
+
             if (property == null)
             {
                 property = currentType.GetProperty(
@@ -123,9 +123,9 @@ internal static partial class FilterPredicateBuilder
                 }
             }
             // Stryker restore all
-                
+
             if (property == null) break;
-            
+
             // F-009 fix: use currentTypeHasAnyFilterable (from the current sub-type), not
             // rootHasAnyFilterable (from the root type T), for the [Filterable] guard.
             // Stryker disable once boolean : Attribute inheritance is out of scope for functional testing
@@ -137,7 +137,7 @@ internal static partial class FilterPredicateBuilder
                 }
                 return null;
             }
-            
+
             propExpr = Expression.Property(propExpr, property);
             currentType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
 
@@ -187,8 +187,8 @@ internal static partial class FilterPredicateBuilder
             return null;
         }
 
-        var propType    = currentType;
-        var isNullable  = property.PropertyType != propType;
+        var propType = currentType;
+        var isNullable = property.PropertyType != propType;
         // Stryker disable once all : Mutating IsValueType check would cause null token parsing to throw incorrectly, but tests don't cover every specific type permutation
         var isReferenceType = !property.PropertyType.IsValueType;
 
@@ -206,10 +206,10 @@ internal static partial class FilterPredicateBuilder
             }
 
             var constNull = Expression.Constant(null, property.PropertyType);
-            Expression nullResult = clause.Op == FilterOp.Equal 
+            Expression nullResult = clause.Op == FilterOp.Equal
                 ? Expression.Equal(propExpr, constNull)
                 : Expression.NotEqual(propExpr, constNull);
-                
+
             if (clause.Negate) nullResult = Expression.Not(nullResult);
             return nullResult;
         }
@@ -229,9 +229,9 @@ internal static partial class FilterPredicateBuilder
             var constant = Expression.Constant(coerced, typeof(string));
             var methodName = clause.Op switch
             {
-                FilterOp.Contains   => nameof(string.Contains),
+                FilterOp.Contains => nameof(string.Contains),
                 FilterOp.StartsWith => nameof(string.StartsWith),
-                _                   => nameof(string.EndsWith)
+                _ => nameof(string.EndsWith)
             };
             var method = typeof(string).GetMethod(methodName, [typeof(string)])!;
             Expression stringResult = Expression.Call(propExpr, method, constant);
@@ -245,12 +245,12 @@ internal static partial class FilterPredicateBuilder
 
         Expression result = clause.Op switch
         {
-            FilterOp.Equal              => Expression.Equal(propExpr, constExpr),
-            FilterOp.NotEqual           => Expression.NotEqual(propExpr, constExpr),
-            FilterOp.GreaterThan        => Expression.GreaterThan(propExpr, constExpr),
-            FilterOp.LessThan           => Expression.LessThan(propExpr, constExpr),
+            FilterOp.Equal => Expression.Equal(propExpr, constExpr),
+            FilterOp.NotEqual => Expression.NotEqual(propExpr, constExpr),
+            FilterOp.GreaterThan => Expression.GreaterThan(propExpr, constExpr),
+            FilterOp.LessThan => Expression.LessThan(propExpr, constExpr),
             FilterOp.GreaterThanOrEqual => Expression.GreaterThanOrEqual(propExpr, constExpr),
-            FilterOp.LessThanOrEqual    => Expression.LessThanOrEqual(propExpr, constExpr),
+            FilterOp.LessThanOrEqual => Expression.LessThanOrEqual(propExpr, constExpr),
             _ => throw new InvalidOperationException($"Unsupported filter operator '{clause.Op}'.")
         };
 
@@ -258,7 +258,7 @@ internal static partial class FilterPredicateBuilder
         {
             result = Expression.Not(result);
         }
-        
+
         return result;
     }
 }

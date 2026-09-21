@@ -219,7 +219,7 @@ else if (ShouldShowPager)
     /// Navigates to the specified page number and triggers the page change callback.
     /// </summary>
     /// <param name="page">The 1-indexed target page number.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    /// <returns>A task representing the asynchronous operation.</returns>
     protected async Task GoToPage(int page)
     {
         // F-013 fix: atomic guard prevents re-entrant navigation on rapid double-click.

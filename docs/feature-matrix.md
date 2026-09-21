@@ -44,7 +44,7 @@ However, there are **incorrect claims** in the current FeatureMatrix, **artifici
 **ECOSYSTEM** — Does not compete; provides the base infrastructure:
 - **EF Core**: ORM. The library extends it.
 - **Dapper**: Micro-ORM. The library extends it.
-- **LinqToDB**: Alternative ORM. Not currently supported.
+- **LinqToDB**: Alternative ORM. Supported via `EricksonLopez.Pagination.LinqToDB`.
 
 ---
 

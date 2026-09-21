@@ -1,5 +1,4 @@
 // Copyright © Erickson Lopez. MIT License.
-using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -8,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using EricksonLopez.Pagination.Abstractions;
+using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -17,16 +17,16 @@ namespace EricksonLopez.Pagination.EntityFrameworkCore.Tests;
 
 public class MaxPageSizeFallbackTests
 {
-    
 
-    
+
+
     private static TestDbContext GetContext(int entityCount = 0) => TestDbContext.CreateInMemory(entityCount);
 
-    
-    
+
+
 #pragma warning restore S1172
 
-[Fact]
+    [Fact]
     public void ApplySort_DescendingFallback_SortsCorrectly()
     {
         var data = new List<TypeEntity>
@@ -42,60 +42,60 @@ public class MaxPageSizeFallbackTests
         sorted.First().Id.Should().Be(2);
     }
 
-[Fact]
+    [Fact]
     public async Task QueryableExtensions_MaxFilterComplexity_And_Length_Fallback()
     {
         var ctx = GetContext();
-        
-        
+
+
         var query = ctx.Set<TypeEntity>().AsQueryable();
         var filter = new FilterParameters { Value = "Id=1" };
         var options = new CustomPaginationOptions { MaxFilterComplexity = 10, MaxFilterValueLength = 10, MaxFilterStringLength = 10 };
-        
+
         var act1 = async () => await query.ToPagedListAsync(filter, default(SortParameters), new PaginationParametersBuilder().WithPageSize(10).Build(), countTotal: true, maxPageSize: null, options: options);
         await act1.Should().NotThrowAsync();
     }
 
-[Fact]
+    [Fact]
     public async Task QueryableExtensions_MaxPageSize_Fallback()
     {
         var ctx = GetContext();
-        
+
         await ctx.Set<TypeEntity>().AddAsync(new TypeEntityBuilder().WithId(1).Build());
         await ctx.Set<TypeEntity>().AddAsync(new TypeEntityBuilder().WithId(2).Build());
         await ctx.SaveChangesAsync();
 
         var query = ctx.Set<TypeEntity>().AsQueryable();
-        
+
         // No explicit maxPageSize passed, it should use options.MaxPageSize
         var options = new CustomPaginationOptions { MaxPageSize = 1 };
         var paged = await query.ToPagedListAsync(e => e.Id, new PaginationParametersBuilder().WithPageSize(10).Build(), options: options);
-        
+
         paged.Count.Should().Be(1);
     }
 
-[Fact]
+    [Fact]
     public async Task QueryableExtensions_OffsetLargeSkip_Threshold_Fallback()
     {
         var ctx = GetContext();
-        
-        
+
+
         var query = ctx.Set<TypeEntity>().AsQueryable();
-        
+
         // Threshold is 100, we skip 101. This logs a warning but DOES NOT throw.
         var act = async () => await query.ToPagedListAsync(new PaginationParametersBuilder().WithPage(12).WithPageSize(10).Build(), options: null);
         await act.Should().NotThrowAsync();
     }
 
-[Fact]
+    [Fact]
     public async Task QueryableExtensions_ApproximateCount_Zero_Fallback()
     {
         // FIX-14: useApproximateCount on a non-Postgres provider now throws ArgumentException.
         // The zero-fallback behavior (approxCount <= 0 -> LongCountAsync) is covered in
         // QueryableExtensionsApproximateCountMockTests with a mocked Postgres provider.
         var ctx = GetContext();
-        
-        
+
+
         var act = async () => await ctx.Set<TypeEntity>().AsQueryable()
             .ToPagedListAsync(new PaginationParametersBuilder().WithPage(1).Build(), countTotal: true, useApproximateCount: true);
         await act.Should().ThrowAsync<ArgumentException>().WithMessage("*useApproximateCount*");
@@ -140,7 +140,7 @@ public class MaxPageSizeFallbackTests
         page[0].Id.Should().Be(1);
     }
 
-[Fact]
+    [Fact]
     public async Task CompileStringAccessor_FallbackToString()
     {
         using var context = GetContext();
@@ -151,7 +151,7 @@ public class MaxPageSizeFallbackTests
         var builder = context.Entities.AsQueryable()
             .Keyset(new CursorPaginationParameters(), acceptLegacyCursors: true)
             .Ascending(x => x.CustomStructValue);
-            
+
         var result = await builder.ToCursorPagedListAsync();
         result.Should().NotBeNull();
         result.Count.Should().Be(2);

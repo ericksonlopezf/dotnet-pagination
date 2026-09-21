@@ -9,7 +9,7 @@ This package provides accessible, customizable, and headless-capable pagination 
 ## Installation
 
 ```xml
-<PackageReference Include="EricksonLopez.Pagination.Blazor" Version="[VERSION]" />
+<PackageReference Include="EricksonLopez.Pagination.Blazor" Version="2.0.0" />
 ```
 
 ## Usage

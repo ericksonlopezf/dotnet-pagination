@@ -148,7 +148,7 @@ public class CursorPaginationParametersTests
         var success = CursorPaginationParameters.TryParse(filter, null, out var p);
         success.Should().BeFalse();
     }
-    
+
     [Fact]
     public void TryParse_EmptyParts_Ignored()
     {
@@ -157,7 +157,7 @@ public class CursorPaginationParametersTests
         success.Should().BeTrue();
         p.After.Should().Be("abc");
         p.First.Should().BeNull();
-        
+
         var success2 = CursorPaginationParameters.TryParse("last=&before=def", null, out var p2);
         success2.Should().BeTrue();
         p2.Before.Should().Be("def");

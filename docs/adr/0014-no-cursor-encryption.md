@@ -1,7 +1,10 @@
 # ADR-0014 — No Cursor Encryption (AES-256)
 
 ## Status
-**Accepted** — August 2026
+Accepted — August 2026
+
+## Date
+2026-09-04
 
 ## Context
 

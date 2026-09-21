@@ -68,7 +68,7 @@ public static class QueryableExtensions
     /// <param name="useApproximateCount">A value indicating whether to use database table statistics for approximate counting.</param>
     /// <param name="options">Optional pagination configuration options.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
-    /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, containing the paged list.</returns>
+    /// <returns>A task representing the asynchronous operation. The task result contains the paged list.</returns>
     public static async Task<IPagedList<T>> ToPagedListAsync<T>(
         this IQueryable<T> source,
         PaginationParameters parameters,
@@ -133,7 +133,7 @@ public static class QueryableExtensions
     /// <param name="useApproximateCount">A value indicating whether to use database table statistics for approximate counting.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
     /// <param name="options">Optional pagination configuration options.</param>
-    /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, containing the projected paged list.</returns>
+    /// <returns>A task representing the asynchronous operation. The task result contains the projected paged list.</returns>
     public static async Task<IPagedList<TResult>> ToPagedListAsync<T, TResult>(
         this IQueryable<T> source,
         Expression<Func<T, TResult>> selector,
@@ -160,7 +160,7 @@ public static class QueryableExtensions
                 .Select(selector)
                 .ToListAsync(cancellationToken)
                 .ConfigureAwait(false);
-            
+
             // F-003 fix: ensure projected count matches fetched items if approximate count was too low
             var adjustedCount = useApproximateCount
                 ? Math.Max(count, skipAmount + items.Count)
@@ -200,7 +200,7 @@ public static class QueryableExtensions
     /// <param name="allowedProperties">An optional whitelist of property names permitted for filtering and sorting.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
     /// <param name="options">Optional pagination configuration options.</param>
-    /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, containing the paged list.</returns>
+    /// <returns>A task representing the asynchronous operation. The task result contains the paged list.</returns>
     [RequiresUnreferencedCode("ApplyFilter and ApplySort use reflection, which is incompatible with trimming.")]
     public static Task<IPagedList<T>> ToPagedListAsync<T>(
         this IQueryable<T> source,
@@ -236,7 +236,7 @@ public static class QueryableExtensions
     /// <param name="allowedProperties">An optional whitelist of property names permitted for filtering and sorting.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
     /// <param name="options">Optional pagination configuration options.</param>
-    /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, containing the projected paged list.</returns>
+    /// <returns>A task representing the asynchronous operation. The task result contains the projected paged list.</returns>
     [RequiresUnreferencedCode("ApplyFilter and ApplySort use reflection, which is incompatible with trimming.")]
     public static Task<IPagedList<TResult>> ToPagedListAsync<T, TResult>(
         this IQueryable<T> source,
@@ -266,7 +266,7 @@ public static class QueryableExtensions
     /// <param name="maxPageSize">The maximum allowed page size.</param>
     /// <param name="options">Optional pagination configuration options.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
-    /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, containing the paged list without computing total count.</returns>
+    /// <returns>A task representing the asynchronous operation. The task result contains the paged list without computing total count.</returns>
     public static Task<IPagedList<T>> ToPagedListWithoutCountAsync<T>(
         this IQueryable<T> source,
         PaginationParameters parameters,
@@ -288,7 +288,7 @@ public static class QueryableExtensions
     /// <param name="maxPageSize">The maximum allowed page size.</param>
     /// <param name="options">Optional pagination configuration options.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
-    /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, containing the projected paged list without computing total count.</returns>
+    /// <returns>A task representing the asynchronous operation. The task result contains the projected paged list without computing total count.</returns>
     public static Task<IPagedList<TResult>> ToPagedListWithoutCountAsync<T, TResult>(
         this IQueryable<T> source,
         Expression<Func<T, TResult>> selector,
@@ -443,7 +443,7 @@ public static class QueryableExtensions
                 }
             }
 
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+            // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
             SortParameters.ValidateColumnName(colName, allowedProperties);
 
             var lambda = PaginationExpressionCache.SortLambdas.GetOrAdd(new PaginationExpressionCache.SortCacheKey(typeof(T), colName), _ =>
@@ -461,11 +461,11 @@ public static class QueryableExtensions
                 catch (ArgumentException ex)
                 {
                     // Stryker disable once String
-            throw new InvalidOperationException($"Field '{colName}' not found.", ex);
+                    throw new InvalidOperationException($"Field '{colName}' not found.", ex);
                 }
                 return Expression.Lambda(property, p);
             });
-            
+
             string methodName;
             if (first)
             {
@@ -489,9 +489,9 @@ public static class QueryableExtensions
 
         if (first && defaultSort != null)
         {
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+            // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
             return direction == SortDirection.Ascending
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+                // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
                 ? source.OrderBy(defaultSort)
                 : source.OrderByDescending(defaultSort);
         }
@@ -539,8 +539,8 @@ public static class QueryableExtensions
     [RequiresUnreferencedCode("ApplyFilter uses reflection to locate entity properties by name, which is incompatible with trimming.")]
     [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("ApplyFilter uses expression compilation at runtime, which requires dynamic code generation and is incompatible with Native AOT.")]
     public static IQueryable<T> ApplyFilter<T>(
-        this IQueryable<T> source, 
-        FilterParameters parameters, 
+        this IQueryable<T> source,
+        FilterParameters parameters,
         int maxComplexity = 20,
         FilterUnknownFieldBehavior unknownFieldBehavior = FilterUnknownFieldBehavior.ThrowException,
         IEnumerable<string>? allowedProperties = null,
@@ -590,7 +590,7 @@ public static class QueryableExtensions
     [RequiresUnreferencedCode("ApplyFilter uses reflection to locate entity properties by name, which is incompatible with trimming.")]
     [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("ApplyFilter uses expression compilation at runtime, which requires dynamic code generation and is incompatible with Native AOT.")]
     public static IQueryable<T> ApplyFilter<T>(
-        this IQueryable<T> source, 
+        this IQueryable<T> source,
         FilterParameters parameters,
         IFilterOperatorProvider<T> customOperatorProvider,
         int maxComplexity = 20,
@@ -658,7 +658,7 @@ public static class QueryableExtensions
             throw new ArgumentOutOfRangeException(nameof(parameters), "Page is too large, resulting in a skip offset that exceeds int.MaxValue. Strongly consider cursor pagination for deep offsets.");
         }
         skipAmount = (int)skipCalc;
-        
+
         var threshold = GetDeepOffsetWarningThreshold(options);
 
         // Stryker disable all : Logging and telemetry
@@ -723,7 +723,7 @@ public static class QueryableExtensions
             {
                 return await source.LongCountAsync(cancellationToken).ConfigureAwait(false);
             }
-            
+
             logger = dbContext.GetService<Microsoft.Extensions.Logging.ILoggerFactory>()?.CreateLogger(typeof(QueryableExtensions));
 
             bool isNpgsql = dbContext.Database.ProviderName == NpgsqlProviderName || dbContext.Database.ProviderName?.Contains("Npgsql", StringComparison.OrdinalIgnoreCase) == true;
@@ -753,14 +753,14 @@ public static class QueryableExtensions
                 var schemaName = entityType!.GetSchema() ?? "dbo";
                 approxCount = await SqlServerPaginationExtensions.GetApproximateCountAsync(dbContext, tableName, schemaName, cancellationToken).ConfigureAwait(false);
             }
-                
+
             if (approxCount <= 0)
             {
                 // Stryker disable once all
                 logger?.LogWarning("Approximate count returned {Count} for '{Type}'. Statistics may be stale. Falling back to standard count.", approxCount, typeof(T).Name);
                 return await source.LongCountAsync(cancellationToken).ConfigureAwait(false);
             }
-                
+
             return approxCount;
         }
         catch (NotSupportedException ex)
