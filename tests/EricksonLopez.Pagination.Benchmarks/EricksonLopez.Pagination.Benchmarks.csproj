@@ -12,6 +12,8 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" />
     <PackageReference Include="Gridify" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="MR.EntityFrameworkCore.KeysetPagination" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
