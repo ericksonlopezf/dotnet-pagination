@@ -2,12 +2,14 @@
 
 ## Supported Versions
 
-| Version | Supported |
-|---------|-----------|
-| `main` (HEAD) — pre-release | ✅ Active development, no published tags yet |
-| 0.9.0 baseline | ⚠️ Code baseline only — no NuGet package or git tag published |
+| Version | Supported | Notes |
+|---------|-----------|-------|
+| `2.0.x` | ✅ Supported | Current production release baseline (Released: 2026-09-21) |
+| `1.0.x` | ⚠️ Security Only | Previous major version; critical security patches only |
+| `main` (HEAD) | ✅ Active | Active development branch; security patches applied directly |
+| `< 1.0.0` | ❌ End of Life | Pre-release code baselines superseded by 1.0.0 |
 
-> **Pre-1.0 Status**: This repository has no published git tags yet. Version management is handled by [MinVer](https://github.com/adamralph/minver) based on git tags (format: `v*.*.*`). Security patches are applied to the `main` branch only. The first formal release will establish the supported version baseline.
+> **Release Baseline**: Version `2.0.0` (Released: 2026-09-21) establishes the current public API and production baseline. Versioning is automated by [Release Please](https://github.com/googleapis/release-please) based on Conventional Commits and git tags (format: `v*.*.*`). Security patches are backported or released as patch updates on `main`.
 
 ## Reporting a Vulnerability
 
@@ -31,9 +33,10 @@ We will acknowledge receipt within **48 hours** and provide regular updates. For
 
 | Mechanism | Status | Details |
 |---|---|---|
-| **Strong Name Signing** | ✅ Active | Development builds use `DummyDevelopmentKey.snk`. CI injects the production key from `SIGNING_KEY_BASE64` secret during publish. |
-| **NuGet Trusted Publishing (OIDC)** | ⚠️ Partial | `publish.yml` requests `id-token: write` (OIDC-compatible permission) but currently pushes using `NUGET_API_KEY`. Full keyless Trusted Publishing is a planned upgrade. |
-| **SBOM Generation** | ✅ Active | `<GenerateSBOM>true</GenerateSBOM>` is set globally in `Directory.Build.props` for all packable projects. |
-| **NuGet Audit** | ✅ Active | NuGet Audit is enabled for all package restores to actively scan transitive dependencies for known CVEs. |
-| **Dependabot** | ✅ Active | NuGet packages scanned weekly; GitHub Actions scanned monthly (see `.github/dependabot.yml`). |
-| **Package Validation** | ✅ Active | `<EnablePackageValidation>true</EnablePackageValidation>` with `PackageValidationBaselineVersion=1.0.0` enforces API surface stability for all packable projects. |
+| **Strong Name Signing** | ✅ Active | Assemblies are signed with `EricksonLopez.snk`. CI restores the signing key from the `SNK_KEY` secret during release packaging. |
+| **NuGet Trusted Publishing (OIDC)** | ✅ Active | Keyless OIDC publishing configured in `publish.yml` using `NuGet/login@v1`. No static API keys stored in secrets. |
+| **Sigstore Provenance Attestation** | ✅ Active | Cryptographic build provenance attestations generated via `actions/attest-build-provenance@v2` for all `.nupkg` artifacts. |
+| **SBOM Generation** | ✅ Active | `<GenerateSBOM>true</GenerateSBOM>` is enabled globally in `Directory.Build.props` for all packable projects. |
+| **NuGet Audit** | ✅ Active | Scans all direct and transitive dependencies for known vulnerabilities during package restore. |
+| **Dependabot** | ✅ Active | Automated dependency updates configured weekly for NuGet and monthly for GitHub Actions (`.github/dependabot.yml`). |
+| **Package Validation** | ✅ Active | `<EnablePackageValidation>true</EnablePackageValidation>` with `PackageValidationBaselineVersion=1.0.0` guards against unintended breaking binary changes. |

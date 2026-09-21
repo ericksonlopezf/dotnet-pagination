@@ -9,7 +9,7 @@ This package contains diagnostic analyzers that run during compilation to detect
 ## Installation
 
 ```xml
-<PackageReference Include="EricksonLopez.Pagination.Analyzers" Version="[VERSION]" />
+<PackageReference Include="EricksonLopez.Pagination.Analyzers" Version="2.0.0" />
 ```
 
 *Note: The analyzers are a development dependency and will not be included as a runtime dependency in your published output.*

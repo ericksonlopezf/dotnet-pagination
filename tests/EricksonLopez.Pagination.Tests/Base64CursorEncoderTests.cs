@@ -34,7 +34,7 @@ public class Base64CursorEncoderTests
     {
         var raw = "HelloWorld123";
         var encoded = _sut.Encode(raw);
-        
+
         encoded.Should().NotBeNullOrEmpty();
         encoded.Should().NotContain("+").And.NotContain("/").And.NotContain("=");
 
@@ -48,7 +48,7 @@ public class Base64CursorEncoderTests
         // 2000 chars should exceed 1024 bytes for UTF8 buffer and Base64 buffer
         var raw = new string('A', 2000);
         var encoded = _sut.Encode(raw);
-        
+
         encoded.Should().NotBeNullOrEmpty();
 
         var decoded = _sut.Decode(encoded);
@@ -63,12 +63,12 @@ public class Base64CursorEncoderTests
         // "a" -> YQ==
         // "ab" -> YWI=
         // "abc" -> YWJj
-        
+
         var raw1 = "a";
         var encoded1 = _sut.Encode(raw1);
         encoded1.Should().Be("YQ"); // Removed padding
         _sut.Decode(encoded1).Should().Be(raw1);
-        
+
         var raw2 = "ab";
         var encoded2 = _sut.Encode(raw2);
         encoded2.Should().Be("YWI");
@@ -81,14 +81,14 @@ public class Base64CursorEncoderTests
         // Normal base64 characters are OK, but here we provide something that is definitively invalid.
         // Base64 requires valid characters. We provide an invalid sequence or char.
         var act = () => _sut.Decode("???!");
-        
+
         var ex = act.Should().Throw<InvalidPaginationCursorException>()
            .WithMessage("*Base64Url*tampered*")
            .And;
-           
+
         ex.InnerException.Should().BeOfType<FormatException>()
            .Which.Message.Should().Match(m => m.Contains("status") || m.Contains("format"));
-           
+
         ex.OpaqueCursor.Should().Be("???!");
     }
 
@@ -97,16 +97,16 @@ public class Base64CursorEncoderTests
     {
         // 2000 chars should exceed 1024 bytes for UTF8 buffer and Base64 buffer
         var raw = new string('?', 2000); // Invalid characters to force exception
-        
+
         var act = () => _sut.Decode(raw);
-        
+
         var ex = act.Should().Throw<InvalidPaginationCursorException>()
            .WithMessage("*Base64Url*tampered*")
            .And;
-           
+
         ex.InnerException.Should().BeOfType<FormatException>()
            .Which.Message.Should().Match(m => m.Contains("status") || m.Contains("format"));
-           
+
         ex.OpaqueCursor.Should().Be(raw);
     }
 
@@ -124,7 +124,7 @@ public class Base64CursorEncoderTests
         }
 
         var encoded = _sut.Encode(raw);
-        
+
         encoded.Should().NotBeNullOrEmpty();
         encoded.Should().NotContain("+").And.NotContain("/"); // Must be URL safe
 

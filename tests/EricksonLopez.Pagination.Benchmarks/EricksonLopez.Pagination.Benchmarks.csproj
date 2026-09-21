@@ -6,7 +6,8 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>false</IsTestProject>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <NoWarn>$(NoWarn);CS1591;NU1901;NU1902;NU1903;NU1904</NoWarn>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);NU1901;NU1902;NU1903;NU1904</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" />

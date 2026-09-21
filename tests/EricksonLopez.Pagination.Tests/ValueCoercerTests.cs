@@ -28,7 +28,7 @@ public class ValueCoercerTests
     {
         var result = ValueCoercer.TryCoerce(value, type, out var parsed);
         result.Should().BeTrue();
-        
+
         // Use object.Equals or similar because decimal and double might have type mismatches in InlineData
         if (type == typeof(decimal) || type == typeof(decimal?))
         {
@@ -47,7 +47,7 @@ public class ValueCoercerTests
         var result = ValueCoercer.TryCoerce(guid.ToString(), typeof(Guid), out var parsed);
         result.Should().BeTrue();
         parsed.Should().Be(guid);
-        
+
         var resultNullable = ValueCoercer.TryCoerce(guid.ToString(), typeof(Guid?), out var parsedNullable);
         resultNullable.Should().BeTrue();
         parsedNullable.Should().Be(guid);
@@ -61,7 +61,7 @@ public class ValueCoercerTests
         result.Should().BeTrue();
         parsed.Should().Be(dt);
     }
-    
+
     [Fact]
     public void TryCoerce_DateTimeOffset_ReturnsTrue()
     {
@@ -101,7 +101,7 @@ public class ValueCoercerTests
         var result = ValueCoercer.TryCoerce("Second", typeof(TestEnum), out var parsed);
         result.Should().BeTrue();
         parsed.Should().Be(TestEnum.Second);
-        
+
         var resultIgnore = ValueCoercer.TryCoerce("second", typeof(TestEnum), out var parsedIgnore);
         resultIgnore.Should().BeTrue();
         parsedIgnore.Should().Be(TestEnum.Second);
@@ -114,7 +114,7 @@ public class ValueCoercerTests
         result.Should().BeFalse();
         parsed.Should().BeNull();
     }
-    
+
     [Theory]
     [InlineData("not-an-int", typeof(int))]
     [InlineData("not-a-guid", typeof(Guid))]
@@ -142,7 +142,7 @@ public class ValueCoercerTests
         result.Should().BeTrue();
         parsed.Should().Be((byte)255);
     }
-    
+
     [Fact]
     public void TryCoerce_IConvertibleFallback_Invalid_ReturnsFalse()
     {

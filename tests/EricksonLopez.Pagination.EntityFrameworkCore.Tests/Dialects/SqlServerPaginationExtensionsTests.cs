@@ -26,11 +26,11 @@ public class SqlServerPaginationExtensionsTests
         _parameters = Substitute.For<DbParameterCollection>();
 
         _command.Parameters.Returns(_parameters);
-        
+
         var param1 = Substitute.For<DbParameter>();
         var param2 = Substitute.For<DbParameter>();
         var toggle = true;
-        _command.CreateParameter().Returns(x => 
+        _command.CreateParameter().Returns(x =>
         {
             var p = toggle ? param1 : param2;
             toggle = !toggle;
@@ -89,7 +89,7 @@ public class SqlServerPaginationExtensionsTests
         _command.ExecuteScalarAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult<object?>(5000L));
 
         var count = await _dbContext.GetSqlServerApproximateCountAsync("users", "dbo");
-        
+
         count.Should().Be(5000);
         await _command.Received(1).ExecuteScalarAsync(Arg.Any<CancellationToken>());
     }
@@ -101,10 +101,10 @@ public class SqlServerPaginationExtensionsTests
         _command.ExecuteScalarAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult<object?>(3000L));
 
         var count = await SqlServerPaginationExtensions.GetApproximateCountAsync(_dbContext, "users");
-        
+
         count.Should().Be(3000);
     }
-    
+
     [Fact]
     public async Task GetApproximateCountAsync_NullResult_ReturnsZero()
     {
@@ -112,7 +112,7 @@ public class SqlServerPaginationExtensionsTests
         _command.ExecuteScalarAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult<object?>(null));
 
         var count = await _dbContext.GetSqlServerApproximateCountAsync("users");
-        
+
         count.Should().Be(0);
     }
 
@@ -123,7 +123,7 @@ public class SqlServerPaginationExtensionsTests
         _command.ExecuteScalarAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult<object?>(DBNull.Value));
 
         var count = await _dbContext.GetSqlServerApproximateCountAsync("users");
-        
+
         count.Should().Be(0);
     }
 
@@ -134,7 +134,7 @@ public class SqlServerPaginationExtensionsTests
         _command.ExecuteScalarAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult<object?>(-10L));
 
         var count = await _dbContext.GetSqlServerApproximateCountAsync("users");
-        
+
         count.Should().Be(0);
     }
 

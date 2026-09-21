@@ -31,7 +31,7 @@ public class PaginationEndpointFilter : IEndpointFilter
             {
                 if (offsetParams.PageSize > options.MaxPageSize)
                 {
-                    return Results.BadRequest(new { error = $"pageSize cannot exceed {options.MaxPageSize}." });
+                    return Results.BadRequest(new PaginationErrorResponse($"pageSize cannot exceed {options.MaxPageSize}."));
                 }
 
                 if (options.DeepOffsetWarningThreshold > 0)
@@ -48,7 +48,7 @@ public class PaginationEndpointFilter : IEndpointFilter
                 var pageSize = cursorParams.GetPageSize(options.DefaultPageSize);
                 if (pageSize > options.MaxPageSize)
                 {
-                    return Results.BadRequest(new { error = $"Cursor pagination first/last cannot exceed {options.MaxPageSize}." });
+                    return Results.BadRequest(new PaginationErrorResponse($"Cursor pagination first/last cannot exceed {options.MaxPageSize}."));
                 }
             }
         }
@@ -56,6 +56,3 @@ public class PaginationEndpointFilter : IEndpointFilter
         return await next(context);
     }
 }
-
-
-

@@ -28,7 +28,7 @@ public class FilterExpressionTests
         var filter = FilterParameters.From("Address.City=NY");
         var allowedProps = new[] { "Address.City" };
         var expr = FilterExpression.Build<TestUserWithAddress>(filter, allowedProperties: allowedProps);
-        
+
         expr.Should().NotBeNull();
         var compiled = expr!.Compile();
         compiled(new TestUserWithAddress { Address = new TestAddress { City = "NY" } }).Should().BeTrue();
@@ -69,7 +69,7 @@ public class FilterExpressionTests
         act.Should().Throw<ArgumentOutOfRangeException>().WithMessage("*maxComplexity must be greater than zero*");
     }
 
-    
+
 
     [Fact]
     public void Build_WithTooManyClauses_ThrowsArgumentOutOfRangeException()
@@ -80,7 +80,7 @@ public class FilterExpressionTests
         // FIX-05: Changed from InvalidOperationException to ArgumentOutOfRangeException.
         act.Should().Throw<ArgumentOutOfRangeException>().WithMessage("*complexity*");
     }
-    
+
     [Fact]
     public void Build_WithTooManyOrClauses_ThrowsArgumentOutOfRangeException()
     {
@@ -96,26 +96,26 @@ public class FilterExpressionTests
     {
         var filter = FilterParameters.From("Name~=John,Id>=1,IsActive=true");
         var expr = FilterExpression.Build<TestUser>(filter);
-        
+
         expr.Should().NotBeNull();
-        
+
         var compiled = expr!.Compile();
-        
+
         compiled(new TestUser { Name = "John Doe", Id = 5, IsActive = true }).Should().BeTrue();
         compiled(new TestUser { Name = "Jane Doe", Id = 5, IsActive = true }).Should().BeFalse(); // Name fails
         compiled(new TestUser { Name = "John Doe", Id = 0, IsActive = true }).Should().BeFalse(); // Id fails
         compiled(new TestUser { Name = "John Doe", Id = 5, IsActive = false }).Should().BeFalse(); // IsActive fails
     }
-    
+
     [Fact]
     public void Build_OrClauses_ReturnsExpression()
     {
         var filter = FilterParameters.From("Name=John|Name=Jane");
         var expr = FilterExpression.Build<TestUser>(filter);
-        
+
         expr.Should().NotBeNull();
         var compiled = expr!.Compile();
-        
+
         compiled(new TestUser { Name = "John", Id = 1 }).Should().BeTrue();
         compiled(new TestUser { Name = "Jane", Id = 2 }).Should().BeTrue();
         compiled(new TestUser { Name = "Bob", Id = 3 }).Should().BeFalse();
@@ -126,15 +126,15 @@ public class FilterExpressionTests
     {
         var filter = FilterParameters.From("!Name=John,!IsActive=false");
         var expr = FilterExpression.Build<TestUser>(filter);
-        
+
         expr.Should().NotBeNull();
         var compiled = expr!.Compile();
-        
+
         compiled(new TestUser { Name = "Jane", Id = 1, IsActive = true }).Should().BeTrue();
         compiled(new TestUser { Name = "John", Id = 1, IsActive = true }).Should().BeFalse();
         compiled(new TestUser { Name = "Jane", Id = 1, IsActive = false }).Should().BeFalse();
     }
-    
+
     [Fact]
     public void Build_InvalidPropertyWithThrow_ThrowsException()
     {
@@ -142,7 +142,7 @@ public class FilterExpressionTests
         var act = () => FilterExpression.Build<TestUser>(filter, unknownFieldBehavior: FilterUnknownFieldBehavior.ThrowException);
         act.Should().Throw<ArgumentException>();
     }
-    
+
     [Fact]
     public void Build_InvalidPropertyWithIgnore_ReturnsNull()
     {
@@ -185,9 +185,9 @@ public class FilterExpressionTests
     {
         var filter = FilterParameters.From("Name=John");
         var allowedProps = new[] { "Id" };
-        
+
         var act = () => FilterExpression.Build<TestUser>(filter, allowedProperties: allowedProps);
-        
+
         act.Should().Throw<InvalidOperationException>()
            .WithMessage("Filtering on property 'Name' is not permitted.");
     }
@@ -197,12 +197,12 @@ public class FilterExpressionTests
     {
         var filter = FilterParameters.From("Name=John,Id=5");
         var allowedProps = new[] { "Id" };
-        
+
         var expr = FilterExpression.Build<TestUser>(filter, unknownFieldBehavior: FilterUnknownFieldBehavior.Ignore, allowedProperties: allowedProps);
-        
+
         expr.Should().NotBeNull();
         var compiled = expr!.Compile();
-        
+
         // It should only filter by Id=5 since Name is ignored
         compiled(new TestUser { Name = "Jane", Id = 5 }).Should().BeTrue();
         compiled(new TestUser { Name = "John", Id = 6 }).Should().BeFalse();
@@ -213,9 +213,9 @@ public class FilterExpressionTests
     {
         var filter = FilterParameters.From("Id=1");
         var allowedProps = new string[] { "Id", null! }; // Null element in allowed properties
-        
+
         var expr = FilterExpression.Build<TestUser>(filter, allowedProperties: allowedProps);
-        
+
         expr.Should().NotBeNull();
     }
 
@@ -223,9 +223,9 @@ public class FilterExpressionTests
     public void Build_WithValueLengthExceedingMax_ThrowsArgumentOutOfRangeException()
     {
         var filter = FilterParameters.From("Name=John");
-        
+
         var act = () => FilterExpression.Build<TestUser>(filter, maxFilterValueLength: 3); // "John" is 4 chars
-        
+
         // FIX-05: Changed from InvalidOperationException to ArgumentOutOfRangeException.
         act.Should().Throw<ArgumentOutOfRangeException>()
            .WithMessage("*The filter value length exceeds the maximum allowed length of 3 characters*");
@@ -236,7 +236,7 @@ public class FilterExpressionTests
     {
         var filter = FilterParameters.From("Name=Bob");
         var expr = FilterExpression.Build<TestUser>(filter, maxFilterValueLength: 3); // "Bob" is 3 chars
-        
+
         expr.Should().NotBeNull();
         var compiled = expr!.Compile();
         compiled(new TestUser { Name = "Bob" }).Should().BeTrue();
@@ -247,22 +247,22 @@ public class FilterExpressionTests
     {
         var filter = FilterParameters.From(",Name=John");
         var expr = FilterExpression.Build<TestUser>(filter);
-        
+
         expr.Should().NotBeNull();
         var compiled = expr!.Compile();
-        
+
         compiled(new TestUser { Name = "John", Id = 1 }).Should().BeTrue();
     }
-    
+
     [Fact]
     public void Build_WithLeadingPipe_IgnoresEmptyOrClause()
     {
         var filter = FilterParameters.From("|Name=John");
         var expr = FilterExpression.Build<TestUser>(filter);
-        
+
         expr.Should().NotBeNull();
         var compiled = expr!.Compile();
-        
+
         compiled(new TestUser { Name = "John", Id = 1 }).Should().BeTrue();
     }
 
@@ -271,7 +271,7 @@ public class FilterExpressionTests
     {
         var filter = FilterParameters.From("   ,  |   ");
         var expr = FilterExpression.Build<TestUser>(filter);
-        
+
         expr.Should().BeNull();
     }
 
@@ -282,7 +282,7 @@ public class FilterExpressionTests
         var filterStr = string.Join(",", Enumerable.Range(1, 20).Select(i => $"Id={i}"));
         var filter = FilterParameters.From(filterStr);
         var expr = FilterExpression.Build<TestUser>(filter, maxComplexity: 20);
-        
+
         expr.Should().NotBeNull();
     }
 
@@ -293,7 +293,7 @@ public class FilterExpressionTests
         var filterStr = string.Join("|", Enumerable.Range(1, 20).Select(i => $"Id={i}"));
         var filter = FilterParameters.From(filterStr);
         var expr = FilterExpression.Build<TestUser>(filter, maxComplexity: 20);
-        
+
         expr.Should().NotBeNull();
     }
 

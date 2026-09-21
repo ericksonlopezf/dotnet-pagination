@@ -72,7 +72,7 @@ public class CosmosPaginationExtensionsTests
 
         // Act
         await container.ToCursorPagedListAsync<string>(query, parameters, maxPageSize);
-        
+
         // Assert is handled by NSubstitute Arg.Is matching the requestOptions.MaxItemCount
     }
 
@@ -101,7 +101,7 @@ public class CosmosPaginationExtensionsTests
         // Arrange
         var container = Substitute.For<Container>();
         var query = new QueryDefinition("SELECT * FROM c");
-        
+
         // Let's create an original token, e.g., "token123"
         var rawToken = "token123";
         var encodedToken = HmacCursorEncoder.DevelopmentDefault.Encode(rawToken);
@@ -211,7 +211,7 @@ public class CosmosPaginationExtensionsTests
         var container = Substitute.For<Container>();
         var query = new QueryDefinition("SELECT * FROM c");
         // No First or Last provided
-        var parameters = new CursorPaginationParameters(); 
+        var parameters = new CursorPaginationParameters();
 
         var feedIterator = Substitute.For<FeedIterator<string>>();
         var response = Substitute.For<FeedResponse<string>>();
@@ -231,7 +231,7 @@ public class CosmosPaginationExtensionsTests
 
         // Act
         await container.ToCursorPagedListAsync<string>(query, parameters);
-        
+
         // Assert is handled by NSubstitute Arg.Is matching the requestOptions.MaxItemCount
     }
 }

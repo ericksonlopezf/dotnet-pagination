@@ -9,7 +9,7 @@
     <IsPackable>true</IsPackable>
     <Title>EricksonLopez.Pagination.Dapper</Title>
     <Description>Dapper integration for EricksonLopez.Pagination. Provides offset and keyset pagination extension methods for IDbConnection.</Description>
-    <PackageTags>pagination;dapper;keyset;offset</PackageTags>
+    <PackageTags>$(CommonPackageTags);dapper;micro-orm;sql;keyset-pagination;cursor-pagination;offset-pagination</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

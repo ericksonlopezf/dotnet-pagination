@@ -28,7 +28,14 @@
       "release-type": "simple",
       "package-name": "EricksonLopez.Pagination",
       "skip-changelog": true,
-      "component": "core"
+      "component": "core",
+      "extra-files": [
+        {
+          "type": "xml",
+          "path": "Directory.Build.props",
+          "xpath": "/Project/PropertyGroup/VersionPrefix"
+        }
+      ]
     }
   },
   "pull-request-title-pattern": "chore(release): release ${version}",

@@ -1,6 +1,5 @@
 // Copyright © Erickson Lopez. MIT License.
-using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
- // Unused private types or members should be removed
+// Unused private types or members should be removed
 using System;
 using System.Linq;
 using System.Threading;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using EricksonLopez.Pagination.Abstractions;
 using EricksonLopez.Pagination.EntityFrameworkCore;
+using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -91,7 +91,7 @@ public class KeysetBuilder16ColumnsTests
 
         pagedList.Should().NotBeNull();
         pagedList.Count.Should().Be(2);
-        
+
         // Ensure cursors can be parsed (hitting decode path for 16 columns)
         var nextCursor = pagedList.EndCursor;
         var builderNext = data.Keyset(new CursorPaginationParametersBuilder().WithFirst(10).WithAfter(nextCursor).Build())
@@ -111,7 +111,7 @@ public class KeysetBuilder16ColumnsTests
             .Ascending(x => x.C14)
             .Ascending(x => x.C15)
             .Ascending(x => x.C16);
-            
+
         var pagedListNext = await builderNext.ToCursorPagedListAsync(x => new { x.C1, x.C16 });
         pagedListNext.Should().BeEmpty();
     }

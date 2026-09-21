@@ -1,7 +1,10 @@
 # ADR-0033 — MongoDB ObjectId-Based Keyset Pagination
 
 ## Status
-**Accepted** — August 2026 · _Implemented in Phase 2 (P2-F005)_
+Accepted — August 2026 · _Implemented in Phase 2 (P2-F005)_
+
+## Date
+2026-09-04
 
 ## Context
 

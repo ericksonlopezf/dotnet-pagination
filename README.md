@@ -28,8 +28,8 @@ High-performance, zero-allocation, AOT-first offset and keyset pagination ecosys
 - [Key Features](#-key-features)
 - [Ecosystem](#-ecosystem)
 - [Documentation](#-documentation)
+  - [Interactive Guides & Production Recipes](#-interactive-guides--production-recipes)
   - [Technical Reference & Architecture Guides](#-technical-reference--architecture-guides)
-  - [Interactive Showcase & Recipes](#-interactive-showcase--recipes)
 - [Installation](#-installation)
   - [1. Core & Abstractions](#1-core--abstractions)
   - [2. Data Access Providers](#2-data-access-providers)
@@ -68,6 +68,7 @@ High-performance, zero-allocation, AOT-first offset and keyset pagination ecosys
 - [Compatibility & Technical Matrix](#-compatibility--technical-matrix)
   - [Target Frameworks & Native AOT Compatibility](#target-frameworks--native-aot-compatibility)
   - [Database Dialects & Storage Provider Support](#database-dialects--storage-provider-support)
+  - [HTTP Status Codes & Problem Details Mapping (RFC 9457)](#http-status-codes--problem-details-mapping-rfc-9457)
 - [Architecture & Design Principles](#-architecture--design-principles)
   - [Execution Pipeline Architecture](#execution-pipeline-architecture)
   - [Keyset Index Seek vs. Offset Scan Mechanism](#keyset-index-seek-vs-offset-scan-mechanism)
@@ -151,25 +152,33 @@ Naïve cursor implementations serialize internal database identifiers into plain
 
 > 🌐 **Official Documentation Hub:** [https://github.com/ericksonlopezf/dotnet-pagination/tree/main/docs](https://github.com/ericksonlopezf/dotnet-pagination/tree/main/docs)
 
+### 🎓 Interactive Guides & Production Recipes
+
+| Guide / Recipe | Topic | Description |
+|---|---|---|
+| [**Quick Start**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/quick-start.md) | **First Steps** | 5-minute setup with Minimal APIs and EF Core |
+| [**Getting Started**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/getting-started.md) | **Core Concepts** | Primitives, offset vs keyset, and parameter binding |
+| [**Production Cookbook**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/cookbook.md) | **25+ Real-World Recipes** | End-to-end production patterns for CQRS, Redis, Dapper, and Native AOT |
+| [**Deep Offset Degradation**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/deep-offset-degradation.md) | **Storage Engine Mechanics** | Physical storage engine execution, MVCC, and $O(\log N)$ seeks |
+| [**GraphQL Relay Guide**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/graphql-relay-interoperability.md) | **Specification Compliance** | Relay Connections, Cursor Specs, Edges, and PageInfo |
+| [**Architecture Diagrams**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/diagrams.md) | **Visual Architectures** | Sequence flows, state machines, and execution pipelines |
+| [**Frequently Asked Questions**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/faq.md) | **FAQ & Troubleshooting** | Tiebreakers, AOT reflection, and composite keyset solutions |
+
 ### 📖 Technical Reference & Architecture Guides
 
-- [**System Overview**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/system-overview.md) — Comprehensive technical overview, architectural layering, and design tenets.
-- [**Architecture & Invariants**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/architecture.md) — Deep architectural blueprint, component interactions, and dependency graphs.
-- [**Deep Offset Degradation & Keyset Guide**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/deep-offset-degradation.md) — Physical storage engine execution mechanics of `OFFSET` vs B-Tree keyset seeks.
-- [**Architectural Decision Records (ADRs)**](https://github.com/ericksonlopezf/dotnet-pagination/tree/main/docs/adr) — Official ADR catalog documenting technical rationale and rejected architectures.
-- [**Benchmark Suite & Results**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/benchmark.md) — Multi-database performance benchmarks across 1M and 10M row datasets.
-- [**Feature Matrix & Competitive Intelligence**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/feature-matrix.md) — In-depth feature comparison vs X.PagedList, Gridify, and Sieve.
-- [**Quality Gates & Static Analysis**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/quality-gates.md) — Roslyn, SonarQube, Coverlet code coverage, and Stryker.NET mutation testing policies.
-- [**API Reference**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/api-reference.md) — Complete public API surface reference and member documentation.
-- [**API Inventory**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/api-inventory.md) — Granular index of all exported public types and extension methods.
-- [**CI/CD Pipelines**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/ci-cd-pipelines.md) — GitHub Actions enterprise build, test, and automated release pipeline specifications.
-- [**Migration Guide**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/migration-guide.md) — Upgrade steps and contract migration paths between major versions.
-
-### 🎓 Interactive Showcase & Recipes
-
-- [**Production Cookbook & Recipes**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/cookbook.md) — 25+ ready-to-use production recipes covering Minimal APIs, CQRS, Redis, Dapper, and Native AOT.
-- [**Architecture Diagrams**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/diagrams.md) — Complete collection of Mermaid sequence diagrams, state machines, and execution pipelines.
-- [**Frequently Asked Questions (FAQ)**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/faq.md) — Answers to architectural questions regarding keyset constraints, tiebreakers, and AOT.
+- [**System Overview**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/system-overview.md) — Architectural layering, zero-allocation design principles, and component isolation.
+- [**Architecture & Invariants**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/architecture.md) — Comprehensive architectural blueprint, pipeline execution graphs, and contract boundaries.
+- [**Architectural Decision Records (ADRs)**](https://github.com/ericksonlopezf/dotnet-pagination/tree/main/docs/adr) — Official catalog of 42 ADRs documenting design rationale, invariants, and rejected proposals.
+- [**Multi-Engine Benchmark Suite**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/benchmark.md) — BenchmarkDotNet results across 1M and 10M row datasets in PostgreSQL, SQL Server, and SQLite.
+- [**Feature Matrix & Competitive Analysis**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/feature-matrix.md) — In-depth technical comparison vs MR.EFCore.Keyset, Gridify, X.PagedList, and Sieve.
+- [**Quality Gates & Governance**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/quality-gates.md) — Roslyn analyzers, SonarQube rules, 100% mutation testing with Stryker.NET, and Coverlet policies.
+- [**API Reference**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/api-reference.md) — Complete public API surface reference, extension methods, and type contracts.
+- [**API Inventory**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/api-inventory.md) — Comprehensive member-by-member signature audit and type classifications.
+- [**Performance Tuning Guide**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/performance-guide.md) — Indexing strategies, zero-allocation tips, and lazy projection mappings.
+- [**CI/CD Pipeline Specifications**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/ci-cd-pipelines.md) — GitHub Actions workflows, AOT smoke tests, SBOM generation, and NuGet signing.
+- [**Migration Guide**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/migration-guide.md) — Step-by-step upgrade instructions, breaking change logs, and contract migration paths.
+- [**Testing Roadmap**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/testing-roadmap.md) — Property-based testing invariants, concurrency stress tests, and mutation suites.
+- [**Troubleshooting Guide**](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/troubleshooting.md) — Deep-dive solutions for common errors, cursor expiration, and index misalignment.
 
 ---
 
@@ -362,7 +371,7 @@ app.MapPost("/api/products/export", async (
     [FromServices] AppDbContext db,
     CancellationToken ct) =>
 {
-    var cursor = new CursorPaginationParameters { PageSize = 1000 };
+    var cursor = new CursorPaginationParameters { First = 1000 };
 
     await foreach (var product in db.Products
         .Keyset(cursor)
@@ -409,6 +418,8 @@ public sealed class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, 
     }
 }
 ```
+
+> **Tip:** Replace `.Map(...)` with `.LazyMap(...)` to defer DTO projection until JSON serialization time, eliminating the intermediate `ProductDto[]` allocation for high-throughput endpoints. See [PagedListExtensions.LazyMap](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/api-reference.md#lazymap) and the [Performance Guide](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/docs/performance-guide.md).
 
 ### Use Case 2: Multi-Column Keyset Pagination with Dapper
 Execute raw SQL keyset queries with `DapperKeysetBuilder<T>` supporting multiple dialects and typed cursor encoding:
@@ -678,15 +689,15 @@ The `EricksonLopez.Pagination.Analyzers` package enforces pagination invariants 
 > [!NOTE]
 > None of these diagnostics provide an automatic Roslyn **CodeFix** (quick-fix lightbulb). All resolutions listed below are **manual** code changes the developer must apply.
 
-| Diagnostic ID | Severity | Category | Description | Manual Resolution |
-|---|---|---|---|---|
-| **PAG002** | Warning | Usage | Missing `OrderBy` before `ToPagedListAsync` causing non-deterministic results | Add `.OrderBy(x => x.Id)` before calling `ToPagedListAsync` |
-| **PAG003** | Warning | Usage | Unexpected `OrderBy` before `ToCursorPagedListAsync` | Remove `OrderBy` and use `.Keyset().Ascending()` |
-| **PAG004** | Warning | Usage | Calling `OrderBy` before `Keyset()` causes duplicate SQL `ORDER BY` clauses | Remove preceding `OrderBy` calls |
-| **PAG005** | Info | Performance | Runtime cursor reflection detected in Native AOT project | Install `EricksonLopez.Pagination.SourceGenerators` |
-| **PAG006** | Warning | Security | `ToCursorPagedListAsync` called — verify that `HmacCursorEncoder` is configured in `AddPagination()` (suppress if already configured) | Configure `HmacCursorEncoder` with a secret key in `AddPagination()` or suppress with `#pragma warning disable PAG006` |
-| **PAG007** | Warning | Performance | `KeysetBuilder<T>` chain has more than 5 columns | Consolidate composite keys or use a single unique tiebreaker column |
-| **PAG008** | Warning | Security | Explicit instantiation of insecure `Base64CursorEncoder` | Replace with `HmacCursorEncoder` |
+| Diagnostic ID | Severity | Category | Description | CodeFix | Resolution |
+|---|---|---|---|:---:|---|
+| **PAG002** | Warning | Usage | Missing `OrderBy` before `ToPagedListAsync` causing non-deterministic results | ❌ None | Add `.OrderBy(x => x.Id)` before calling `ToPagedListAsync` |
+| **PAG003** | Warning | Usage | Unexpected `OrderBy` before `ToCursorPagedListAsync` | ❌ None | Remove `OrderBy` and use `.Keyset().Ascending()` |
+| **PAG004** | Warning | Usage | Calling `OrderBy` before `Keyset()` causes duplicate SQL `ORDER BY` clauses | ❌ None | Remove preceding `OrderBy` calls |
+| **PAG005** | Info | Performance | Runtime cursor reflection detected in Native AOT project | ❌ None | Install `EricksonLopez.Pagination.SourceGenerators` |
+| **PAG006** | Warning | Security | `ToCursorPagedListAsync` called — verify that `HmacCursorEncoder` is configured in `AddPagination()` (suppress if already configured) | ❌ None | Configure `HmacCursorEncoder` with a secret key in `AddPagination()` or suppress with `#pragma warning disable PAG006` |
+| **PAG007** | Warning | Performance | `KeysetBuilder<T>` chain has more than 5 columns | ❌ None | Consolidate composite keys or use a single unique tiebreaker column |
+| **PAG008** | Warning | Security | Explicit instantiation of insecure `Base64CursorEncoder` | ❌ None | Replace with `HmacCursorEncoder` |
 
 ---
 
@@ -698,6 +709,25 @@ The test suite enforces mathematical correctness, concurrency invariants, and cr
 - **Property-Based Testing**: **FsCheck.Xunit** verifying mathematical invariants across cursor encoding, AST parsing, and boundary conditions.
 - **Component Testing**: **bUnit** verifying Blazor `<PagedListPager>` DOM rendering and interaction.
 - **Realistic Integration Testing**: **Testcontainers** (PostgreSQL 16, SQL Server 2022, MongoDB 7) running real database engines.
+
+```csharp
+[Fact]
+public async Task KeysetPagination_TraversesFeedDeterministically()
+{
+    var cursor = new CursorPaginationParameters { First = 20 };
+    var page = await _db.Products
+        .Keyset(cursor)
+        .Descending(p => p.CreatedAt)
+        .Ascending(p => p.Id)
+        .ToCursorPagedListAsync();
+
+    // Declarative assertions with AwesomeAssertions
+    page.Should().NotBeNull();
+    page.Count.Should().Be(20);
+    page.HasNextPage.Should().BeTrue();
+    page.EndCursor.Should().NotBeNullOrWhiteSpace();
+}
+```
 
 ### Code Coverage & Exclusions
 Code coverage is collected in Cobertura format via Coverlet and uploaded to Codecov:
@@ -728,7 +758,7 @@ dotnet stryker
 
 ## ⚡ Performance Benchmarks
 
-> **Environment:** AMD Ryzen 7 9800X3D (8C/8T @ 4.70 GHz), Windows 11 25H2, .NET 10.0.10 Release, BenchmarkDotNet v0.15.8
+> **Environment:** AMD Ryzen 7 9800X3D (8C/8T @ 4.70 GHz), Windows 11 (10.0.26200.9168/25H2), .NET 10.0.10 Release, BenchmarkDotNet v0.15.8
 
 ### 1. Deep Pagination Scaling (1,000,000 Rows in PostgreSQL 16)
 Fetching `PageSize = 100` at depths of Page 1, Page 100, and Page 10,000:
@@ -795,25 +825,25 @@ Measuring `FilterExpression.Build<T>()` parsing DSL strings (`name~=phone,price>
 
 ### Target Frameworks & Native AOT Compatibility
 
-| Package | .NET 8.0 LTS | .NET 9.0 STS | .NET 10.0 | netstandard2.0 | Native AOT | Trimmable |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|
-| `EricksonLopez.Pagination.Abstractions` | ✅ | ✅ | ✅ | ❌ | ✅ Fully AOT | ✅ |
-| `EricksonLopez.Pagination` (Core) | ✅ | ✅ | ✅ | ❌ | ✅ Fully AOT | ✅ |
-| `EricksonLopez.Pagination.EntityFrameworkCore` | ✅ | ✅ | ✅ | ❌ | ⚠️ With SrcGen | ✅ |
-| `EricksonLopez.Pagination.AspNetCore` | ✅ | ✅ | ✅ | ❌ | ✅ Fully AOT | ✅ |
-| `EricksonLopez.Pagination.Dapper` | ✅ | ✅ | ✅ | ❌ | ⚠️ Direct SQL | ⚠️ |
-| `EricksonLopez.Pagination.LinqToDB` | ✅ | ✅ | ✅ | ❌ | ❌ Reflection | ❌ |
-| `EricksonLopez.Pagination.MongoDB` | ✅ | ✅ | ✅ | ❌ | ⚠️ Direct Driver | ⚠️ |
-| `EricksonLopez.Pagination.Cosmos` | ✅ | ✅ | ✅ | ❌ | ⚠️ Direct Driver | ⚠️ |
-| `EricksonLopez.Pagination.Elasticsearch` | ✅ | ✅ | ✅ | ❌ | ⚠️ Direct Driver | ⚠️ |
-| `EricksonLopez.Pagination.Redis` | ✅ | ✅ | ✅ | ❌ | ✅ Fully AOT | ✅ |
-| `EricksonLopez.Pagination.Relay` | ✅ | ✅ | ✅ | ❌ | ✅ Fully AOT | ✅ |
-| `EricksonLopez.Pagination.Result` | ✅ | ✅ | ✅ | ❌ | ✅ Fully AOT | ✅ |
-| `EricksonLopez.Pagination.Blazor` | ✅ | ✅ | ✅ | ❌ | ✅ Fully AOT | ✅ |
-| `EricksonLopez.Pagination.Grpc` | ✅ | ✅ | ✅ | ❌ | ✅ Fully AOT | ✅ |
-| `EricksonLopez.Pagination.OpenApi` | ✅ | ✅ | ✅ | ❌ | ⚠️ Reflection | ⚠️ |
-| `EricksonLopez.Pagination.SourceGenerators` | ❌ | ❌ | ❌ | ✅ | N/A (Build-time) | N/A |
-| `EricksonLopez.Pagination.Analyzers` | ❌ | ❌ | ❌ | ✅ | N/A (Build-time) | N/A |
+| Package | .NET 8.0 LTS | .NET 9.0 STS | .NET 10.0 | NativeAOT | Trimmable | Notes |
+|---|:---:|:---:|:---:|:---:|:---:|---|
+| `EricksonLopez.Pagination.Abstractions` | ✅ | ✅ | ✅ | ✅ Fully AOT | ✅ | Zero-dependency contracts and attributes |
+| `EricksonLopez.Pagination` (Core) | ✅ | ✅ | ✅ | ✅ Fully AOT | ✅ | Core encoders, HMAC signing, and collections |
+| `EricksonLopez.Pagination.EntityFrameworkCore` | ✅ | ✅ | ✅ | ⚠️ With SrcGen | ✅ | Keyset queries and dynamic filter/sort DSL |
+| `EricksonLopez.Pagination.AspNetCore` | ✅ | ✅ | ✅ | ✅ Fully AOT | ✅ | Minimal APIs, model binders, and ETag caching |
+| `EricksonLopez.Pagination.Dapper` | ✅ | ✅ | ✅ | ⚠️ Direct SQL | ⚠️ | Raw SQL multi-dialect keyset execution |
+| `EricksonLopez.Pagination.LinqToDB` | ✅ | ✅ | ✅ | ❌ Reflection | ❌ | LinqToDB queryable provider extensions |
+| `EricksonLopez.Pagination.MongoDB` | ✅ | ✅ | ✅ | ⚠️ Direct Driver | ⚠️ | Official MongoDB C# driver extensions |
+| `EricksonLopez.Pagination.Cosmos` | ✅ | ✅ | ✅ | ⚠️ Direct Driver | ⚠️ | Azure Cosmos DB continuation tokens |
+| `EricksonLopez.Pagination.Elasticsearch` | ✅ | ✅ | ✅ | ⚠️ Direct Driver | ⚠️ | Elasticsearch 8.x search_after cursor |
+| `EricksonLopez.Pagination.Redis` | ✅ | ✅ | ✅ | ✅ Fully AOT | ✅ | Distributed nonce replay store |
+| `EricksonLopez.Pagination.Relay` | ✅ | ✅ | ✅ | ✅ Fully AOT | ✅ | GraphQL Relay Cursor Connections spec |
+| `EricksonLopez.Pagination.Result` | ✅ | ✅ | ✅ | ✅ Fully AOT | ✅ | Railway-Oriented Programming integration |
+| `EricksonLopez.Pagination.Blazor` | ✅ | ✅ | ✅ | ✅ Fully AOT | ✅ | Headless `<PagedListPager>` Razor component |
+| `EricksonLopez.Pagination.Grpc` | ✅ | ✅ | ✅ | ✅ Fully AOT | ✅ | Protobuf message converters and contracts |
+| `EricksonLopez.Pagination.OpenApi` | ✅ | ✅ | ✅ | ⚠️ Reflection | ⚠️ | Swagger / OpenAPI schema transformers |
+| `EricksonLopez.Pagination.SourceGenerators` | ❌ | ❌ | ❌ | N/A | N/A | Roslyn source generator (.NET Standard 2.0) |
+| `EricksonLopez.Pagination.Analyzers` | ❌ | ❌ | ❌ | N/A | N/A | Roslyn diagnostic analyzer (.NET Standard 2.0) |
 
 ### Database Dialects & Storage Provider Support
 
@@ -827,6 +857,18 @@ Measuring `FilterExpression.Build<T>()` parsing DSL strings (`name~=phone,price>
 | **MongoDB 6.0+** | ✅ `Skip().Limit()` | ✅ `ObjectId` / Field Seek | ❌ Exact count | ✅ Composite Sort | ✅ `IAsyncEnumerable` |
 | **Azure Cosmos DB** | ❌ Continuation | ✅ Continuation Tokens | ❌ Exact count | ❌ Single Token | ✅ Change Feed |
 | **Elasticsearch 8.x** | ✅ `from / size` | ✅ `search_after` | ✅ Approximate hits | ✅ Multi-field Sort | ✅ Scroll / Search |
+
+### HTTP Status Codes & Problem Details Mapping (RFC 9457)
+
+| Domain Scenario / Exception | HTTP Status | Problem Type URI | Description |
+|---|:---:|---|---|
+| `InvalidPaginationCursorException` | **400 Bad Request** | `https://tools.ietf.org/html/rfc7231#section-6.5.1` | Cursor signature verification failed, corrupted payload, or schema mismatch |
+| `ExpiredPaginationCursorException` | **410 Gone** | `https://tools.ietf.org/html/rfc7231#section-6.5.9` | Cursor TTL timestamp exceeded expiration window; client must restart feed |
+| `ReplayedPaginationCursorException` | **409 Conflict** | `https://tools.ietf.org/html/rfc7231#section-6.5.8` | Cursor nonce was already consumed in distributed store (`ICursorReplayStore`) |
+| Page Size Limit Violation (`pageSize > maxPageSize`) | **400 Bad Request** | `https://tools.ietf.org/html/rfc7231#section-6.5.1` | Requested page size exceeds server configured `MaxPageSize` threshold |
+| ETag Cache Match (`If-None-Match`) | **304 Not Modified** | N/A | Content hash unchanged; payload body omitted to preserve bandwidth |
+
+> 🛡️ **Target Framework & Lifecycle Policy**: First-class multi-targeting across `.NET 10` (Modern LTS), `.NET 9` (STS), and `.NET 8` (Enterprise LTS) — along with `.NET Standard 2.0` for Roslyn analyzers and source generators — is actively maintained. Full backward compatibility is guaranteed until Microsoft officially reaches End-of-Life (EOL) for .NET 8 and .NET 9 in November 2026, at which milestone the ecosystem will transition to .NET 10 and .NET 11.
 
 ---
 
@@ -935,22 +977,22 @@ stateDiagram-v2
 - **Root Cause**: The keyset ordering lacks a unique tiebreaker. When sorting on non-unique fields (e.g. `CreatedAt` or `Price`), identical values create ambiguous seek boundaries.
 - **Solution**: Always append a unique identifier (e.g. `Id`) as the last column in your keyset chain: `.Ascending(p => p.CreatedAt).Ascending(p => p.Id)`. Analyzers `PAG002` and `PAG004` validate sorting invariants.
 
-### 2. `ExpiredPaginationCursorException` (HTTP 410 Gone)
+### 2. ExpiredPaginationCursorException (HTTP 410 Gone)
 - **Symptom**: Client requests fail with `ExpiredPaginationCursorException`.
 - **Root Cause**: The cursor's timestamp exceeds the configured `timeToLive` threshold.
 - **Solution**: Catch `ExpiredPaginationCursorException` in your endpoint or global exception handler and return RFC 7807 ProblemDetails with HTTP 410 Gone, instructing the client to restart pagination.
 
-### 3. `ReplayedPaginationCursorException` in Clustered Environments
+### 3. ReplayedPaginationCursorException in Clustered Environments
 - **Symptom**: Cursors pass on one node but trigger false replay conflicts on other pods.
 - **Root Cause**: Using `InMemoryCursorReplayStore` in a multi-pod Kubernetes deployment.
 - **Solution**: Install `EricksonLopez.Pagination.Redis` and register `AddPaginationRedisReplayStore()` in `Program.cs` to share the nonce store across all pods.
 
-### 4. `InvalidPaginationCursorException` After Deployment
+### 4. InvalidPaginationCursorException After Deployment
 - **Symptom**: Active users receive `InvalidPaginationCursorException` immediately following a rolling deployment.
 - **Root Cause**: Keyset sort columns were altered in code. The FNV-1a schema fingerprint detected a mismatch between the cursor token and the new schema definition.
 - **Solution**: Catch `InvalidPaginationCursorException` and return HTTP 400 Bad Request prompting the client to refresh its feed.
 
-### 5. Excessive Keyset Columns Warning (`PAG007`)
+### 5. Excessive Keyset Columns Warning (PAG007)
 - **Symptom**: Compiler emits warning `PAG007: KeysetBuilder has too many columns`.
 - **Root Cause**: Defining more than 5 sort columns generates deeply nested `WHERE` predicates that overwhelm query optimizers on databases lacking row-value syntax.
 - **Solution**: Restrict keyset sorting to 1–3 business columns followed by a single unique tiebreaker.
@@ -996,7 +1038,7 @@ dotnet test EricksonLopez.Pagination.slnx -c Release --settings .runsettings
 dotnet stryker
 ```
 
-Please review our [Contributing Guidelines](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/CONTRIBUTING.md), [Code of Conduct](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/CODE_OF_CONDUCT.md), [Security Policy](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/SECURITY.md), [Governance Model](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/GOVERNANCE.md), and [Roadmap](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/roadmap.md) before submitting a pull request.
+Please review our [Contributing Guidelines](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/CONTRIBUTING.md), [Code of Conduct](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/CODE_OF_CONDUCT.md), [Security Policy](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/SECURITY.md), [Governance Model](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/GOVERNANCE.md), and [Roadmap](https://github.com/ericksonlopezf/dotnet-pagination/blob/main/ROADMAP.md) before submitting a pull request.
 
 ---
 

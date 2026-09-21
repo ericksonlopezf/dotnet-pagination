@@ -19,9 +19,9 @@ public class PaginationExceptionHandlerTests
     {
         var handler = new PaginationExceptionHandler();
         var context = new DefaultHttpContext();
-        
+
         var result = await handler.TryHandleAsync(context, new InvalidOperationException("Normal error"), CancellationToken.None);
-        
+
         result.Should().BeFalse();
     }
 
@@ -35,16 +35,16 @@ public class PaginationExceptionHandlerTests
         context.Response.Body = stream;
 
         var exception = new InvalidPaginationCursorException("Bad cursor", "invalid-value", new InvalidOperationException());
-        
+
         var result = await handler.TryHandleAsync(context, exception, CancellationToken.None);
-        
+
         result.Should().BeTrue();
         context.Response.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        
+
         stream.Position = 0;
         using var reader = new StreamReader(stream);
         var responseBody = await reader.ReadToEndAsync();
-        
+
         responseBody.Should().Contain("Invalid Pagination Cursor");
         responseBody.Should().Contain("Bad cursor");
         responseBody.Should().Contain("invalid-value");

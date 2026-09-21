@@ -222,7 +222,7 @@ public class TestClass
     {
         var analyzer = new OrderByBeforeCursorAnalyzer();
         var rule = analyzer.SupportedDiagnostics[0];
-        
+
         AwesomeAssertions.AssertionExtensions.Should(rule.Id).Be("PAG004");
         AwesomeAssertions.AssertionExtensions.Should(rule.Title.ToString()).Be("OrderBy before Cursor Pagination");
         AwesomeAssertions.AssertionExtensions.Should(rule.MessageFormat.ToString()).Be("Calling '{0}' before '{1}' causes multiple ORDER BY clauses. Use Keyset().Ascending() instead.");

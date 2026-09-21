@@ -36,9 +36,9 @@ Install only what you need:
 | `EricksonLopez.Pagination.Relay` | GraphQL Relay Cursor Connections specification (`Connection<T>`, `Edge<T>`, `PageInfo`) | `net8.0;net9.0;net10.0` |
 | `EricksonLopez.Pagination.Elasticsearch` | Elasticsearch 8.x `search_after` cursor pagination and index mapping | `net8.0;net9.0;net10.0` |
 | `EricksonLopez.Pagination.LinqToDB` | LinqToDB LINQ provider offset and keyset cursor pagination extensions | `net8.0;net9.0;net10.0` |
-| `EricksonLopez.Pagination.Result` | Railway-Oriented Programming integration with `EricksonLopez.Result` | `net10.0` |
+| `EricksonLopez.Pagination.Result` | Railway-Oriented Programming integration with `EricksonLopez.Result` | `net8.0;net9.0;net10.0` |
 | `EricksonLopez.Pagination.SourceGenerators` | Roslyn source generator — emits `[ModuleInitializer]` to register cursor decoders for Native AOT | `netstandard2.0` |
-| `EricksonLopez.Pagination.Analyzers` | Roslyn analyzers (`PAG001`–`PAG008`) — catches pagination bugs at compile time | `netstandard2.0` |
+| `EricksonLopez.Pagination.Analyzers` | Roslyn analyzers (`PAG002`–`PAG008`, `PAG001` reserved) — catches pagination bugs at compile time | `netstandard2.0` |
 
 ## Key Features
 
@@ -52,7 +52,7 @@ Install only what you need:
 | ETag / 304 Not Modified | `ToPagedResult(request)` generates deterministic ETags and returns 304 when unchanged |
 | Batch processing | `ToPagedListBatchedAsync()` iterates all pages as `IAsyncEnumerable<IPagedList<T>>` |
 | Native AOT | `Abstractions`, `Core`, `AspNetCore`, `Blazor`, `Grpc` are fully AOT-compatible |
-| Roslyn analyzers | `PAG001` (unsorted `IQueryable`), `PAG008` (insecure Base64 encoder), `PAG007` (keyset > 5 cols), and `PAG002`–`PAG006` (keyset configuration diagnostics) |
+| Roslyn analyzers | `PAG002` (unsorted `IQueryable`), `PAG003` (OrderBy before cursor pagination), `PAG004` (duplicate OrderBy), `PAG005` (AOT recommendation), `PAG006` (HMAC configuration verification), `PAG007` (keyset > 5 cols), `PAG008` (Base64 encoder warning), with `PAG001` reserved |
 
 ## Performance Model
 
@@ -78,12 +78,12 @@ Abstractions (zero dependencies)
             ├── Cosmos       (extends Core, uses Microsoft.Azure.Cosmos)
             ├── Elasticsearch (extends Core, uses Elastic.Clients.Elasticsearch)
             ├── OpenApi      (extends Core, uses Swashbuckle.AspNetCore.SwaggerGen)
-            ├── Relay        (extends Core + Abstractions)
-            └── Result       (extends Core + Abstractions; net10.0 only)
+            └── Relay        (extends Core + Abstractions)
 Abstractions (zero dependencies)
     ├── Blazor (extends Abstractions only, uses Microsoft.AspNetCore.Components.Web)
     ├── Grpc   (extends Abstractions only, uses Google.Protobuf)
-    └── Redis  (extends Abstractions only, uses StackExchange.Redis)
+    ├── Redis  (extends Abstractions only, uses StackExchange.Redis)
+    └── Result (extends Abstractions only, uses EricksonLopez.Result)
 SourceGenerators (compile-time only, netstandard2.0)
 Analyzers        (compile-time only, netstandard2.0)
 ```

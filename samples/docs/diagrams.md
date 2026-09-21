@@ -1,7 +1,7 @@
 # Architecture Diagrams — EricksonLopez.Pagination
 
 > Updated with complete diagrams for all library layers.
-> For narrative description, see [architecture.md](architecture.md) and [functional-map.md](functional-map.md).
+> For narrative description, see [architecture-guide.md](architecture-guide.md) and [functional-map.md](functional-map.md).
 
 ---
 
@@ -289,3 +289,53 @@ sequenceDiagram
     end
     Ext-->>App: (end of stream)
 ```
+
+---
+
+## 11. Flow — Parallel Keyset Partitioning (SplitKeysetPartitionsAsync)
+
+```mermaid
+sequenceDiagram
+    participant Worker as Background Task / ETL
+    participant Ext as KeysetPartitioningExtensions
+    participant DB as Database Engine
+
+    Worker->>Ext: db.Products.SplitKeysetPartitionsAsync(p => p.Id, partitionCount: 4)
+    Ext->>DB: SELECT MIN(Id), MAX(Id) FROM Products
+    DB-->>Ext: minId = 1, maxId = 1000000
+    Ext->>Ext: Calculates step = 250000
+    Ext-->>Worker: List of 4 KeysetPartition<int>
+    par Worker 1
+        Worker->>DB: WHERE Id >= 1 AND Id <= 250000
+    and Worker 2
+        Worker->>DB: WHERE Id >= 250001 AND Id <= 500000
+    and Worker 3
+        Worker->>DB: WHERE Id >= 500001 AND Id <= 750000
+    and Worker 4
+        Worker->>DB: WHERE Id >= 750001 AND Id <= 1000000
+    end
+```
+
+---
+
+## 12. Flow — Error Handling & Typed Exception Pipeline
+
+```mermaid
+flowchart TD
+    Client["Client HTTP Request"] --> API["Minimal API Endpoint"]
+    API --> Decoder{"ICursorEncoder.Decode(cursor)"}
+    Decoder -- "Tampered or Malformed" --> Ex1["InvalidPaginationCursorException"]
+    Decoder -- "Signature Valid, but UtcNow > ExpiredAt" --> Ex2["ExpiredPaginationCursorException"]
+    Decoder -- "Signature Valid, but Nonce Already Acquired" --> Ex3["ReplayedPaginationCursorException"]
+    Decoder -- "Valid & Fresh" --> Query["Execute Keyset / Offset Query"]
+    
+    Ex1 --> Handler["PaginationExceptionHandler (IExceptionHandler)"]
+    Ex2 --> Handler
+    Ex3 --> Handler
+
+    Handler --> Log["PaginationLogEvents / PaginationMetrics"]
+    Handler --> ProblemDetails["RFC 7807 ProblemDetails JSON\nHTTP 400 Bad Request\n(or 410 Gone / 409 Conflict)"]
+    ProblemDetails --> ReturnClient["Returned to Client"]
+    Query --> SuccessResponse["HTTP 200 OK + PagedResponse<T> / ETag"]
+```
+

@@ -22,7 +22,7 @@ public class ConcurrentFifoCacheTests
     public void GetOrAdd_AddsValue_WhenNotExists()
     {
         var cache = new ConcurrentFifoCache<int, string>(2);
-        
+
         var val = cache.GetOrAdd(1, k => $"Val{k}");
         val.Should().Be("Val1");
     }
@@ -31,10 +31,10 @@ public class ConcurrentFifoCacheTests
     public void GetOrAdd_ReturnsExistingValue_WhenExists()
     {
         var cache = new ConcurrentFifoCache<int, string>(2);
-        
+
         cache.GetOrAdd(1, _ => "First");
         var val = cache.GetOrAdd(1, _ => "Second");
-        
+
         val.Should().Be("First");
     }
 
@@ -42,14 +42,14 @@ public class ConcurrentFifoCacheTests
     public void GetOrAdd_EvictsOldest_WhenExceedsCapacity()
     {
         var cache = new ConcurrentFifoCache<int, string>(2);
-        
+
         cache.GetOrAdd(1, _ => "A");
         cache.GetOrAdd(2, _ => "B");
         cache.GetOrAdd(3, _ => "C"); // This should evict 1
-        
+
         var val2 = cache.GetOrAdd(2, _ => "NewB"); // 2 should NOT be evicted yet
         var val1 = cache.GetOrAdd(1, _ => "NewA"); // This should be a cache miss and run factory
-        
+
         val1.Should().Be("NewA");
         val2.Should().Be("B");
     }
@@ -58,12 +58,12 @@ public class ConcurrentFifoCacheTests
     public void Clear_RemovesAllItems()
     {
         var cache = new ConcurrentFifoCache<int, string>(2);
-        
+
         cache.GetOrAdd(1, _ => "A");
         cache.GetOrAdd(2, _ => "B");
-        
+
         cache.Clear();
-        
+
         var val1 = cache.GetOrAdd(1, _ => "NewA");
         val1.Should().Be("NewA");
     }
@@ -72,36 +72,36 @@ public class ConcurrentFifoCacheTests
     public void Clear_ClearsQueueSoEvictionWorksCorrectlyAfterwards()
     {
         var cache = new ConcurrentFifoCache<int, string>(2);
-        
+
         cache.GetOrAdd(1, _ => "A");
         cache.GetOrAdd(2, _ => "B");
-        
+
         cache.Clear();
-        
+
         cache.GetOrAdd(3, _ => "C");
         cache.GetOrAdd(4, _ => "D");
         cache.GetOrAdd(5, _ => "E"); // This should evict 3 if queue was properly cleared
-        
+
         var val3 = cache.GetOrAdd(3, _ => "NewC");
         val3.Should().Be("NewC"); // 3 must have been evicted, so factory runs again
     }
-    
+
     [Fact]
     public async Task GetOrAdd_ConcurrentAccess_IsThreadSafe()
     {
         var cache = new ConcurrentFifoCache<int, string>(100);
-        
+
         var tasks = new Task[500];
         for (int i = 0; i < tasks.Length; i++)
         {
             int index = i % 150; // Causes evictions since maxCapacity is 100
-            tasks[i] = Task.Run(() => 
+            tasks[i] = Task.Run(() =>
             {
                 var val = cache.GetOrAdd(index, k => $"Val{k}");
                 val.Should().Be($"Val{index}");
             });
         }
-        
+
         await Task.WhenAll(tasks);
     }
 
@@ -109,7 +109,7 @@ public class ConcurrentFifoCacheTests
     {
         public bool TryAddFailed { get; set; }
         private int _callCount;
-        
+
         public bool Equals(int x, int y)
         {
             if (x == 2 || y == 2)
@@ -165,7 +165,7 @@ public class ConcurrentFifoCacheTests
             // Retry 1 TryGetValue: false
             // Retry 2 TryAdd: true (fails)
             // Retry 2 TryGetValue: false
-            
+
             // Wait, if it always returns true for TryAdd, it will fail TryAdd. 
             // We need to differentiate TryAdd from TryGetValue.
             // TryGetValue calls Equals when walking the bucket. TryAdd calls Equals when checking for duplicates.
@@ -195,11 +195,11 @@ public class ConcurrentFifoCacheTests
             if (_callCount == 1) return false; // fast TryGetValue (fails)
             if (_callCount == 2) return true;  // TryAdd (fails)
             if (_callCount == 3) return false; // TryGetValue race (fails)
-            
+
             // Retry 0
             if (_callCount == 4) return true;  // TryAdd (fails)
             if (_callCount == 5) return true;  // TryGetValue (succeeds!)
-            
+
             return false;
         }
         private int _callCount;
@@ -214,7 +214,7 @@ public class ConcurrentFifoCacheTests
 
         cache.GetOrAdd(1, _ => "One"); // bucket 1 now has key 1
         var result = cache.GetOrAdd(2, _ => "Two"); // should return "One" because TryGetValue succeeds on retry!
-        
+
         // Wait, if TryGetValue succeeds, it returns the existing lazy value, which evaluates to "One".
         result.Should().Be("One");
     }
@@ -229,7 +229,7 @@ public class ConcurrentFifoCacheTests
         // Capacity is 1, so count will be 1. 
         // Adding 2 will succeed in Retry 0, so count becomes 2, which triggers eviction inside the retry loop!
         var result = cache.GetOrAdd(2, _ => "TwoFallback");
-        
+
         result.Should().Be("TwoFallback");
     }
 }

@@ -76,7 +76,7 @@ public static class MongoCursorPaginationExtensions
             hasAfter, afterKey!,
             hasBefore, beforeKey!,
             parameters, direction, defaultPageSize, maxPageSize, cursorEncoder, factory, cancellationToken)
-            // Stryker disable once boolean
+// Stryker disable once boolean
 .ConfigureAwait(false);
     }
     // Stryker restore all
@@ -366,12 +366,12 @@ public static class MongoCursorPaginationExtensions
         var param = keySelector.Parameters[0];
         var newType = typeof(KeysetMongoProjection<TProjection, TKey>);
         var newExpr = Expression.New(newType);
-        
+
         var bindings = new List<MemberBinding>();
         var itemProp = newType.GetProperty("Item")!;
         var rewrittenProjection = new MongoParameterReplacer(projection.Parameters[0], param).Visit(projection.Body);
         bindings.Add(Expression.Bind(itemProp, rewrittenProjection));
-        
+
         var keyProp = newType.GetProperty("Key")!;
         bindings.Add(Expression.Bind(keyProp, keySelector.Body));
 

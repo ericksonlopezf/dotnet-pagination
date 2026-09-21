@@ -121,7 +121,7 @@ public class FilterParametersModelBinderTests
         var context = new DefaultModelBindingContext
         {
             ModelName = "filter",
-            ValueProvider = new SimpleValueProvider(null, false), 
+            ValueProvider = new SimpleValueProvider(null, false),
             ModelState = new ModelStateDictionary()
         };
 

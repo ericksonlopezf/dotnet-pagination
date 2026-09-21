@@ -3,8 +3,10 @@
 Date: 2026-08-14
 
 ## Status
-
 Accepted
+
+## Date
+2026-08-14
 
 ## Context
 
@@ -66,3 +68,8 @@ but its test coverage is only **30.7%** (Stryker mutation score, 2026-08-14 run)
 | API review | Consistent with EFCore KeysetBuilder\<T\> API surface |
 | Documentation | README section + cookbook examples |
 | AOT status | Declared explicitly (not inferred) |
+
+---
+
+## Graduation Update (2026-09)
+Comprehensive unit and integration test suites were implemented under `tests/EricksonLopez.Pagination.LinqToDB.Tests` (including `CursorPaginationLinqToDBExtensionsTests.cs`, `LinqToDBAdvancedKeysetTests.cs`, and `QueryableLinqToDBExtensionsTests.cs`). The package is `<IsPackable>true</IsPackable>`, included in the 17 production ecosystem packages, and tracked in solution quality gates.

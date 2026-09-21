@@ -64,12 +64,12 @@ public static class PagedListExtensions
         {
             mappedItems[i] = selector(source[i]);
         }
-        
+
         return new PagedList<TResult>(
-            mappedItems, 
-            source.TotalCount, 
-            source.Page, 
-            source.PageSize, 
+            mappedItems,
+            source.TotalCount,
+            source.Page,
+            source.PageSize,
             source.HasNextPage);
     }
 
@@ -101,11 +101,11 @@ public static class PagedListExtensions
         {
             mappedItems[i] = selector(source[i]);
         }
-        
+
         return new CountedPagedList<TResult>(
-            mappedItems, 
-            source.ExactTotalCount, 
-            source.Page, 
+            mappedItems,
+            source.ExactTotalCount,
+            source.Page,
             source.PageSize);
     }
 }

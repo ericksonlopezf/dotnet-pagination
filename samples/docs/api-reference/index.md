@@ -1,110 +1,27 @@
-# API Reference — EricksonLopez.Pagination
+# API Reference Index — EricksonLopez.Pagination
 
-> Technical reference documentation for core components of `EricksonLopez.Pagination`.
-
----
-
-## 1. `PaginationParameters` (Record Struct)
-
-**Namespace:** `EricksonLopez.Pagination.Abstractions`  
-**Assembly:** `EricksonLopez.Pagination.Abstractions.dll`
-
-Models input parameters for standard offset pagination (`Page` and `PageSize`). Implements `IParsable<PaginationParameters>`.
-
-### Signature
-```csharp
-public readonly record struct PaginationParameters : IParsable<PaginationParameters>
-```
-
-### Properties
-- **`Page`** (`int`): Current page number (1-based). Default: `1`.
-- **`PageSize`** (`int`): Number of items per page. Default: `20`.
-- **`Skip`** (`int`): Calculated number of records to skip: `(Page - 1) * PageSize`.
-
-### Static Methods
-- **`Create(int page, int pageSize)`**: Validates and creates an immutable instance of `PaginationParameters`.
-- **`TryParse(string? s, IFormatProvider? provider, out PaginationParameters result)`**: Attempts to deserialize from `page,pageSize` format.
+> Comprehensive, Microsoft Learn-grade reference documentation for all public APIs across Core Library and Infrastructure packages.
 
 ---
 
-## 2. `CursorPaginationParameters` (Record Struct)
+## Documentation Modules
 
-**Namespace:** `EricksonLopez.Pagination.Abstractions`  
-**Assembly:** `EricksonLopez.Pagination.Abstractions.dll`
-
-Models cursor-based pagination parameters conforming to the GraphQL Relay specification.
-
-### Signature
-```csharp
-public readonly record struct CursorPaginationParameters : IParsable<CursorPaginationParameters>
-```
-
-### Properties
-- **`First`** (`int?`): Number of items requested forward.
-- **`After`** (`string?`): Opaque cursor from which to start forward pagination.
-- **`Last`** (`int?`): Number of items requested backward.
-- **`Before`** (`string?`): Opaque cursor from which to start backward pagination.
+| Module | Target Package | Key Components & APIs |
+|---|---|---|
+| **[Abstractions](abstractions.md)** | `EricksonLopez.Pagination.Abstractions` | `PaginationParameters`, `CursorPaginationParameters`, `FilterParameters`, `SortParameters`, `RawCursorValue`, `IPagedList<T>`, `ICursorPagedList<T>`, `ICountedPagedList<T>`, `ICursorEncoder`, `ICursorReplayStore`, `IFilterProvider<T>`, `IFilterOperatorProvider<T>`, `InvalidPaginationCursorException`, `ExpiredPaginationCursorException`, `ReplayedPaginationCursorException`, `[Filterable]`, `[GenerateFilterProvider]` |
+| **[Core](core.md)** | `EricksonLopez.Pagination` | `PagedList<T>`, `CountedPagedList<T>`, `CursorPagedList<T>`, `CountedCursorPagedList<T>`, `HmacCursorEncoder`, `Base64CursorEncoder`, `DefaultPagedListFactory`, `InMemoryCursorDecoderRegistry`, `InMemoryCursorReplayStore`, `PaginationCoreOptions`, `PaginationCursorOptions`, `PaginationDiagnostics`, `PaginationMetrics`, `PaginationLogEvents`, `FilterUnknownFieldBehavior` |
+| **[ASP.NET Core](aspnetcore.md)** | `EricksonLopez.Pagination.AspNetCore` | `PagedResponse<T>`, `CursorPagedResponse<T>`, `Edge<T>`, `RelayPageInfo`, `PaginationExtensions`, `PaginationResultExtensions` (ETags), `PaginationEndpointFilter` (`AddPaginationValidation`), `PaginationExceptionHandler`, `AddPagination()`, Model Binders |
+| **[EF Core](efcore.md)** | `EricksonLopez.Pagination.EntityFrameworkCore` | `KeysetBuilder<T>`, `QueryableExtensions` (`Keyset`, `ToPagedListAsync`, `ApplyFilter`, `ApplySort`, `ToPagedListBatchedAsync`), `KeysetStreamingExtensions`, `KeysetPartitioningExtensions` (`SplitKeysetPartitionsAsync`), `PostgreSqlPaginationExtensions` |
+| **[Dapper](dapper.md)** | `EricksonLopez.Pagination.Dapper` | `DapperKeysetBuilder<T>`, `DbConnectionPaginationExtensions`, `DbConnectionCursorExtensions`, `GridReaderPaginationExtensions`, `DatabaseDialect`, `CursorSqlBuilder` |
+| **[NoSQL & Specialized](nosql.md)** | `MongoDB`, `Cosmos`, `LinqToDB`, `Elasticsearch` | `MongoCursorPaginationExtensions`, `MongoObjectIdPaginationExtensions`, `CosmosPaginationExtensions`, `CursorPaginationLinqToDBExtensions`, `ElasticsearchCursorPaginationExtensions` |
+| **[Extensions & Ecosystem](extensions.md)** | `Redis`, `Relay`, `Result`, `Grpc`, `Blazor`, `OpenApi` | `RedisCursorReplayStore`, `Connection<TNode>`, `RelayPaginationExtensions`, `PaginationErrors`, `PaginationResultExtensions`, `PaginationGrpcExtensions`, `PaginationUIOptions`, `PaginationOperationFilter` |
 
 ---
 
-## 3. `PagedList<T>` (Class)
+## Public API Design Principles
 
-**Namespace:** `EricksonLopez.Pagination`  
-**Assembly:** `EricksonLopez.Pagination.dll`
-
-In-memory implementation of `IPagedList<T>` for offset-paginated collections.
-
-### Signature
-```csharp
-public class PagedList<T> : IPagedList<T>
-```
-
-### Properties
-- **`Items`** (`IReadOnlyList<T>`): Items belonging to the current page.
-- **`Page`** (`int`): Current page number.
-- **`PageSize`** (`int`): Page size.
-- **`TotalCount`** (`long?`): Total elements in the dataset (or `null` if `countTotal: false`).
-- **`TotalPages`** (`int?`): Total calculated pages (or `null` if `TotalCount` is `null`).
-- **`HasPreviousPage`** (`bool`): `true` if `Page > 1`.
-- **`HasNextPage`** (`bool`): `true` if subsequent pages exist.
-
-### Static Factory Methods
-- **`WithCount(IReadOnlyList<T> items, PaginationParameters parameters, long totalCount)`**: Creates an instance with known exact total count.
-- **`WithoutCount(IReadOnlyList<T> items, PaginationParameters parameters, bool hasNextPage)`**: Creates an instance without global total count (countless fast-path).
-- **`Empty(PaginationParameters parameters)`**: Returns an empty paged list (`TotalCount = 0`).
-
----
-
-## 4. `HmacCursorEncoder` (Class)
-
-**Namespace:** `EricksonLopez.Pagination`  
-**Assembly:** `EricksonLopez.Pagination.dll`
-
-Implements `ICursorEncoder` and `IDisposable` to cryptographically sign and verify cursors using HMAC-SHA256.
-
-### Signature
-```csharp
-public sealed class HmacCursorEncoder : ICursorEncoder, IDisposable
-```
-
-### Constructors
-- **`HmacCursorEncoder(string secretKey, TimeSpan? timeToLive = null, TimeSpan? clockSkewTolerance = null, ICursorReplayStore? replayStore = null)`**: Initializes the encoder with a secret key (minimum 32 bytes in UTF-8), optional TTL, clock skew tolerance, and replay store.
-
-### Methods
-- **`Encode(string? rawCursor)`**: Generates a Base64Url-encoded opaque cursor with HMAC signature and timestamp.
-- **`Decode(string? opaqueCursor)`**: Decodes and verifies HMAC signature integrity in constant time (`CryptographicOperations.FixedTimeEquals`), validating expiration and replay nonces.
-
----
-
-## 5. `KeysetBuilder<T>` (Class)
-
-**Namespace:** `EricksonLopez.Pagination.EntityFrameworkCore`  
-**Assembly:** `EricksonLopez.Pagination.EntityFrameworkCore.dll`
-
-Fluent builder for constructing $O(\log N)$ keyset queries over EF Core `IQueryable<T>`.
-
-### Methods
-- **`Ascending<TKey>(Expression<Func<T, TKey>> keySelector)`**: Appends an ascending sort and seek column.
-- **`Descending<TKey>(Expression<Func<T, TKey>> keySelector)`**: Appends a descending sort and seek column.
-- **`ToCursorPagedListAsync(CancellationToken cancellationToken)`**: Executes the optimized keyset query and returns `ICursorPagedList<T>`.
-- **`ToPagedAsyncEnumerable()`**: Returns an `IAsyncEnumerable<T>` streaming results reactively.
+1. **Zero-Allocation Hot Paths**: Record structs (`PaginationParameters`, `CursorPaginationParameters`) implement `IParsable<T>` for zero-reflection binding in Minimal APIs and Native AOT.
+2. **Defensive Cryptography**: Keyset cursors are cryptographically sealed with HMAC-SHA256 by default. Timing attacks are mitigated via `CryptographicOperations.FixedTimeEquals`.
+3. **Replay Protection**: Single-use cursor nonces prevent replay attacks and rogue web-scraping in distributed topologies.
+4. **Compile-Time Safety**: Roslyn analyzers (`PAG001` through `PAG007`) prevent common anti-patterns like non-deterministic sorting or unencrypted cursors.
+5. **Deterministic HTTP Caching**: Built-in SHA-256 ETags provide automated HTTP 304 Not Modified responses, conserving bandwidth and serialization CPU cycles.

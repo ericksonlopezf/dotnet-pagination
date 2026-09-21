@@ -12,7 +12,7 @@ public interface ICountedPagedList<out T> : IPagedList<T>, ICountedPagedList
 }
 
 /// <summary>
-/// Extends <see cref="IPagedList"/> with total count metadata for offset-based pagination.
+/// Defines offset-based pagination metadata with total count information.
 /// </summary>
 public interface ICountedPagedList : IPagedList
 {

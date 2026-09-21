@@ -1,7 +1,10 @@
 # ADR-0032 — IFilterProvider<TEntity> Interface for AOT Filtering
 
 ## Status
-**Accepted** — August 2026
+Accepted — August 2026
+
+## Date
+2026-09-04
 
 ## Context
 As documented in ADR-0010, the runtime `FilterExpression` engine relies on reflection to discover entity properties by string name and `MakeGenericType`/`MakeGenericMethod` to construct expression trees at runtime. This causes linker trimming warnings (`IL2026`, `IL3050`) and runtime crashes under Native AOT when entity metadata is trimmed.
