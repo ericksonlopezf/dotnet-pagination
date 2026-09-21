@@ -25,7 +25,7 @@
     <Project Path="tests/EricksonLopez.Pagination.AspNetCore.Tests/EricksonLopez.Pagination.AspNetCore.Tests.csproj" />
     <Project Path="tests/EricksonLopez.Pagination.Dapper.Tests/EricksonLopez.Pagination.Dapper.Tests.csproj" />
     <Project Path="tests/EricksonLopez.Pagination.Analyzers.Tests/EricksonLopez.Pagination.Analyzers.Tests.csproj" />
-    <Project Path="tests/EricksonLopez.Pagination.AotTest/EricksonLopez.Pagination.AotTest.csproj" />
+    <Project Path="tests/EricksonLopez.Pagination.AotSmokeTest/EricksonLopez.Pagination.AotSmokeTest.csproj" />
     <Project Path="tests/EricksonLopez.Pagination.Benchmarks/EricksonLopez.Pagination.Benchmarks.csproj" />
     <Project Path="tests/EricksonLopez.Pagination.Blazor.Tests/EricksonLopez.Pagination.Blazor.Tests.csproj" />
     <Project Path="tests/EricksonLopez.Pagination.Cosmos.Tests/EricksonLopez.Pagination.Cosmos.Tests.csproj" />

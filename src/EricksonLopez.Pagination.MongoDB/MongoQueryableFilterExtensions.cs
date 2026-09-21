@@ -104,7 +104,7 @@ public static class MongoQueryableFilterExtensions
             {
                 continue;
             }
-            
+
             string methodName;
             if (first)
             {

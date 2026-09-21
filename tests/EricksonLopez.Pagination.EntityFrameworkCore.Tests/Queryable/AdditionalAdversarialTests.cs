@@ -1,5 +1,4 @@
 // Copyright © Erickson Lopez. MIT License.
-using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -10,6 +9,7 @@ using AwesomeAssertions;
 using EricksonLopez.Pagination;
 using EricksonLopez.Pagination.Abstractions;
 using EricksonLopez.Pagination.EntityFrameworkCore;
+using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -58,7 +58,7 @@ public class AdditionalAdversarialTests
     {
         using var db = await GetDbContextAsync();
         var query = db.Entities.AsQueryable();
-        
+
         // Mutant: ValidateColumnName missing or string mutated
         var act = () => query.Keyset(new CursorPaginationParameters()).Ascending("InvalidName", new[] { "Name" });
         act.Should().Throw<InvalidOperationException>();
@@ -88,7 +88,7 @@ public class AdditionalAdversarialTests
     {
         using var db = await GetDbContextAsync();
         var query = db.Entities.AsQueryable();
-        
+
         var act = () => query.Keyset(new CursorPaginationParameters()).Descending("InvalidName", new[] { "Name" });
         act.Should().Throw<InvalidOperationException>();
     }
@@ -117,7 +117,7 @@ public class AdditionalAdversarialTests
     {
         using var db = await GetDbContextAsync();
         var query = db.Entities.AsQueryable();
-        
+
         var act = () => query.Keyset(new CursorPaginationParameters()).Ascending("Id").Ascending("InvalidName", new[] { "Name" });
         act.Should().Throw<InvalidOperationException>();
     }
@@ -127,7 +127,7 @@ public class AdditionalAdversarialTests
     {
         using var db = await GetDbContextAsync();
         var query = db.Entities.AsQueryable();
-        
+
         var act = () => query.Keyset(new CursorPaginationParameters()).Ascending("Id").Descending("InvalidName", new[] { "Name" });
         act.Should().Throw<InvalidOperationException>();
     }
@@ -153,7 +153,7 @@ public class AdditionalAdversarialTests
     public async Task ToCursorPagedListAsync_WhenTotalCountEqualsPageSize_ReportsHasNextPageFalse()
     {
         using var db = await GetDbContextAsync();
-        for(int i = 0; i < 10; i++) await db.Entities.AddAsync(new TestEntity { Id = i });
+        for (int i = 0; i < 10; i++) await db.Entities.AddAsync(new TestEntity { Id = i });
         await db.SaveChangesAsync();
 
         var parameters = new CursorPaginationParametersBuilder().WithFirst(10).Build();
@@ -172,7 +172,7 @@ public class AdditionalAdversarialTests
         var validOpaqueCursor = new string('a', 4096);
         // We expect it to fail decoding because it's junk, but NOT throw length exception
         var parameters = new CursorPaginationParametersBuilder().WithFirst(10).WithAfter(validOpaqueCursor).Build();
-        
+
         var act = async () => await db.Entities.AsQueryable().Keyset(parameters)
             .Ascending(x => x.Id)
             .ToCursorPagedListAsync();
@@ -188,7 +188,7 @@ public class AdditionalAdversarialTests
         using var db = await GetDbContextAsync();
         var tooLongCursor = new string('a', 4097);
         var parameters = new CursorPaginationParametersBuilder().WithFirst(10).WithAfter(tooLongCursor).Build();
-        
+
         var act = async () => await db.Entities.AsQueryable().Keyset(parameters)
             .Ascending(x => x.Id)
             .ToCursorPagedListAsync();
@@ -203,7 +203,7 @@ public class AdditionalAdversarialTests
         using var db = await GetDbContextAsync();
         var tooLongCursor = new string('a', 4097);
         var parameters = new CursorPaginationParametersBuilder().WithFirst(10).WithAfter(tooLongCursor).Build();
-        
+
         var act = async () => await db.Entities.AsQueryable().Keyset(parameters)
             .Ascending(x => x.DateOffset)
             .Ascending(x => x.Id)
@@ -240,7 +240,7 @@ public class AdditionalAdversarialTests
         var result = await db.Entities.AsQueryable().Keyset(parameters)
             .Ascending(x => x.DateOffset)
             .ToCursorPagedListAsync();
-            
+
         result.Count.Should().Be(1);
     }
 
@@ -253,7 +253,7 @@ public class AdditionalAdversarialTests
 
         var act = () => db.Entities.AsQueryable().Keyset(new CursorPaginationParametersBuilder().WithFirst(10).Build())
             .Ascending("NullableInt");
-            
+
         act.Should().Throw<InvalidOperationException>()
            .WithMessage("*Keyset pagination on nullable property*");
     }
@@ -270,21 +270,21 @@ public class AdditionalAdversarialTests
         var builder = db.Entities.AsQueryable().Keyset(new CursorPaginationParametersBuilder().WithFirst(2).Build())
             .Ascending(x => x.DateOffset)
             .Descending(x => x.Id);
-            
+
         var page1 = await builder.ToCursorPagedListAsync();
         page1.Count.Should().Be(2);
-        
+
         var builder2 = db.Entities.AsQueryable().Keyset(new CursorPaginationParametersBuilder().WithFirst(2).WithAfter(page1.EndCursor).Build())
             .Ascending(x => x.DateOffset)
             .Descending(x => x.Id);
-            
+
         var page2 = await builder2.ToCursorPagedListAsync();
         page2.Count.Should().Be(1);
-        
+
         var builder3 = db.Entities.AsQueryable().Keyset(new CursorPaginationParametersBuilder().WithLast(2).WithBefore(page2.StartCursor).Build())
             .Ascending(x => x.DateOffset)
             .Descending(x => x.Id);
-            
+
         var page3 = await builder3.ToCursorPagedListAsync();
         page3.Count.Should().Be(2);
     }

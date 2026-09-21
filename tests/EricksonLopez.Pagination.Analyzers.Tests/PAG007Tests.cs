@@ -157,7 +157,7 @@ public class TestClass
     {
         var analyzer = new KeysetColumnCountAnalyzer();
         var rule = analyzer.SupportedDiagnostics[0];
-        
+
         rule.Id.Should().Be("PAG007");
         rule.Title.ToString().Should().Be("KeysetBuilder has too many columns");
         rule.MessageFormat.ToString().Should().Be("KeysetBuilder has {0} column registrations. Keyset pagination with more than 5 columns generates complex SQL predicates that may cause query plan degradation. Consider a composite tie-breaker column instead.");

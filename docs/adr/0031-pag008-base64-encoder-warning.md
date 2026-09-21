@@ -1,7 +1,10 @@
 # ADR-0031 — PAG008: Warning on Explicit Base64CursorEncoder
 
 ## Status
-**Accepted** — August 2026
+Accepted — August 2026
+
+## Date
+2026-09-04
 
 ## Context
 In ADR-0017, the library established `HmacCursorEncoder` as the secure default for cursor pagination. However, developers migrating older applications or configuring services explicitly may still instantiate or register `Base64CursorEncoder`.

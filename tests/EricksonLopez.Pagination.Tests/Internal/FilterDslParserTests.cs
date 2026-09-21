@@ -30,7 +30,7 @@ public class FilterDslParserTests
     public void Parse_ValidSegments_ReturnsFilterClause(string segment, string expectedField, object expectedOp, string expectedValue, bool expectedNegate)
     {
         var result = FilterDslParser.Parse(segment, FilterUnknownFieldBehavior.ThrowException);
-        
+
         result.Should().NotBeNull();
         result!.Value.FieldName.Should().Be(expectedField);
         ((int)result.Value.Op).Should().Be((int)expectedOp);

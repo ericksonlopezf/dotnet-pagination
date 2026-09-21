@@ -124,7 +124,7 @@ public class CursorSqlBuilderTests
 
         sql.Should().Contain("WHERE (Status = 1) AND ((Id > @Cursor))");
     }
-    
+
     [Fact]
     public void Build_NoCursor_GeneratesCorrectSql()
     {
@@ -194,14 +194,14 @@ public class CursorSqlBuilderTests
         sql.Should().Contain("ORDER BY Id ASC");
         sql.Should().NotContain("LIMIT");
     }
-    
+
     [Fact]
     public void UseDialect_MultipleTimes_ReturnsBuilder()
     {
         var builder = new CursorSqlBuilder()
             .UseDialect(DatabaseDialect.MySql)
             .UseDialect(DatabaseDialect.Sqlite);
-            
+
         builder.Should().NotBeNull();
     }
     [Fact]
@@ -254,7 +254,7 @@ public class CursorSqlBuilderTests
             .From("Entities")
             .OrderBy("Id")
             .WithParameters(":cursor", "$limit");
-        
+
         var sql = builder.Build(new CursorPaginationParameters { First = 10, After = "test" });
         sql.Should().Contain(":cursor");
         // Limit uses limitParameterName directly if not using explicit @ limit param logic everywhere, wait, it replaces it.
@@ -321,7 +321,7 @@ public class CursorSqlBuilderTests
             .Select("*")
             .From("Entities")
             .OrderBy("Id");
-        
+
         var parameters = new CursorPaginationParameters { First = 10, After = "cursor1", Last = 10, Before = "cursor2" };
         var sql = builder.Build(parameters);
         sql.Should().Contain("Id > @Cursor");
@@ -334,7 +334,7 @@ public class CursorSqlBuilderTests
         var builder = new CursorSqlBuilder()
             .From("Entities")
             .OrderBy("Id");
-            
+
         var parameters = CursorPaginationParameters.Parse("first=10", null);
         var sql = builder.Build(parameters);
         sql.Should().StartWith("SELECT * FROM Entities");

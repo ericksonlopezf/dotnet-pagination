@@ -1,7 +1,10 @@
 # ADR-0038 — Adoption of Method_Scenario_Result (Osherove) Test Naming Convention
 
 ## Status
-**Accepted** — August 2026
+Accepted — August 2026
+
+## Date
+2026-09-04
 
 ## Context
 In high-reliability .NET libraries and enterprise architectures, test suites fulfill two fundamental roles:

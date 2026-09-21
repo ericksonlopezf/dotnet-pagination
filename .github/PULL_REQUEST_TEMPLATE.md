@@ -21,7 +21,6 @@ Fixes # (issue)
 - [ ] EricksonLopez.Pagination.Relay
 - [ ] EricksonLopez.Pagination.Result
 - [ ] EricksonLopez.Pagination.SourceGenerators
-- [ ] EricksonLopez.Pagination.SqlBuilder
 
 ## Checklist
 - [ ] My code follows the style guidelines of this project (`TreatWarningsAsErrors=true`)
@@ -32,4 +31,5 @@ Fixes # (issue)
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with code coverage (`dotnet test --settings .runsettings`)
 - [ ] Mutation score remains above the break threshold of **95%** (`dotnet stryker`)
-- [ ] I have updated `CHANGELOG.md` under the `[Unreleased]` section
+- [ ] Hot-path modifications maintain 0-allocation guarantees and stay within the 5% benchmark regression limit
+- [ ] I have updated `CHANGELOG.md` under the `[Unreleased]` section (if applicable)

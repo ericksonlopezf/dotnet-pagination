@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# Copyright © Erickson Lopez. MIT License.
 """
 Stryker.NET Summary & Quality Gate Processor
 Parses Stryker.NET mutation testing outputs, generates GitHub Step Summary,

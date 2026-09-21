@@ -1,5 +1,4 @@
 // Copyright © Erickson Lopez. MIT License.
-using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using EricksonLopez.Pagination.Abstractions;
 using EricksonLopez.Pagination.EntityFrameworkCore;
+using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
@@ -15,7 +15,7 @@ namespace EricksonLopez.Pagination.EntityFrameworkCore.Tests;
 
 public partial class QueryableExtensionsTests
 {
-    
+
 
     private async Task<TestDbContext> GetDatabaseAsync() { return await TestDbContext.CreateInMemoryAsync(25); }
 
@@ -35,7 +35,7 @@ public partial class QueryableExtensionsTests
         paged.HasNextPage.Should().BeTrue();
         paged.HasPreviousPage.Should().BeTrue();
     }
-    
+
     [Fact]
     public async Task ToPagedListAsync_WithCount_EmptyResult_ReturnsEmptyList()
     {
@@ -66,7 +66,7 @@ public partial class QueryableExtensionsTests
         paged.HasNextPage.Should().BeFalse();
         paged.HasPreviousPage.Should().BeTrue();
     }
-    
+
     [Fact]
     public async Task ToPagedListAsync_WithoutCount_WithNextPage_ReturnsHasNextPageTrue()
     {
@@ -159,7 +159,7 @@ public partial class QueryableExtensionsTests
         var context = await GetDatabaseAsync();
         context.Entities.RemoveRange(context.Entities);
         await context.SaveChangesAsync();
-        
+
         var query = context.Entities.OrderBy(e => e.Id);
 
         var batches = new List<IPagedList<TestEntity>>();
@@ -191,11 +191,11 @@ public partial class QueryableExtensionsTests
     {
         var context = await GetDatabaseAsync();
         var query = context.Entities.AsQueryable();
-        
+
         var sortedQuery = query.ApplySort(SortParameters.Empty, defaultSort: e => e.Name);
         var firstItem = await sortedQuery.FirstAsync();
-        
-        firstItem.Name.Should().Be("Entity 1"); 
+
+        firstItem.Name.Should().Be("Entity 1");
     }
 
     [Fact]
@@ -206,8 +206,8 @@ public partial class QueryableExtensionsTests
         using var cts = new CancellationTokenSource();
 
         var batches = new List<IPagedList<TestEntity>>();
-        
-        Func<Task> act = async () => 
+
+        Func<Task> act = async () =>
         {
             await foreach (var batch in query.ToPagedListBatchedAsync(batchSize: 10, cancellationToken: cts.Token))
             {

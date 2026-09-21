@@ -35,7 +35,7 @@ public class PaginationEndpointFilterTests
 
         _serviceProvider.GetService(typeof(IOptionsSnapshot<PaginationCoreOptions>)).Returns(_optionsSnapshot);
         _serviceProvider.GetService(typeof(ILogger<PaginationEndpointFilter>)).Returns(_logger);
-        
+
         _httpContext.RequestServices = _serviceProvider;
     }
 
@@ -48,7 +48,7 @@ public class PaginationEndpointFilterTests
         var filter = new PaginationEndpointFilter();
         var context = Substitute.For<EndpointFilterInvocationContext>();
         context.HttpContext.Returns(_httpContext);
-        
+
         var arguments = new List<object?> { new PaginationParameters { PageSize = 100 } };
         context.Arguments.Returns(arguments);
 
@@ -60,7 +60,7 @@ public class PaginationEndpointFilterTests
         var badRequest = result.Should().BeAssignableTo<Microsoft.AspNetCore.Http.IStatusCodeHttpResult>()
               .Which;
         badRequest.StatusCode.Should().Be(400);
-        
+
         var valueResult = result.Should().BeAssignableTo<Microsoft.AspNetCore.Http.IValueHttpResult>().Subject;
         valueResult.Value.Should().NotBeNull();
         valueResult.Value!.ToString().Should().Contain("pageSize cannot exceed 50");
@@ -75,7 +75,7 @@ public class PaginationEndpointFilterTests
         var filter = new PaginationEndpointFilter();
         var context = Substitute.For<EndpointFilterInvocationContext>();
         context.HttpContext.Returns(_httpContext);
-        
+
         var arguments = new List<object?> { PaginationParameters.Create(1, 10) };
         context.Arguments.Returns(arguments);
 
@@ -96,7 +96,7 @@ public class PaginationEndpointFilterTests
         var filter = new PaginationEndpointFilter();
         var context = Substitute.For<EndpointFilterInvocationContext>();
         context.HttpContext.Returns(_httpContext);
-        
+
         // Page 10, PageSize 20 -> Offset = (10-1)*20 = 180 > 100
         var arguments = new List<object?> { PaginationParameters.Create(10, 20) };
         context.Arguments.Returns(arguments);
@@ -107,7 +107,7 @@ public class PaginationEndpointFilterTests
         var result = await filter.InvokeAsync(context, next);
 
         result.Should().Be("next_result");
-        
+
         // Assert that a warning was logged
         _logger.Received().Log(
             LogLevel.Warning,
@@ -127,7 +127,7 @@ public class PaginationEndpointFilterTests
         var filter = new PaginationEndpointFilter();
         var context = Substitute.For<EndpointFilterInvocationContext>();
         context.HttpContext.Returns(_httpContext);
-        
+
         var arguments = new List<object?> { PaginationParameters.Create(100, 50) }; // huge offset
         context.Arguments.Returns(arguments);
 
@@ -137,7 +137,7 @@ public class PaginationEndpointFilterTests
         var result = await filter.InvokeAsync(context, next);
 
         result.Should().Be("next_result");
-        
+
         _logger.DidNotReceiveWithAnyArgs().Log(default, default, default, default, default!);
     }
 
@@ -150,7 +150,7 @@ public class PaginationEndpointFilterTests
         var filter = new PaginationEndpointFilter();
         var context = Substitute.For<EndpointFilterInvocationContext>();
         context.HttpContext.Returns(_httpContext);
-        
+
         // Page 11, PageSize 10 -> Offset = 100
         var arguments = new List<object?> { PaginationParameters.Create(11, 10) };
         context.Arguments.Returns(arguments);
@@ -161,7 +161,7 @@ public class PaginationEndpointFilterTests
         var result = await filter.InvokeAsync(context, next);
 
         result.Should().Be("next_result");
-        
+
         _logger.DidNotReceiveWithAnyArgs().Log(default, default, default, default, default!);
     }
 
@@ -174,7 +174,7 @@ public class PaginationEndpointFilterTests
         var filter = new PaginationEndpointFilter();
         var context = Substitute.For<EndpointFilterInvocationContext>();
         context.HttpContext.Returns(_httpContext);
-        
+
         // 1000 is default max
         var arguments = new List<object?> { new PaginationParameters { PageSize = 1000 } };
         context.Arguments.Returns(arguments);
@@ -196,7 +196,7 @@ public class PaginationEndpointFilterTests
         var filter = new PaginationEndpointFilter();
         var context = Substitute.For<EndpointFilterInvocationContext>();
         context.HttpContext.Returns(_httpContext);
-        
+
         var arguments = new List<object?> { new PaginationParameters { PageSize = 50 } };
         context.Arguments.Returns(arguments);
 
@@ -217,7 +217,7 @@ public class PaginationEndpointFilterTests
         var filter = new PaginationEndpointFilter();
         var context = Substitute.For<EndpointFilterInvocationContext>();
         context.HttpContext.Returns(_httpContext);
-        
+
         // Offset 1000, > 0 but threshold is -1, should not log
         var arguments = new List<object?> { PaginationParameters.Create(101, 10) };
         context.Arguments.Returns(arguments);
@@ -239,7 +239,7 @@ public class PaginationEndpointFilterTests
         var filter = new PaginationEndpointFilter();
         var context = Substitute.For<EndpointFilterInvocationContext>();
         context.HttpContext.Returns(_httpContext);
-        
+
         // Page 11, PageSize 10 -> Offset = (11-1)*10 = 100 == 100
         var arguments = new List<object?> { PaginationParameters.Create(11, 10) };
         context.Arguments.Returns(arguments);
@@ -261,7 +261,7 @@ public class PaginationEndpointFilterTests
         var filter = new PaginationEndpointFilter();
         var context = Substitute.For<EndpointFilterInvocationContext>();
         context.HttpContext.Returns(_httpContext);
-        
+
         var arguments = new List<object?> { new CursorPaginationParameters { First = 50 } };
         context.Arguments.Returns(arguments);
 
@@ -283,7 +283,7 @@ public class PaginationEndpointFilterTests
         var filter = new PaginationEndpointFilter();
         var context = Substitute.For<EndpointFilterInvocationContext>();
         context.HttpContext.Returns(_httpContext);
-        
+
         var arguments = new List<object?> { CursorPaginationParameters.Parse("first=10", null) };
         context.Arguments.Returns(arguments);
 
@@ -304,7 +304,7 @@ public class PaginationEndpointFilterTests
         var filter = new PaginationEndpointFilter();
         var context = Substitute.For<EndpointFilterInvocationContext>();
         context.HttpContext.Returns(_httpContext);
-        
+
         var arguments = new List<object?> { "some_string_param" };
         context.Arguments.Returns(arguments);
 
@@ -325,7 +325,7 @@ public class PaginationEndpointFilterTests
         var filter = new PaginationEndpointFilter();
         var context = Substitute.For<EndpointFilterInvocationContext>();
         context.HttpContext.Returns(_httpContext);
-        
+
         var arguments = new List<object?> { new CursorPaginationParameters { First = 100 } };
         context.Arguments.Returns(arguments);
 
@@ -337,7 +337,7 @@ public class PaginationEndpointFilterTests
         var badRequest = result.Should().BeAssignableTo<Microsoft.AspNetCore.Http.IStatusCodeHttpResult>()
               .Which;
         badRequest.StatusCode.Should().Be(400);
-        
+
         var valueResult = result.Should().BeAssignableTo<Microsoft.AspNetCore.Http.IValueHttpResult>().Subject;
         valueResult.Value.Should().NotBeNull();
         valueResult.Value!.ToString().Should().Contain("Cursor pagination first/last cannot exceed 50");
@@ -351,7 +351,7 @@ public class PaginationEndpointFilterTests
         var filter = new PaginationEndpointFilter();
         var context = Substitute.For<EndpointFilterInvocationContext>();
         context.HttpContext.Returns(_httpContext);
-        
+
         var arguments = new List<object?> { new CursorPaginationParameters { First = 1000 } };
         context.Arguments.Returns(arguments);
 

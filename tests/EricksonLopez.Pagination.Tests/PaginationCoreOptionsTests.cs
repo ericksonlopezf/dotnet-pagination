@@ -55,7 +55,7 @@ public class PaginationCoreOptionsTests
         options.CursorDecoderRegistry.Should().BeSameAs(registry);
         options.Cursor.Should().NotBeNull();
         options.Cursor.Encoder.Should().BeNull();
-        
+
         // Test encoder setter
         var newEncoder = new Base64CursorEncoder();
         options.Cursor.Encoder = newEncoder;
@@ -72,7 +72,7 @@ public class PaginationCoreOptionsTests
         };
 
         var results = options.Validate(new System.ComponentModel.DataAnnotations.ValidationContext(options)).ToList();
-        
+
         results.Should().ContainSingle();
         results[0].ErrorMessage.Should().Be("DefaultPageSize cannot be greater than MaxPageSize.");
         results[0].MemberNames.Should().BeEquivalentTo("DefaultPageSize", "MaxPageSize");
@@ -88,7 +88,7 @@ public class PaginationCoreOptionsTests
         };
 
         var results = options.Validate(new System.ComponentModel.DataAnnotations.ValidationContext(options)).ToList();
-        
+
         results.Should().BeEmpty();
     }
 
@@ -102,7 +102,7 @@ public class PaginationCoreOptionsTests
         };
 
         var results = options.Validate(new System.ComponentModel.DataAnnotations.ValidationContext(options)).ToList();
-        
+
         results.Should().BeEmpty();
     }
 }

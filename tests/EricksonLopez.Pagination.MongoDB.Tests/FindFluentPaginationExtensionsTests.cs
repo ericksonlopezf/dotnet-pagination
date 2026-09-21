@@ -1,5 +1,4 @@
 // Copyright © Erickson Lopez. MIT License.
-#pragma warning disable CS0618
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +20,7 @@ public class TestDocument
 {
     [BsonId]
     public int Id { get; set; }
-    
+
     public string Name { get; set; } = string.Empty;
 }
 
@@ -92,21 +91,21 @@ public class FindFluentPaginationExtensionsTests : IAsyncLifetime
     public async Task ToPagedListAsync_WithCountTotal_ReturnsCorrectPage()
     {
         var parameters = PaginationParameters.Create(page: 1, pageSize: 10);
-        
+
         var pagedList = await _collection.Find(Builders<TestDocument>.Filter.Empty)
             .ToPagedListAsync(parameters, countTotal: true);
 
         pagedList.Should().NotBeNull();
         pagedList.Count.Should().Be(10);
         pagedList.TotalCount.Should().Be(25);
-        pagedList.HasNextPage.Should().BeTrue(); 
+        pagedList.HasNextPage.Should().BeTrue();
     }
 
     [Fact]
     public async Task ToPagedListAsync_WithoutCountTotal_ReturnsCorrectPage()
     {
         var parameters = PaginationParameters.Create(page: 1, pageSize: 10);
-        
+
         var pagedList = await _collection.Find(Builders<TestDocument>.Filter.Empty)
             .ToPagedListAsync(parameters, countTotal: false);
 
@@ -120,7 +119,7 @@ public class FindFluentPaginationExtensionsTests : IAsyncLifetime
     public async Task ToPagedListAsync_WithoutCountTotal_LastPage_HasNoNextPage()
     {
         var parameters = PaginationParameters.Create(page: 3, pageSize: 10);
-        
+
         var pagedList = await _collection.Find(Builders<TestDocument>.Filter.Empty)
             .ToPagedListAsync(parameters, countTotal: false);
 
@@ -129,12 +128,12 @@ public class FindFluentPaginationExtensionsTests : IAsyncLifetime
         pagedList.TotalCount.Should().BeNull();
         pagedList.HasNextPage.Should().BeFalse();
     }
-    
+
     [Fact]
     public async Task ToPagedListAsync_EmptyResult_WithCountTotal_ReturnsEmpty()
     {
         var parameters = PaginationParameters.Create(page: 1, pageSize: 10);
-        
+
         var pagedList = await _collection.Find(Builders<TestDocument>.Filter.Eq(x => x.Id, 100))
             .ToPagedListAsync(parameters, countTotal: true);
 
@@ -142,24 +141,24 @@ public class FindFluentPaginationExtensionsTests : IAsyncLifetime
         pagedList.TotalCount.Should().Be(0);
         pagedList.HasNextPage.Should().BeFalse();
     }
-    
+
     [Fact]
     public async Task ToPagedListAsync_WithoutCountTotal_ExactPageSizeRemaining_HasNoNextPage()
     {
         var parameters = PaginationParameters.Create(page: 1, pageSize: 25);
-        
+
         var pagedList = await _collection.Find(Builders<TestDocument>.Filter.Empty)
             .ToPagedListAsync(parameters, countTotal: false);
 
         pagedList.Count.Should().Be(25);
         pagedList.HasNextPage.Should().BeFalse();
     }
-    
+
     [Fact]
     public async Task ToPagedListAsync_MaxPageSize_ClampsPageSize()
     {
         var parameters = PaginationParameters.Create(page: 1, pageSize: 10000);
-        
+
         var pagedList = await _collection.Find(Builders<TestDocument>.Filter.Empty)
             .ToPagedListAsync(parameters, countTotal: false, maxPageSize: 5);
 
@@ -386,9 +385,9 @@ public class FindFluentPaginationExtensionsTests : IAsyncLifetime
     {
         var longName = new string('a', 129);
         var parameters = SortParameters.Parse(longName, null);
-        
+
         var query = _collection.AsQueryable().ApplySort(parameters, EricksonLopez.Pagination.Abstractions.SortDirection.Ascending, x => x.Id);
-        
+
         // It ignores the long field and applies the default sort
         query.ToString().Should().Contain("_id");
     }
@@ -397,9 +396,9 @@ public class FindFluentPaginationExtensionsTests : IAsyncLifetime
     public void ApplySort_FieldNotFound_IgnoresField()
     {
         var parameters = SortParameters.Parse("NonExistentField", null);
-        
+
         var query = _collection.AsQueryable().ApplySort(parameters, EricksonLopez.Pagination.Abstractions.SortDirection.Ascending, x => x.Id);
-        
+
         // It ignores the non-existent field and applies the default sort
         query.ToString().Should().Contain("_id");
     }

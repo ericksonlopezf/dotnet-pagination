@@ -54,18 +54,18 @@ public static class AnalyzerTestVerifier<TAnalyzer> where TAnalyzer : Diagnostic
         """;
 
     public static DiagnosticResult Diagnostic(string diagnosticId)
-        => CSharpAnalyzerVerifier<TAnalyzer, Microsoft.CodeAnalysis.Testing.Verifiers.XUnitVerifier>.Diagnostic(diagnosticId);
+        => CSharpAnalyzerVerifier<TAnalyzer, Microsoft.CodeAnalysis.Testing.DefaultVerifier>.Diagnostic(diagnosticId);
 
     public static async Task VerifyAnalyzerAsync(string source, params DiagnosticResult[] expected)
     {
-        var test = new CSharpAnalyzerTest<TAnalyzer, Microsoft.CodeAnalysis.Testing.Verifiers.XUnitVerifier>
+        var test = new CSharpAnalyzerTest<TAnalyzer, Microsoft.CodeAnalysis.Testing.DefaultVerifier>
         {
             TestCode = source,
             ReferenceAssemblies = ReferenceAssemblies.Net.Net80,
             CompilerDiagnostics = CompilerDiagnostics.None
         };
         test.TestState.Sources.Add(PaginationMockSource);
-        
+
         test.ExpectedDiagnostics.AddRange(expected);
         await test.RunAsync(CancellationToken.None);
     }

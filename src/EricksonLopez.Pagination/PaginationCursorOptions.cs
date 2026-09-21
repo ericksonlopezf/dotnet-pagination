@@ -15,5 +15,12 @@ public class PaginationCursorOptions
     /// to configure a production secret key before deploying.
     /// </summary>
     public ICursorEncoder? Encoder { get; set; }
+
+    /// <summary>
+    /// Gets or sets an optional delegate used to resolve the current tenant identifier.
+    /// When configured, HMAC cursors are cryptographically bound to the current tenant,
+    /// preventing cross-tenant cursor replay attacks.
+    /// </summary>
+    public System.Func<string?>? TenantContextProvider { get; set; }
 }
 

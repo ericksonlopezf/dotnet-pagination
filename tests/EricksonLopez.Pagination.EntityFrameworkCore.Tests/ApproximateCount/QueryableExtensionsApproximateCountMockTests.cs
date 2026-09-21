@@ -49,7 +49,7 @@ public class QueryableExtensionsApproximateCountMockTests
         public override void Prepare() => _inner.Prepare();
         protected override DbParameter CreateDbParameter() => _inner.CreateParameter();
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) => _inner.ExecuteReader(behavior);
-        
+
         public override Task<object?> ExecuteScalarAsync(CancellationToken cancellationToken)
         {
             if (CommandText != null && CommandText.Contains("pg_class"))
@@ -67,10 +67,10 @@ public class QueryableExtensionsApproximateCountMockTests
         public override UpdateRowSource UpdatedRowSource { get => _inner.UpdatedRowSource; set => _inner.UpdatedRowSource = value; }
         protected override DbConnection? DbConnection { get => _inner.Connection; set => _inner.Connection = value; }
         protected override DbParameterCollection DbParameterCollection => _inner.Parameters;
-        protected override DbTransaction? DbTransaction 
-        { 
-            get => _inner.Transaction; 
-            set => _inner.Transaction = (value as MockDbTransaction)?._inner ?? value; 
+        protected override DbTransaction? DbTransaction
+        {
+            get => _inner.Transaction;
+            set => _inner.Transaction = (value as MockDbTransaction)?._inner ?? value;
         }
     }
 
@@ -109,7 +109,7 @@ public class QueryableExtensionsApproximateCountMockTests
         public override void Close() => _inner.Close();
         public override void Open() => _inner.Open();
         protected override DbCommand CreateDbCommand() => new MockDbCommand(_inner.CreateCommand(), _returnValue, _exceptionToThrow);
-        
+
         public override string ConnectionString { get => _inner.ConnectionString; set => _inner.ConnectionString = value; }
         public override string Database => _inner.Database;
         public override ConnectionState State => _inner.State;
@@ -151,7 +151,7 @@ public class QueryableExtensionsApproximateCountMockTests
         public IRelationalCommand RentCommand() => _mock.RentCommand();
         public void ReturnCommand(IRelationalCommand command) => _mock.ReturnCommand(command);
     }
-    
+
     public static IRelationalConnection? CurrentMockRelationalConnection { get; set; }
 
     private class FakeRelationalConnection : DelegatingRelationalConnection
@@ -208,7 +208,7 @@ public class QueryableExtensionsApproximateCountMockTests
         var result = await mockQueryable.ToPagedListAsync(parameters, useApproximateCount: true);
         result.TotalCount.Should().Be(50);
     }
-    
+
     [Fact]
     public async Task GetTotalCountAsync_ApproxCountZero_FallsBackToStandardCount()
     {
@@ -221,7 +221,7 @@ public class QueryableExtensionsApproximateCountMockTests
         var result = await mockQueryable.ToPagedListAsync(parameters, useApproximateCount: true);
         result.TotalCount.Should().Be(99);
     }
-    
+
     [Fact]
     public async Task GetTotalCountAsync_OverflowException_FallsBackToExactCount()
     {
@@ -234,7 +234,7 @@ public class QueryableExtensionsApproximateCountMockTests
         var result = await mockQueryable.ToPagedListAsync(parameters, useApproximateCount: true);
         result.TotalCount.Should().Be(99);
     }
-    
+
     [Fact]
     public async Task GetTotalCountAsync_InvalidOperationException_FallsBack()
     {

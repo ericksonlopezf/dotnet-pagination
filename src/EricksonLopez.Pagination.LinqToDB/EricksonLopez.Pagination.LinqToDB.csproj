@@ -4,11 +4,12 @@
     <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <Description>LinqToDB async offset and keyset cursor pagination extensions for EricksonLopez.Pagination.</Description>
     <IsPackable>true</IsPackable>
-    <PackageTags>pagination;linq2db;linqtodb;cursor;offset</PackageTags>
+    <PackageTags>$(CommonPackageTags);linq2db;linqtodb;keyset-pagination;cursor-pagination;offset-pagination;orm;linq;trimming</PackageTags>
     <AssemblyName>EricksonLopez.Pagination.LinqToDB</AssemblyName>
     <RootNamespace>EricksonLopez.Pagination.LinqToDB</RootNamespace>
     <PackageId>EricksonLopez.Pagination.LinqToDB</PackageId>
     <IsTrimmable>true</IsTrimmable>
+    <NoWarn>$(NoWarn);IL3050;IL2026</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

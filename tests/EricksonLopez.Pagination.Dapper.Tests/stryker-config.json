@@ -4,7 +4,7 @@
     "project-info": {
       "name": "EricksonLopez.Pagination.Dapper",
       "module": "EricksonLopez.Pagination.Dapper",
-      "version": "1.0.0"
+      "version": "2.0.0"
     },
     "thresholds": {
       "high": 100,
@@ -13,8 +13,7 @@
     },
     "ignore-methods": [
       "ConfigureAwait",
-      "Log*",
-      "Guard*"
+      "Log*"
     ],
     "reporters": [
       "html",

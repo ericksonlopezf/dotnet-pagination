@@ -20,13 +20,13 @@ public sealed class Base64CursorEncoder : ICursorEncoder
     public string? Encode(string? rawCursor)
     {
         if (string.IsNullOrEmpty(rawCursor)) return null;
-        
+
         int maxByteCount = Encoding.UTF8.GetMaxByteCount(rawCursor.Length);
         byte[]? rentedArray = null;
 
         // Stryker disable all : stackalloc micro-optimization, tested functionally
-        Span<byte> byteBuffer = maxByteCount <= 1024 
-            ? stackalloc byte[maxByteCount] 
+        Span<byte> byteBuffer = maxByteCount <= 1024
+            ? stackalloc byte[maxByteCount]
             : GetRentedArray(maxByteCount, out rentedArray);
         // Stryker restore all
 
@@ -47,7 +47,7 @@ public sealed class Base64CursorEncoder : ICursorEncoder
             {
                 System.Buffers.Text.Base64.EncodeToUtf8(utf8Data, base64Buffer, out _, out int base64Written);
                 var base64Slice = base64Buffer.Slice(0, base64Written);
-                
+
                 // Make URL-safe
                 for (int i = 0; i < base64Slice.Length; i++)
                 {
@@ -129,7 +129,7 @@ public sealed class Base64CursorEncoder : ICursorEncoder
             char[]? rentedChars = null;
             if (base64Length > 1024) rentedChars = System.Buffers.ArrayPool<char>.Shared.Rent(base64Length);
             Span<char> base64 = rentedChars != null ? rentedChars : stackalloc char[base64Length];
-            
+
             try
             {
                 opaqueCursor.AsSpan().CopyTo(base64);
@@ -145,12 +145,12 @@ public sealed class Base64CursorEncoder : ICursorEncoder
                         base64[opaqueCursor.Length + i] = '=';
                     }
                 }
-                
+
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(base64Length);
                 byte[]? rentedBytes = null;
                 if (maxByteCount > 1024) rentedBytes = System.Buffers.ArrayPool<byte>.Shared.Rent(maxByteCount);
                 Span<byte> byteBuffer = rentedBytes != null ? rentedBytes : stackalloc byte[maxByteCount];
-                    
+
                 try
                 {
                     if (!Convert.TryFromBase64Chars(base64[..base64Length], byteBuffer, out int bytesWritten))

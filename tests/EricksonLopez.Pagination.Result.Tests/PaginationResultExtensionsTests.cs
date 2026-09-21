@@ -34,7 +34,7 @@ public class PaginationResultExtensionsTests
     public async Task ExecuteResultAsync_WhenExpiredPaginationCursorExceptionThrown_ReturnsExpiredCursorFailure()
     {
         var expiredAt = DateTimeOffset.UtcNow;
-        
+
         var result = await PaginationResultExtensions.ExecuteResultAsync<string>(
             () => throw new ExpiredPaginationCursorException("opaque-cursor", expiredAt));
 

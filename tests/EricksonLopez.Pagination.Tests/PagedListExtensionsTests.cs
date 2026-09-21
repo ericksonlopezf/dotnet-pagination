@@ -83,21 +83,21 @@ public class PagedListExtensionsTests
     {
         var source = new DummyPagedList<int>(new[] { 1, 2, 3 });
         var mapped = source.Map(x => x * 2);
-        
+
         mapped.Should().NotBeNull();
         mapped.Count.Should().Be(3);
         mapped[0].Should().Be(2);
         mapped[1].Should().Be(4);
         mapped[2].Should().Be(6);
-        
+
         var list = new List<int>();
         foreach (var item in mapped)
         {
             list.Add(item);
         }
-        
+
         list.Should().BeEquivalentTo(new[] { 2, 4, 6 });
-        
+
         // Also test non-generic GetEnumerator
         var ngList = new List<int>();
         var ngEnumerator = ((IEnumerable)mapped).GetEnumerator();
@@ -107,7 +107,7 @@ public class PagedListExtensionsTests
         }
         ngList.Should().BeEquivalentTo(new[] { 2, 4, 6 });
     }
-    
+
     [Fact]
     public void Map_DelegatesPropertiesToSource()
     {
@@ -144,21 +144,21 @@ public class PagedListExtensionsTests
     {
         var source = new DummyPagedList<int>(new[] { 1, 2, 3 });
         var mapped = source.LazyMap(x => x * 2);
-        
+
         mapped.Should().NotBeNull();
         mapped.Count.Should().Be(3);
         mapped[0].Should().Be(2);
         mapped[1].Should().Be(4);
         mapped[2].Should().Be(6);
-        
+
         var list = new List<int>();
         foreach (var item in mapped)
         {
             list.Add(item);
         }
-        
+
         list.Should().BeEquivalentTo(new[] { 2, 4, 6 });
-        
+
         // Also test non-generic GetEnumerator
         var ngList = new List<int>();
         var ngEnumerator = ((IEnumerable)mapped).GetEnumerator();
@@ -168,7 +168,7 @@ public class PagedListExtensionsTests
         }
         ngList.Should().BeEquivalentTo(new[] { 2, 4, 6 });
     }
-    
+
     [Fact]
     public void LazyMap_DelegatesPropertiesToSource()
     {
@@ -232,7 +232,7 @@ public class PagedListExtensionsTests
     {
         ICountedPagedList<int> source = new DummyCountedPagedList<int>(new[] { 1, 2, 3 });
         var mapped = source.Map(x => x * 2);
-        
+
         mapped.Should().NotBeNull();
         mapped.Should().BeOfType<CountedPagedList<int>>();
         mapped.Count.Should().Be(3);

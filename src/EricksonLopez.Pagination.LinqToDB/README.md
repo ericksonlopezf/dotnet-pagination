@@ -5,7 +5,7 @@ LinqToDB provider adapter for the `EricksonLopez.Pagination` ecosystem, providin
 ## Installation
 
 ```xml
-<PackageReference Include="EricksonLopez.Pagination.LinqToDB" Version="[VERSION]" />
+<PackageReference Include="EricksonLopez.Pagination.LinqToDB" Version="2.0.0" />
 ```
 
 ## Quick Start

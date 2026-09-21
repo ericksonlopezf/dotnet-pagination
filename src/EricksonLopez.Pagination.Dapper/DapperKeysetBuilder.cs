@@ -104,7 +104,7 @@ public sealed class DapperKeysetBuilder<T>
     {
         ArgumentNullException.ThrowIfNull(selectors);
         if (selectors.Length == 0)
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+            // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
             throw new ArgumentException("At least one cursor column selector must be provided.", nameof(selectors));
         _cursorColumnSelectors.Clear();
         _cursorColumnSelectors.AddRange(selectors);
@@ -122,7 +122,7 @@ public sealed class DapperKeysetBuilder<T>
     {
         ArgumentNullException.ThrowIfNull(decoders);
         if (decoders.Length == 0)
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+            // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
             throw new ArgumentException("At least one cursor decoder must be provided.", nameof(decoders));
         _cursorColumnDecoders = decoders;
         return this;
@@ -182,7 +182,7 @@ public sealed class DapperKeysetBuilder<T>
     {
         // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
         if (defaultPageSize < 1)
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+            // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
             throw new ArgumentOutOfRangeException(nameof(defaultPageSize), "Default page size must be at least 1.");
         _defaultPageSize = defaultPageSize;
         return this;
@@ -198,7 +198,7 @@ public sealed class DapperKeysetBuilder<T>
     {
         // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
         if (maxPageSize < 1)
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+            // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
             throw new ArgumentOutOfRangeException(nameof(maxPageSize), "Max page size must be at least 1.");
         _maxPageSize = maxPageSize;
         return this;
@@ -253,9 +253,9 @@ public sealed class DapperKeysetBuilder<T>
     public async Task<ICursorPagedList<T>> ExecuteAsync(CancellationToken cancellationToken = default)
     {
         if (_cursorColumnSelectors.Count == 0)
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+            // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
             throw new InvalidOperationException(
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+                // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
                 "No cursor column selectors configured. Call WithCursorColumns() before ExecuteAsync().");
 
         // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
@@ -313,7 +313,7 @@ public sealed class DapperKeysetBuilder<T>
     {
         if (_cursorColumnSelectors.Count == 1)
         {
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+            // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
             var raw = _cursorColumnSelectors[0](item) ?? string.Empty;
             return raw.Replace("%", "%25"); // percent-encode literal percent signs before encoding
         }
@@ -324,7 +324,7 @@ public sealed class DapperKeysetBuilder<T>
             if (i > 0) sb.Append('|');
             var raw = _cursorColumnSelectors[i](item) ?? string.Empty;
             // Percent-encode '%' and '|' to prevent ambiguity during decoding
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+            // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
             raw = raw.Replace("%", "%25").Replace("|", "%7C");
             sb.Append(raw);
         }
@@ -360,9 +360,13 @@ public sealed class DapperKeysetBuilder<T>
             return;
         }
 
-        // Restore percent-encoded pipe characters before splitting
-        var restored = decoded.Replace("%7C", "|", StringComparison.OrdinalIgnoreCase);
-        var parts = restored.Split('|');
+        // Split by column delimiter '|' first, then restore percent-encoded characters in each part
+        var parts = decoded.Split('|');
+        for (int p = 0; p < parts.Length; p++)
+        {
+            parts[p] = parts[p].Replace("%7C", "|", StringComparison.OrdinalIgnoreCase)
+                               .Replace("%25", "%", StringComparison.OrdinalIgnoreCase);
+        }
 
         for (int i = 0; i < _cursorColumnSelectors.Count; i++)
         {
@@ -392,7 +396,7 @@ public sealed class DapperKeysetBuilder<T>
         // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
         for (int i = 0; i < _cursorColumnSelectors.Count; i++)
         {
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+            // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
             var paramName = _cursorColumnSelectors.Count == 1 ? "Cursor" : $"Cursor{i}";
             dynParams.Add(paramName, null);
         }
