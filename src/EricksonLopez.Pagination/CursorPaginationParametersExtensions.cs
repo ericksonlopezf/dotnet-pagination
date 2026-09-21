@@ -280,7 +280,7 @@ public static class CursorPaginationParametersExtensions
                 return true;
             }
 #endif
-            
+
             value = (TKey)Convert.ChangeType(decoded, typeof(TKey), System.Globalization.CultureInfo.InvariantCulture)!;
             return true;
         }

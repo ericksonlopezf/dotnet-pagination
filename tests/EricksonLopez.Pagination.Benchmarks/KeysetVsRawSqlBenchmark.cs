@@ -29,7 +29,7 @@ public class KeysetVsRawSqlBenchmark
     private PostgreSqlContainer _postgreSqlContainer = null!;
     private BenchmarkDbContext _dbContext = null!;
     private NpgsqlConnection _rawConnection = null!;
-    
+
     private CursorPaginationParameters _keysetParams;
     private int _referenceId;
     private string _encodedCursor = string.Empty;
@@ -38,13 +38,11 @@ public class KeysetVsRawSqlBenchmark
     [GlobalSetup]
     public void Setup()
     {
-#pragma warning disable CS0618
-        _postgreSqlContainer = new PostgreSqlBuilder()
+        _postgreSqlContainer = new PostgreSqlBuilder("postgres:16-alpine")
             .WithDatabase("benchmark_db")
             .WithUsername("postgres")
             .WithPassword("postgres")
             .Build();
-#pragma warning restore CS0618
 
         _postgreSqlContainer.StartAsync().GetAwaiter().GetResult();
 

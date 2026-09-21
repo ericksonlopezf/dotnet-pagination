@@ -11,7 +11,7 @@
     <DisablePackageValidationBaseline>true</DisablePackageValidationBaseline>
     <PackageId>EricksonLopez.Pagination.Blazor</PackageId>
     <Description>Headless Blazor pagination components for the EricksonLopez.Pagination ecosystem.</Description>
-    <PackageTags>pagination;blazor;headless;components</PackageTags>
+    <PackageTags>$(CommonPackageTags);blazor;pager;cursor-pagination;headless;razor;webassembly;native-aot</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

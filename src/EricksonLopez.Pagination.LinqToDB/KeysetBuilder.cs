@@ -1,6 +1,7 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -25,8 +26,9 @@ public sealed class KeysetBuilder<T>
     private readonly int _defaultPageSize;
     private readonly ICursorEncoder _cursorEncoder;
     private readonly bool _acceptLegacyCursors;
+    private readonly string? _tenantId;
 
-    private KeysetBuilder(IQueryable<T> source, CursorPaginationParameters parameters, int defaultPageSize, ICursorEncoder? cursorEncoder, IReadOnlyList<KeysetColumn> columns, bool acceptLegacyCursors)
+    private KeysetBuilder(IQueryable<T> source, CursorPaginationParameters parameters, int defaultPageSize, ICursorEncoder? cursorEncoder, IReadOnlyList<KeysetColumn> columns, bool acceptLegacyCursors, string? tenantId = null)
     {
         _source = source;
         _parameters = parameters;
@@ -35,11 +37,26 @@ public sealed class KeysetBuilder<T>
         _cursorEncoder = cursorEncoder ?? HmacCursorEncoder.DevelopmentDefault;
         _columns = columns;
         _acceptLegacyCursors = acceptLegacyCursors;
+        _tenantId = tenantId;
     }
 
-    internal KeysetBuilder(IQueryable<T> source, CursorPaginationParameters parameters, int defaultPageSize, ICursorEncoder? cursorEncoder, bool acceptLegacyCursors = true)
-        : this(source, parameters, defaultPageSize, cursorEncoder, Array.Empty<KeysetColumn>(), acceptLegacyCursors)
+    internal KeysetBuilder(IQueryable<T> source, CursorPaginationParameters parameters, int defaultPageSize, ICursorEncoder? cursorEncoder, bool acceptLegacyCursors = true, string? tenantId = null)
+        : this(source, parameters, defaultPageSize, cursorEncoder, Array.Empty<KeysetColumn>(), acceptLegacyCursors, tenantId)
     {
+    }
+
+    /// <summary>
+    /// Binds the keyset pagination query to a specific tenant identifier.
+    /// The tenant identifier is included in the keyset schema fingerprint to ensure
+    /// cursors issued for one tenant cannot be used to paginate another tenant's data.
+    /// </summary>
+    /// <param name="tenantId">The tenant identifier.</param>
+    /// <returns>A new <see cref="KeysetBuilder{T}"/> instance scoped to the specified tenant.</returns>
+    /// <exception cref="ArgumentException"><paramref name="tenantId"/> is null or whitespace</exception>
+    public KeysetBuilder<T> WithTenant(string tenantId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
+        return new KeysetBuilder<T>(_source, _parameters, _defaultPageSize, _cursorEncoder, _columns, _acceptLegacyCursors, tenantId);
     }
 
     /// <summary>
@@ -58,7 +75,7 @@ public sealed class KeysetBuilder<T>
         if (_columns.Count > 0) Array.Copy((KeysetColumn[])_columns, newColumns, _columns.Count);
         newColumns[^1] = new KeysetColumn(selector, typeof(TProp), true);
         // Stryker restore all
-        return new KeysetBuilder<T>(_source, _parameters, _defaultPageSize, _cursorEncoder, newColumns, _acceptLegacyCursors);
+        return new KeysetBuilder<T>(_source, _parameters, _defaultPageSize, _cursorEncoder, newColumns, _acceptLegacyCursors, _tenantId);
     }
 
     /// <summary>
@@ -69,7 +86,7 @@ public sealed class KeysetBuilder<T>
     /// <returns>A new <see cref="KeysetBuilder{T}"/> instance containing the added column.</returns>
     /// <exception cref="ArgumentException"><paramref name="propertyName"/> is invalid or not found on type <typeparamref name="T"/></exception>
     /// <exception cref="InvalidOperationException">The resolved property is a nullable type</exception>
-    #pragma warning disable IL2026 // RequiresUnreferencedCode
+#pragma warning disable IL2026 // RequiresUnreferencedCode
     [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Ascending uses reflection to find the property, which is incompatible with trimming.")]
     public KeysetBuilder<T> Ascending(string propertyName, IEnumerable<string>? allowedProperties = null)
     {
@@ -92,7 +109,7 @@ public sealed class KeysetBuilder<T>
         if (_columns.Count > 0) Array.Copy((KeysetColumn[])_columns, newColumns, _columns.Count);
         newColumns[^1] = new KeysetColumn(lambda, prop.Type, true);
         // Stryker restore all
-        return new KeysetBuilder<T>(_source, _parameters, _defaultPageSize, _cursorEncoder, newColumns, _acceptLegacyCursors);
+        return new KeysetBuilder<T>(_source, _parameters, _defaultPageSize, _cursorEncoder, newColumns, _acceptLegacyCursors, _tenantId);
     }
 #pragma warning restore IL2026
 
@@ -112,7 +129,7 @@ public sealed class KeysetBuilder<T>
         if (_columns.Count > 0) Array.Copy((KeysetColumn[])_columns, newColumns, _columns.Count);
         newColumns[^1] = new KeysetColumn(selector, typeof(TProp), false);
         // Stryker restore all
-        return new KeysetBuilder<T>(_source, _parameters, _defaultPageSize, _cursorEncoder, newColumns, _acceptLegacyCursors);
+        return new KeysetBuilder<T>(_source, _parameters, _defaultPageSize, _cursorEncoder, newColumns, _acceptLegacyCursors, _tenantId);
     }
 
     /// <summary>
@@ -123,7 +140,7 @@ public sealed class KeysetBuilder<T>
     /// <returns>A new <see cref="KeysetBuilder{T}"/> instance containing the added column.</returns>
     /// <exception cref="ArgumentException"><paramref name="propertyName"/> is invalid or not found on type <typeparamref name="T"/></exception>
     /// <exception cref="InvalidOperationException">The resolved property is a nullable type</exception>
-    #pragma warning disable IL2026 // RequiresUnreferencedCode
+#pragma warning disable IL2026 // RequiresUnreferencedCode
     [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Descending uses reflection to find the property, which is incompatible with trimming.")]
     public KeysetBuilder<T> Descending(string propertyName, IEnumerable<string>? allowedProperties = null)
     {
@@ -146,7 +163,7 @@ public sealed class KeysetBuilder<T>
         if (_columns.Count > 0) Array.Copy((KeysetColumn[])_columns, newColumns, _columns.Count);
         newColumns[^1] = new KeysetColumn(lambda, prop.Type, false);
         // Stryker restore all
-        return new KeysetBuilder<T>(_source, _parameters, _defaultPageSize, _cursorEncoder, newColumns, _acceptLegacyCursors);
+        return new KeysetBuilder<T>(_source, _parameters, _defaultPageSize, _cursorEncoder, newColumns, _acceptLegacyCursors, _tenantId);
     }
 #pragma warning restore IL2026
 
@@ -158,7 +175,7 @@ public sealed class KeysetBuilder<T>
     /// <returns>A new <see cref="KeysetBuilder{T}"/> instance containing the parsed sort columns.</returns>
     /// <exception cref="ArgumentException">A specified property is invalid or not found on type <typeparamref name="T"/></exception>
     /// <exception cref="InvalidOperationException">A resolved property is a nullable type</exception>
-    #pragma warning disable IL2026 // RequiresUnreferencedCode
+#pragma warning disable IL2026 // RequiresUnreferencedCode
     [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("SortBy uses reflection to find the property, which is incompatible with trimming.")]
     public KeysetBuilder<T> SortBy(SortParameters parameters, IEnumerable<string>? allowedProperties = null)
     {
@@ -209,7 +226,7 @@ public sealed class KeysetBuilder<T>
             newColumns.Add(new KeysetColumn(lambda, prop.Type, isAscending));
         }
 
-        return new KeysetBuilder<T>(_source, _parameters, _defaultPageSize, _cursorEncoder, newColumns.ToArray(), _acceptLegacyCursors);
+        return new KeysetBuilder<T>(_source, _parameters, _defaultPageSize, _cursorEncoder, newColumns.ToArray(), _acceptLegacyCursors, _tenantId);
         // Stryker restore all
     }
 #pragma warning restore IL2026
@@ -347,11 +364,11 @@ public sealed class KeysetBuilder<T>
 
         var newType = typeof(KeysetProjection<TResult>);
         var newExpr = Expression.New(newType);
-        
+
         var bindings = new List<MemberBinding>();
-        
+
         var itemProp = newType.GetProperty(nameof(KeysetProjection<TResult>.Item))!;
-        
+
         // Re-bind the selector parameter to our `param` so it uses the same parameter expression
         var rewrittenSelectorBody = new ParameterReplacer(selector.Parameters[0], param).Visit(selector.Body);
         bindings.Add(Expression.Bind(itemProp, rewrittenSelectorBody));
@@ -360,7 +377,7 @@ public sealed class KeysetBuilder<T>
         {
             var cProp = newType.GetProperty("C" + (i + 1))!;
             var colBody = new ParameterReplacer(_columns[i].Selector.Parameters[0], param).Visit(_columns[i].Selector.Body);
-            
+
             Expression stringExpr;
             if (colBody.Type == typeof(string))
             {
@@ -414,10 +431,10 @@ public sealed class KeysetBuilder<T>
         // Stryker disable all
         if (items.Count > 0)
         {
-        // Stryker restore all
+            // Stryker restore all
             startCursor = GetCursorProjection(items[0]);
             endCursor = GetCursorProjection(items[^1]);
-        // Stryker disable all
+            // Stryker disable all
         }
         // Stryker restore all
 
@@ -427,7 +444,7 @@ public sealed class KeysetBuilder<T>
 
         factory ??= DefaultPagedListFactory.Instance;
         // Stryker restore all
-        
+
         // Stryker restore all
         // Stryker disable all
         var resultItems = new TResult[items.Count];
@@ -447,16 +464,16 @@ public sealed class KeysetBuilder<T>
         var parts = new string[_columns.Count];
         // F-006 fix: all 16 slots are now supported
         // Stryker disable String
-        if (_columns.Count > 0)  parts[0]  = (p.C1  ?? "").Replace("%", "%25").Replace("|", "%7C");
-        if (_columns.Count > 1)  parts[1]  = (p.C2  ?? "").Replace("%", "%25").Replace("|", "%7C");
-        if (_columns.Count > 2)  parts[2]  = (p.C3  ?? "").Replace("%", "%25").Replace("|", "%7C");
-        if (_columns.Count > 3)  parts[3]  = (p.C4  ?? "").Replace("%", "%25").Replace("|", "%7C");
-        if (_columns.Count > 4)  parts[4]  = (p.C5  ?? "").Replace("%", "%25").Replace("|", "%7C");
-        if (_columns.Count > 5)  parts[5]  = (p.C6  ?? "").Replace("%", "%25").Replace("|", "%7C");
-        if (_columns.Count > 6)  parts[6]  = (p.C7  ?? "").Replace("%", "%25").Replace("|", "%7C");
-        if (_columns.Count > 7)  parts[7]  = (p.C8  ?? "").Replace("%", "%25").Replace("|", "%7C");
-        if (_columns.Count > 8)  parts[8]  = (p.C9  ?? "").Replace("%", "%25").Replace("|", "%7C");
-        if (_columns.Count > 9)  parts[9]  = (p.C10 ?? "").Replace("%", "%25").Replace("|", "%7C");
+        if (_columns.Count > 0) parts[0] = (p.C1 ?? "").Replace("%", "%25").Replace("|", "%7C");
+        if (_columns.Count > 1) parts[1] = (p.C2 ?? "").Replace("%", "%25").Replace("|", "%7C");
+        if (_columns.Count > 2) parts[2] = (p.C3 ?? "").Replace("%", "%25").Replace("|", "%7C");
+        if (_columns.Count > 3) parts[3] = (p.C4 ?? "").Replace("%", "%25").Replace("|", "%7C");
+        if (_columns.Count > 4) parts[4] = (p.C5 ?? "").Replace("%", "%25").Replace("|", "%7C");
+        if (_columns.Count > 5) parts[5] = (p.C6 ?? "").Replace("%", "%25").Replace("|", "%7C");
+        if (_columns.Count > 6) parts[6] = (p.C7 ?? "").Replace("%", "%25").Replace("|", "%7C");
+        if (_columns.Count > 7) parts[7] = (p.C8 ?? "").Replace("%", "%25").Replace("|", "%7C");
+        if (_columns.Count > 8) parts[8] = (p.C9 ?? "").Replace("%", "%25").Replace("|", "%7C");
+        if (_columns.Count > 9) parts[9] = (p.C10 ?? "").Replace("%", "%25").Replace("|", "%7C");
         if (_columns.Count > 10) parts[10] = (p.C11 ?? "").Replace("%", "%25").Replace("|", "%7C");
         if (_columns.Count > 11) parts[11] = (p.C12 ?? "").Replace("%", "%25").Replace("|", "%7C");
         if (_columns.Count > 12) parts[12] = (p.C13 ?? "").Replace("%", "%25").Replace("|", "%7C");
@@ -466,9 +483,9 @@ public sealed class KeysetBuilder<T>
         // Stryker restore String
         return _cursorEncoder.Encode("M|v2|" + GetKeysetFingerprint() + "|" + string.Join("|", parts));
     }
-        // Stryker disable all
+    // Stryker disable all
 
-        // Stryker restore all
+    // Stryker restore all
     /// <summary>
     /// Returns an <see cref="IAsyncEnumerable{T}"/> that asynchronously streams entities for the requested keyset page.
     /// </summary>
@@ -507,7 +524,7 @@ public sealed class KeysetBuilder<T>
         return StreamWithSentinelAsync(source, pageSize);
     }
 
-    
+
 
     private static async IAsyncEnumerable<T> StreamWithSentinelAsync(
         IQueryable<T> source,
@@ -551,7 +568,7 @@ public sealed class KeysetBuilder<T>
 
         var source = _source;
         var param = _columns[0].Selector.Parameters[0];
-        
+
         // Initial after values from the HTTP parameters (if any)
         object[]? currentAfterValues = ParseCursor(_parameters.After);
 
@@ -587,7 +604,7 @@ public sealed class KeysetBuilder<T>
                 var selector = _columns[i].Selector;
                 var compiled = PaginationExpressionCache.GetOrCompile(
                     Expression.Lambda<Func<T, object?>>(
-                        Expression.Convert(selector.Body, typeof(object)), 
+                        Expression.Convert(selector.Body, typeof(object)),
                         selector.Parameters[0]));
                 currentAfterValues[i] = compiled(lastItem!)!;
             }
@@ -604,15 +621,38 @@ public sealed class KeysetBuilder<T>
     private string GetKeysetFingerprint()
     {
         // FNV-1a 32-bit — deterministic, process-stable, deployment-stable.
-        // Uses the stable fully-qualified type name instead of TypeHandle.Value (which is NOT
-        // guaranteed to be stable across different process startups with ReadyToRun/NativeAOT).
+        // Uses stable fully-qualified entity type and property names to prevent cross-entity token collision.
         unchecked
         {
             const uint FnvOffset = 2166136261u;
             const uint FnvPrime = 16777619u;
             uint hash = FnvOffset;
+
+            if (!string.IsNullOrEmpty(_tenantId))
+            {
+                foreach (char c in _tenantId)
+                {
+                    hash ^= (byte)c;
+                    hash *= FnvPrime;
+                }
+            }
+
+            var entityTypeName = typeof(T).FullName ?? string.Empty;
+            foreach (char c in entityTypeName)
+            {
+                hash ^= (byte)c;
+                hash *= FnvPrime;
+            }
+
             foreach (var col in _columns)
             {
+                var propName = col.Selector.Body is MemberExpression me ? me.Member.Name : string.Empty;
+                foreach (char c in propName)
+                {
+                    hash ^= (byte)c;
+                    hash *= FnvPrime;
+                }
+
                 var typeName = col.PropertyType.FullName ?? string.Empty;
                 foreach (char c in typeName)
                 {
@@ -623,7 +663,7 @@ public sealed class KeysetBuilder<T>
                 hash ^= col.IsAscending ? (byte)0x01 : (byte)0x00;
                 hash *= FnvPrime;
             }
-            return hash.ToString("X8");
+            return hash.ToString("X8", CultureInfo.InvariantCulture);
         }
     }
     // Stryker restore all
@@ -647,7 +687,7 @@ public sealed class KeysetBuilder<T>
         // Stryker disable String
         if (opaqueCursor.Length > 4096) throw new InvalidPaginationCursorException("Cursor exceeds maximum allowed length of 4096 characters.", opaqueCursor);
         // Stryker restore String
-        
+
         var decoded = _cursorEncoder.Decode(opaqueCursor);
         if (string.IsNullOrEmpty(decoded)) return null;
         // Stryker disable String
@@ -659,7 +699,7 @@ public sealed class KeysetBuilder<T>
         {
             throw new InvalidPaginationCursorException("Cursor format is invalid. Expected a multi-column keyset cursor, but received a single-column cursor.", opaqueCursor);
         }
-        
+
         // Stryker disable all : Cursor prefix format parsing and legacy v1 compatibility (F-004)
         bool isV2 = false;
         if (decoded.StartsWith("M|v2|"))
@@ -820,7 +860,7 @@ public sealed class KeysetBuilder<T>
                 firstExpr = Expression.Coalesce(firstExpr, Expression.Constant("", typeof(string)));
                 firstVal ??= string.Empty;
             }
-            
+
             var firstC = Expression.Constant(firstVal, firstExpr.Type);
             bool firstWantLessThan = lessThan ? firstCol.IsAscending : !firstCol.IsAscending;
             Expression boundingComp = BuildComparisonOrEqual(firstExpr, firstC, firstWantLessThan);
@@ -830,7 +870,7 @@ public sealed class KeysetBuilder<T>
         return Expression.Lambda<Func<T, bool>>(finalOr!, param);
         // Stryker restore all
     }
-    
+
     private static Expression BuildComparisonOrEqual(Expression left, Expression right, bool lessThan)
     {
         // Stryker disable all : Logic already tested in core EF extensions tests
@@ -853,7 +893,7 @@ public sealed class KeysetBuilder<T>
         {
             result = lessThan ? Expression.LessThanOrEqual(left, right) : Expression.GreaterThanOrEqual(left, right);
         }
-        
+
         return result;
         // Stryker restore all
     }
@@ -899,7 +939,7 @@ public sealed class KeysetBuilder<T>
                 }
             }
         }
-        
+
         return result;
     }
 
@@ -925,7 +965,7 @@ public sealed class KeysetBuilder<T>
         {
             var param = selector.Parameters[0];
             Expression body = selector.Body;
-            
+
             // Stryker disable all : Reflection-based fallback string conversions for arbitrary types
             if (propertyType != typeof(string))
             {
@@ -969,7 +1009,7 @@ public sealed class KeysetBuilder<T>
         // Stryker disable once all
         protected override Expression VisitParameter(ParameterExpression node) => ReferenceEquals(node, _source) ? _target : base.VisitParameter(node);
     }
-    private void ValidateNotNullable(Type type, string name)
+    private static void ValidateNotNullable(Type type, string name)
     {
         if (Nullable.GetUnderlyingType(type) != null)
         {

@@ -40,7 +40,7 @@ internal static class FilterDslParser
         if (opIdx == 0 || opIdx == segment.Length) return null;
 
         var fieldName = segment[..opIdx].Trim();
-        
+
         if (fieldName.Length > 128)
         {
             if (unknownFieldBehavior == FilterUnknownFieldBehavior.ThrowException)

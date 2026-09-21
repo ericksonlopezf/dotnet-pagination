@@ -5,15 +5,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using EricksonLopez.Pagination.EntityFrameworkCore;
+using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
-using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 
 namespace EricksonLopez.Pagination.EntityFrameworkCore.Tests;
 
 public class KeysetPartitioningTests
 {
-    
+
 
     private TestDbContext GetContext(int entityCount)
     {

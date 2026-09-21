@@ -43,11 +43,11 @@ public static class FindFluentPaginationExtensions
     {
         // Stryker disable once Assignment : factory ??= is tested implicitly
         factory ??= DefaultPagedListFactory.Instance;
-        
+
         int pageSize = parameters.PageSize;
         // Stryker disable once all : parameters.PageSize is already validated > 0, so this is just defensive
         if (pageSize <= 0) pageSize = defaultPageSize;
-        
+
         // Stryker disable once Equality : if pageSize == maxPageSize, reassigning it is equivalent
         if (maxPageSize.HasValue && pageSize > maxPageSize.Value) pageSize = maxPageSize.Value;
 
@@ -65,7 +65,8 @@ public static class FindFluentPaginationExtensions
         bool hasNextPage = false;
         List<TProjection> items;
 
-        var skip = (parameters.Page - 1) * pageSize;
+        long longSkip = ((long)parameters.Page - 1L) * pageSize;
+        var skip = longSkip > int.MaxValue ? int.MaxValue : (int)longSkip;
 
         if (countTotal)
         {
@@ -92,7 +93,7 @@ public static class FindFluentPaginationExtensions
 
         return factory.CreatePagedList(items, totalCount, parameters.Page, pageSize, hasNextPage);
     }
-    
+
     /// <summary>
     /// Materializes the find operation into an <see cref="ICursorPagedList{TDocument}"/> using cursor pagination.
     /// </summary>
@@ -155,7 +156,7 @@ public static class FindFluentPaginationExtensions
         // Stryker disable once all : parameters are validated by GetPageSize / extensions, logic ensures First/Last mutually exclusive
         var isBackward = parameters.Last.HasValue && !parameters.First.HasValue;
         var isAscending = direction == EricksonLopez.Pagination.Abstractions.SortDirection.Ascending;
-        
+
         var builder = Builders<TDocument>.Filter;
         var sortBuilder = Builders<TDocument>.Sort;
         FieldDefinition<TDocument> fieldDef = new ExpressionFieldDefinition<TDocument, TKey>(keySelector);
@@ -177,7 +178,7 @@ public static class FindFluentPaginationExtensions
             }
             find = isAscending ? find.Sort(sortBuilder.Ascending(fieldDef)) : find.Sort(sortBuilder.Descending(fieldDef));
         }
-        
+
         // Fetch one extra to determine HasNextPage
         find = find.Limit(pageSize + 1);
 

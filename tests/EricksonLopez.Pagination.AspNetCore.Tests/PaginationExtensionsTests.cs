@@ -58,7 +58,7 @@ public class PaginationExtensionsTests
         response.NextPageUrl.Should().Be("https://api.example.com/items?sortBy=name&pageSize=3&page=3");
         response.PreviousPageUrl.Should().Be("https://api.example.com/items?sortBy=name&pageSize=3&page=1");
     }
-    
+
     [Fact]
     public void ToPagedResponse_GeneratesRelativeUrls_WhenRelativeUriIsProvided()
     {
@@ -115,7 +115,7 @@ public class PaginationExtensionsTests
     {
         var items = new List<int> { 4, 5, 6 };
         var pagedList = PagedList<int>.WithCount(items, new PaginationParameters { Page = 2, PageSize = 3 }, 10);
-        
+
         var response = pagedList.ToPagedResponse(value);
 
         response.NextPageUrl.Should().BeNull();
@@ -139,7 +139,7 @@ public class PaginationExtensionsTests
     {
         var items = new List<int> { 4, 5, 6 };
         var pagedList = PagedList<int>.WithCount(items, new PaginationParameters { Page = 2, PageSize = 3 }, 10);
-        
+
         var context = new Microsoft.AspNetCore.Http.DefaultHttpContext();
         context.Request.PathBase = "/app";
         context.Request.Path = "/api/items";
@@ -176,7 +176,7 @@ public class PaginationExtensionsTests
         Action act = () => pagedList.ToCursorPagedResponse<int, string>(null!);
         act.Should().Throw<ArgumentNullException>().WithParameterName("keySelector");
     }
-    
+
     [Fact]
     public void ToCursorPagedResponse_WithNullRawCursorSelector_ThrowsArgumentNullException()
     {
@@ -192,26 +192,26 @@ public class PaginationExtensionsTests
         var items = new List<int> { 1, 2 };
         var startCursor = "enc_1";
         var endCursor = "enc_2";
-        
+
         var pagedList = CursorPagedList<int>.Create(items, startCursor, endCursor, hasPreviousPage: true, hasNextPage: false);
-        
+
         var response = pagedList.ToCursorPagedResponse(item => item.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        
+
         response.PageInfo.StartCursor.Should().Be("enc_1");
         response.PageInfo.EndCursor.Should().Be("enc_2");
         response.PageInfo.HasPreviousPage.Should().BeTrue();
         response.PageInfo.HasNextPage.Should().BeFalse();
-        
+
         response.Edges.Count.Should().Be(2);
-        
+
         // Cursors are encoded by the extension method
         response.Edges[0].Node.Should().Be(1);
         response.Edges[0].Cursor.Should().Be(HmacCursorEncoder.DevelopmentDefault.Encode("S|1"));
-        
+
         response.Edges[1].Node.Should().Be(2);
         response.Edges[1].Cursor.Should().Be(HmacCursorEncoder.DevelopmentDefault.Encode("S|2"));
     }
-    
+
     [Fact]
     public void RawCursorValue_Constructor()
     {
@@ -231,13 +231,13 @@ public class PaginationExtensionsTests
         var items = new List<int> { 1, 2 };
         var startCursor = "enc_1";
         var endCursor = "enc_2";
-        
+
         var pagedList = CursorPagedList<int>.Create(items, startCursor, endCursor, hasPreviousPage: true, hasNextPage: false);
-        
+
         var response = pagedList.ToCursorPagedResponse(
             item => item.ToString(System.Globalization.CultureInfo.InvariantCulture),
             new DummyCursorEncoder());
-        
+
         response.Edges[0].Cursor.Should().Be("DUMMY_S|1");
         response.Edges[1].Cursor.Should().Be("DUMMY_S|2");
     }

@@ -40,7 +40,7 @@ public class ICursorPagedListExtensionsTests
 
         result.Should().BeOfType<CountedCursorPagedList<string>>();
         var countedResult = (ICountedCursorPagedList<string>)result;
-        
+
         countedResult.ExactTotalCount.Should().Be(10);
         countedResult.StartCursor.Should().Be("start");
         countedResult.EndCursor.Should().Be("end");
@@ -58,7 +58,7 @@ public class ICursorPagedListExtensionsTests
         var result = source.Map(x => x.ToString());
 
         result.Should().BeOfType<CursorPagedList<string>>();
-        
+
         result.StartCursor.Should().Be("start");
         result.EndCursor.Should().Be("end");
         result.HasPreviousPage.Should().BeTrue();

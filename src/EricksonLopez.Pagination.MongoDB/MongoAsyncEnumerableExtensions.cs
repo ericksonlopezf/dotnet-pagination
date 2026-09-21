@@ -3,10 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using EricksonLopez.Pagination.Abstractions;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using System.Threading.Tasks;
 
 namespace EricksonLopez.Pagination.MongoDB;
 
@@ -29,8 +29,10 @@ public static class MongoAsyncEnumerableExtensions
         int? maxPageSize = 1000)
     {
         var effectivePageSize = maxPageSize.HasValue ? System.Math.Min(parameters.PageSize, maxPageSize.Value) : parameters.PageSize;
+        long skip = ((long)parameters.Page - 1L) * effectivePageSize;
+        int skipAmount = skip > int.MaxValue ? int.MaxValue : (int)skip;
         return ((IAsyncCursorSource<T>)source
-            .Skip((parameters.Page - 1) * effectivePageSize)
+            .Skip(skipAmount)
             .Take(effectivePageSize))
             .ToAsyncEnumerable();
     }

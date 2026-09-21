@@ -28,12 +28,12 @@ public sealed class InMemoryCursorDecoderRegistry : ICursorDecoderRegistry
 #endif
     public bool TryGetDecoder<TKey>(out Func<string, TKey>? decoder)
     {
-        if (_decoders.TryGetValue(typeof(TKey), out var del) && del is Func<string, TKey> typed)
+        if (_decoders.TryGetValue(typeof(TKey), out var decoderDelegate) && decoderDelegate is Func<string, TKey> typed)
         {
             decoder = typed;
             return true;
         }
-        
+
         decoder = null;
         return false;
     }

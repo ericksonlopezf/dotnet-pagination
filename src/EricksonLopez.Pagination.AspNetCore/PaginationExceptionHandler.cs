@@ -22,7 +22,7 @@ public sealed class PaginationExceptionHandler : Microsoft.AspNetCore.Diagnostic
         }
 
         httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-        
+
         var problemDetails = new Microsoft.AspNetCore.Mvc.ProblemDetails
         {
             Status = StatusCodes.Status400BadRequest,
@@ -37,7 +37,7 @@ public sealed class PaginationExceptionHandler : Microsoft.AspNetCore.Diagnostic
 #pragma warning disable IL2026, IL3050 // JSON serialization and deserialization might require types that cannot be statically analyzed. ProblemDetails is usually supported.
         await response.WriteAsJsonAsync(problemDetails, cancellationToken).ConfigureAwait(false);
 #pragma warning restore IL2026, IL3050
-        
+
         return true;
     }
 }

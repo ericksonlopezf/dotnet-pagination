@@ -3,12 +3,15 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <NoWarn>$(NoWarn);NU1903;NU1603;CS0618</NoWarn>
-  <NoWarn>$(NoWarn);S1144;S1172;CS0105</NoWarn>
+    <NoWarn>$(NoWarn);NU1903;NU1603</NoWarn>
+    <NoWarn>$(NoWarn);S1144;S1172;CS0105</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" VersionOverride="10.0.0" />
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" VersionOverride="10.0.12" />
   </ItemGroup>
   
   <ItemGroup>

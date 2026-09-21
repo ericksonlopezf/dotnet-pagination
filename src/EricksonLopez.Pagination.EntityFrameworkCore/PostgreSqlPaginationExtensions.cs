@@ -15,7 +15,7 @@ namespace EricksonLopez.Pagination.EntityFrameworkCore;
 /// </summary>
 public static partial class PostgreSqlPaginationExtensions
 {
-    
+
     [System.Text.RegularExpressions.GeneratedRegex(@"^[a-zA-Z_][a-zA-Z0-9_]*$")]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     private static partial System.Text.RegularExpressions.Regex IdentifierRegex();
@@ -42,7 +42,7 @@ public static partial class PostgreSqlPaginationExtensions
     {
         if (dbContext is null) throw new ArgumentNullException(nameof(dbContext));
         if (string.IsNullOrWhiteSpace(tableName)) throw new ArgumentException("Table name is required.", nameof(tableName));
-        
+
         if (!IdentifierRegex().IsMatch(tableName)) throw new ArgumentException("Table name contains invalid characters. Only [a-zA-Z_][a-zA-Z0-9_]* identifiers are supported.", nameof(tableName));
         if (!string.IsNullOrEmpty(schemaName) && !IdentifierRegex().IsMatch(schemaName)) throw new ArgumentException("Schema name contains invalid characters. Only [a-zA-Z_][a-zA-Z0-9_]* identifiers are supported.", nameof(schemaName));
 
@@ -52,7 +52,7 @@ public static partial class PostgreSqlPaginationExtensions
         {
             await dbContext.Database.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         }
-        
+
         try
         {
 #if NET8_0_OR_GREATER
@@ -60,7 +60,7 @@ public static partial class PostgreSqlPaginationExtensions
 #else
             using var cmd = conn.CreateCommand();
 #endif
-            
+
             var currentTransaction = dbContext.Database.CurrentTransaction?.GetDbTransaction();
             if (currentTransaction != null)
             {
@@ -73,7 +73,7 @@ public static partial class PostgreSqlPaginationExtensions
                 JOIN pg_namespace n ON n.oid = c.relnamespace
                 WHERE c.relname = @tableName 
                   AND n.nspname = @schemaName;";
-            
+
             var pTableName = cmd.CreateParameter();
             pTableName.ParameterName = "@tableName";
             pTableName.Value = tableName;
@@ -84,8 +84,8 @@ public static partial class PostgreSqlPaginationExtensions
             pSchemaName.Value = schemaName;
             cmd.Parameters.Add(pSchemaName);
             var result = await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
-            
-            var count = result != DBNull.Value && result != null ? Convert.ToInt64(result) : 0;
+
+            var count = result != DBNull.Value && result != null ? Convert.ToInt64(result, System.Globalization.CultureInfo.InvariantCulture) : 0;
             return count < 0 ? 0 : count;
         }
         finally

@@ -1,7 +1,10 @@
 # ADR-0037 — OpenTelemetry Pagination Metrics
 
 ## Status
-**Accepted** — August 2026
+Accepted — August 2026
+
+## Date
+2026-09-04
 
 ## Context
 Production telemetry systems need visibility into pagination patterns:

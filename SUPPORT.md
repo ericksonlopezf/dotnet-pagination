@@ -24,8 +24,8 @@ If you need help using `EricksonLopez.Pagination`, you can:
 | [Quality Gates](docs/quality-gates.md) | Coverage, mutation testing, and static analysis configuration |
 | [FAQ](docs/faq.md) | Frequently asked questions |
 | [ADRs](docs/adr/) | Architecture Decision Records |
-| [Roadmap](roadmap.md) | Feature roadmap, phase definitions, and acceptance criteria |
+| [Roadmap](ROADMAP.md) | Feature roadmap, phase definitions, and acceptance criteria |
 
 ## Versioning
 
-This project follows [Semantic Versioning](https://semver.org/). Version management is handled by [MinVer](https://github.com/adamralph/minver) based on git tags (format: `v*.*.*`). Only the latest release on `main` is officially supported with security patches. See [SECURITY.md](SECURITY.md) for the supported versions table.
+This project follows [Semantic Versioning](https://semver.org/). Version management is automated via [Release Please](https://github.com/googleapis/release-please) based on Conventional Commits and git tags (format: `v*.*.*`). Only the latest release on `main` is officially supported with security patches. See [SECURITY.md](SECURITY.md) for the supported versions table.

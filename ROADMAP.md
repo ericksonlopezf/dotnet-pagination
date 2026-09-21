@@ -65,14 +65,14 @@ Establish a production-ready, correct, and well-tested core. All subsequent phas
 - ADR-0001 through ADR-0020 (all completed)
 
 ### Acceptance Criteria
-- [x] All 12 packages published to NuGet.org
+- [x] All 17 packages published to NuGet.org
 - [x] Zero `dotnet publish --aot` warnings in core/abstractions
 - [x] Stryker.NET mutation score >95% on core
 - [x] BenchmarkDotNet benchmark suite published in `docs/benchmark.md`
 - [x] README benchmark claims verified against actual benchmark output
 
 ### Definition of Done
-All 12 packages pass CI, AOT verification passes, Stryker threshold met, NuGet published.
+All 17 packages pass CI, AOT verification passes, Stryker threshold met, NuGet published.
 
 ---
 
@@ -225,8 +225,8 @@ FNV-1a fingerprint (ADR-0007)
 | HMAC as default | Breaking: existing Base64 cursors invalid | AcceptLegacyCursors migration window |
 | FNV-1a fingerprint | One-time cursor invalidation on upgrade | Document in CHANGELOG; TTL expires naturally |
 | Filter DSL AOT source generator | Complex Roslyn generator; may not cover all entity patterns | IFilterProvider<T> fallback documented |
-| IAsyncEnumerable streaming keyset | Backpressure handling; memory management for long streams | Demand-gate; design review before implementation |
-| LinqToDB adapter | LinqToDB evolution cycle; maintenance burden | >10 votes gate; separate package; optional |
+| IAsyncEnumerable streaming keyset | Backpressure handling; memory management for long streams | Implemented with bounded batching and cooperative CancellationToken support |
+| LinqToDB adapter | LinqToDB evolution cycle; maintenance burden | Isolated to optional dedicated package EricksonLopez.Pagination.LinqToDB |
 
 ## Parallelizable Work
 

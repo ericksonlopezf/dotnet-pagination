@@ -23,7 +23,7 @@ namespace EricksonLopez.Pagination.SourceGenerators
         {
             var invocations = context.SyntaxProvider
                 .CreateSyntaxProvider(
-                    predicate: static (s, _) => 
+                    predicate: static (s, _) =>
                     {
                         if (s is InvocationExpressionSyntax inv && inv.Expression is MemberAccessExpressionSyntax member)
                         {
@@ -87,7 +87,7 @@ namespace EricksonLopez.Pagination.SourceGenerators
                     if (IsHandledPrimitive(type)) continue;
 
                     var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    
+
                     bool supported = false;
                     string? decoderLogic = null;
 
@@ -133,7 +133,7 @@ namespace EricksonLopez.Pagination.SourceGenerators
                             category: "Pagination",
                             defaultSeverity: DiagnosticSeverity.Error,
                             isEnabledByDefault: true);
-                        
+
                         spc.ReportDiagnostic(Diagnostic.Create(descriptor, item.Location, type.Name));
                     }
                 }
@@ -220,7 +220,7 @@ namespace EricksonLopez.Pagination.SourceGenerators
             }
             else if (symbol.IsExtensionMethod && (name == "ToCursorPagedListAsync" || name == "ToCursorPagedList"))
             {
-                isPaginationMethod = 
+                isPaginationMethod =
                     (assemblyName == "EricksonLopez.Pagination" && typeName == "CursorPagedListExtensions") ||
                     (assemblyName == "EricksonLopez.Pagination.Dapper" && typeName == "DbConnectionCursorExtensions") ||
                     (assemblyName == "EricksonLopez.Pagination.EntityFrameworkCore" && typeName == "QueryableExtensions") ||

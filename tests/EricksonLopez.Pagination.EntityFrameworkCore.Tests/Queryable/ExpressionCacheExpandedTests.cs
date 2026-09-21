@@ -48,7 +48,7 @@ public class ExpressionCacheExpandedTests
     {
         Expression<Func<Entity, int>> expression = e => e.Id;
         var compiled = PaginationExpressionCache.GetOrCompile(expression);
-        
+
         var entity = new Entity { Id = 42 };
         compiled(entity).Should().Be(42);
     }

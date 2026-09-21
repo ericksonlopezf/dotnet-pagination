@@ -11,7 +11,7 @@ It supports both the popular `Swashbuckle.AspNetCore` library and the native `.N
 ## Installation
 
 ```xml
-<PackageReference Include="EricksonLopez.Pagination.OpenApi" Version="[VERSION]" />
+<PackageReference Include="EricksonLopez.Pagination.OpenApi" Version="2.0.0" />
 ```
 
 ## Usage

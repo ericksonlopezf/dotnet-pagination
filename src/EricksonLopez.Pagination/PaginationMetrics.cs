@@ -32,6 +32,7 @@ public static class PaginationMetrics
     /// </summary>
     public static readonly Counter<long> QueriesTotal = Meter.CreateCounter<long>(
         "pagination.queries.total",
+        unit: "{queries}",
         description: "Total number of pagination queries executed.");
 
     /// <summary>
@@ -47,6 +48,7 @@ public static class PaginationMetrics
     /// </summary>
     public static readonly Histogram<int> PageDepth = Meter.CreateHistogram<int>(
         "pagination.page.depth",
+        unit: "{pages}",
         description: "Distribution of requested offset page depths.");
 
     /// <summary>
@@ -54,6 +56,7 @@ public static class PaginationMetrics
     /// </summary>
     public static readonly Counter<long> CursorErrors = Meter.CreateCounter<long>(
         "pagination.cursor.errors",
+        unit: "{errors}",
         description: "Total number of cursor validation errors.");
 
     /// <summary>

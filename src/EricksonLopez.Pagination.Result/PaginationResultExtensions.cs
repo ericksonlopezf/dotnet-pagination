@@ -1,8 +1,8 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
 using System.Threading.Tasks;
-using EricksonLopez.Result;
 using EricksonLopez.Pagination.Abstractions;
+using EricksonLopez.Result;
 
 namespace EricksonLopez.Pagination.Result;
 

@@ -9,7 +9,7 @@ namespace EricksonLopez.Pagination.Tests;
 
 public class CursorDecoderRegistryTests
 {
-    private struct CustomType {}
+    private struct CustomType { }
 
     [Fact]
     public void RegisterAndTryGetDecoder_Works()

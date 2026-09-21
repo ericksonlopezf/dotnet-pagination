@@ -1,5 +1,4 @@
 // Copyright © Erickson Lopez. MIT License.
-using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -7,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using EricksonLopez.Pagination.Abstractions;
+using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using Xunit;
 
 namespace EricksonLopez.Pagination.EntityFrameworkCore.Tests;

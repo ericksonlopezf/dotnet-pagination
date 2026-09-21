@@ -54,7 +54,7 @@ public readonly record struct FilterParameters
     /// Represents the maximum character length permitted for a filter expression string.
     /// </summary>
     public const int AbsoluteMaxLength = 4096;
-    
+
     /// <summary>
     /// Represents the maximum number of filter clauses permitted in an expression.
     /// </summary>
@@ -136,7 +136,7 @@ public readonly record struct FilterParameters
         var span = s.AsSpan();
         bool hasAnyValidSegment = false;
         int clauseCount = 0;
-        
+
         while (!span.IsEmpty)
         {
             int commaIdx = span.IndexOf(',');
@@ -144,7 +144,7 @@ public readonly record struct FilterParameters
             var clause = commaIdx >= 0 ? span[..commaIdx] : span;
             span = commaIdx >= 0 ? span[(commaIdx + 1)..] : ReadOnlySpan<char>.Empty;
             // Stryker restore all
-            
+
             if (clause.IsWhiteSpace()) continue;
             if (++clauseCount > AbsoluteMaxComplexity)
             {
@@ -161,11 +161,11 @@ public readonly record struct FilterParameters
                 var orSegment = pipeIdx >= 0 ? segment[..pipeIdx] : segment;
                 segment = pipeIdx >= 0 ? segment[(pipeIdx + 1)..] : ReadOnlySpan<char>.Empty;
                 // Stryker restore all
-                
+
                 if (orSegment.IsWhiteSpace()) continue;
                 hasAnyOrSegment = true;
                 hasAnyValidSegment = true;
-                
+
                 var trimmed = orSegment.TrimStart('!').Trim();
                 // We just need to verify that a valid operator symbol is present and not at index 0.
                 // Operators involve: =, >, <, ~, ^, $
@@ -183,7 +183,7 @@ public readonly record struct FilterParameters
                 return false;
             }
         }
-        
+
         if (!hasAnyValidSegment)
         {
             result = default;

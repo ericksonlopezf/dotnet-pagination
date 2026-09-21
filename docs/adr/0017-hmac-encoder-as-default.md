@@ -1,7 +1,10 @@
 # ADR-0017 — HmacCursorEncoder as Secure Default
 
 ## Status
-**Accepted** — August 2026 · _Implemented in Phase 2 (P2-F001)_
+Accepted — August 2026 · _Implemented in Phase 2 (P2-F001)_
+
+## Date
+2026-09-04
 
 ## Context
 
@@ -18,9 +21,17 @@ For APIs that expose cursors to external clients (REST APIs, mobile backends, B2
 
 We **will** change the default `CursorEncoder` to `HmacCursorEncoder` with a **development-mode fallback strategy**:
 
-1. If the developer provides an explicit HMAC key in `AddPagination(options => { options.HmacKey = "..." })`, use `HmacCursorEncoder` with that key.
-2. If no key is provided, use a **deterministic development key** derived from the assembly name + a fixed salt, and emit `ILogger.LogWarning` on every application startup with message: _"EricksonLopez.Pagination is using a development HMAC key for cursor signing. This key changes between deployments and is NOT suitable for production. Configure `PaginationCoreOptions.HmacKey` in `AddPagination()` before deploying to production."_
+1. If the developer provides an explicit encoder via `AddPagination(options => { options.Cursor.Encoder = new HmacCursorEncoder(secretKey: "...", timeToLive: TimeSpan.FromMinutes(30)); })`, that encoder is used.
+2. If no encoder is provided, use `HmacCursorEncoder.DevelopmentDefault` (a deterministic development key), and register a startup hosted service that emits `ILogger.LogWarning` with message: _"EricksonLopez.Pagination is using a development HMAC key for cursor signing. Configure `options.Cursor.Encoder = new HmacCursorEncoder(secretKey: ...)` in `AddPagination()` before deploying to production."_
 3. `Base64CursorEncoder` remains available for specific internal or legacy use cases where signing is explicitly not desired.
+
+## Implementation Note
+
+> **Updated 2026-09-12 — Post-implementation reconciliation.**
+>
+> The original decision text described a simplified `options.HmacKey = "..."` shorthand property on `PaginationCoreOptions`. During implementation, the team chose a more explicit and flexible design: exposing the full `ICursorEncoder` contract through `options.Cursor.Encoder`. This allows injecting any `ICursorEncoder` implementation (including custom ones) without coupling `PaginationCoreOptions` to `HmacCursorEncoder` internals.
+>
+> The **intent** of the decision is unchanged — HMAC is the secure default, development-mode fallback logs a warning, and Base64 remains available. Only the configuration surface differs from the original text.
 
 ## Rationale
 
@@ -69,6 +80,6 @@ The change required is only in the default configuration, not in the encoder imp
 ## Consequences
 
 - All new projects using `AddPagination()` without explicit configuration will produce HMAC-signed cursors out of the box.
-- Existing projects upgrading from v0.x to v1.1 will see a startup warning and must configure `HmacKey` for production deployments.
+- Existing projects upgrading from v0.x to v1.x will see a startup warning and must configure `options.Cursor.Encoder = new HmacCursorEncoder(secretKey: ...)` in `AddPagination()` for production deployments.
 - The security section of the README is updated to document cursor security as a first-class concern, not an opt-in.
-- A new Roslyn analyzer (PAG008) warning when `Base64CursorEncoder` is explicitly configured is added to the roadmap.
+- Roslyn analyzer PAG008 warns at compile time when `Base64CursorEncoder` is explicitly instantiated (implemented in `EricksonLopez.Pagination.Analyzers`).

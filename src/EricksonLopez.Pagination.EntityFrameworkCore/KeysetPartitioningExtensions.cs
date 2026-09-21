@@ -1,6 +1,7 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -57,7 +58,7 @@ public static class KeysetPartitioningExtensions
         {
             return new[]
             {
-                new KeysetPartition<int>(0, minKey, maxKey, encoder.Encode(minKey.ToString()), encoder.Encode(maxKey.ToString()))
+                new KeysetPartition<int>(0, minKey, maxKey, encoder.Encode(minKey.ToString(CultureInfo.InvariantCulture)), encoder.Encode(maxKey.ToString(CultureInfo.InvariantCulture)))
             };
         }
 
@@ -78,8 +79,8 @@ public static class KeysetPartitioningExtensions
                 i,
                 lower,
                 upper,
-                encoder.Encode(lower.ToString()),
-                encoder.Encode(upper.ToString())));
+                encoder.Encode(lower.ToString(CultureInfo.InvariantCulture)),
+                encoder.Encode(upper.ToString(CultureInfo.InvariantCulture))));
         }
 
         return partitions;
@@ -127,7 +128,7 @@ public static class KeysetPartitioningExtensions
         {
             return new[]
             {
-                new KeysetPartition<long>(0, minKey, maxKey, encoder.Encode(minKey.ToString()), encoder.Encode(maxKey.ToString()))
+                new KeysetPartition<long>(0, minKey, maxKey, encoder.Encode(minKey.ToString(CultureInfo.InvariantCulture)), encoder.Encode(maxKey.ToString(CultureInfo.InvariantCulture)))
             };
         }
 
@@ -148,8 +149,8 @@ public static class KeysetPartitioningExtensions
                 i,
                 lower,
                 upper,
-                encoder.Encode(lower.ToString()),
-                encoder.Encode(upper.ToString())));
+                encoder.Encode(lower.ToString(CultureInfo.InvariantCulture)),
+                encoder.Encode(upper.ToString(CultureInfo.InvariantCulture))));
         }
 
         return partitions;

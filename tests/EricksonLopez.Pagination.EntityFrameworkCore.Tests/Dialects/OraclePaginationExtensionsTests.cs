@@ -26,11 +26,11 @@ public class OraclePaginationExtensionsTests
         _parameters = Substitute.For<DbParameterCollection>();
 
         _command.Parameters.Returns(_parameters);
-        
+
         var param1 = Substitute.For<DbParameter>();
         var param2 = Substitute.For<DbParameter>();
         var toggle = true;
-        _command.CreateParameter().Returns(x => 
+        _command.CreateParameter().Returns(x =>
         {
             var p = toggle ? param1 : param2;
             toggle = !toggle;

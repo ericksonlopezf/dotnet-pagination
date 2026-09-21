@@ -104,11 +104,11 @@ public class PaginationParametersParsableTests
     // ─── TryParse — invalid inputs ────────────────────────────────────────────
 
     [Theory]
-    [InlineData("page=0",       false)]
-    [InlineData("page=-1",      false)]
-    [InlineData("page=abc",     false)]
-    [InlineData("pageSize=0",   false)]
-    [InlineData("pageSize=-5",  false)]
+    [InlineData("page=0", false)]
+    [InlineData("page=-1", false)]
+    [InlineData("page=abc", false)]
+    [InlineData("pageSize=0", false)]
+    [InlineData("pageSize=-5", false)]
     [InlineData("pageSize=abc", false)]
     public void TryParse_InvalidInput_ReturnsFalse(string input, bool expectedSuccess)
     {

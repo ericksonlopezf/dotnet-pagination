@@ -9,7 +9,7 @@ This package extends the `Container` class from `Microsoft.Azure.Cosmos` to nati
 ## Installation
 
 ```xml
-<PackageReference Include="EricksonLopez.Pagination.Cosmos" Version="[VERSION]" />
+<PackageReference Include="EricksonLopez.Pagination.Cosmos" Version="2.0.0" />
 ```
 
 ## Usage

@@ -28,7 +28,7 @@ public static class PaginationExtensions
         // Stryker disable once all : Duplicate guard clause, pagedList.ToPagedResponse(requestUri) also checks for null
         if (pagedList is null) throw new ArgumentNullException(nameof(pagedList));
         if (request is null) throw new ArgumentNullException(nameof(request));
-        
+
         var requestUri = request.PathBase.Value + request.Path.Value + request.QueryString.Value;
         return pagedList.ToPagedResponse(requestUri);
     }
@@ -55,14 +55,14 @@ public static class PaginationExtensions
             var basePath = questionMarkIndex >= 0 ? requestUri.Substring(0, questionMarkIndex) : requestUri;
 
             var queryParams = new List<KeyValuePair<string, string?>>();
-            
+
             // Stryker disable once all : QueryHelpers.ParseQuery("?") returns empty dictionary, so > 1 vs >= 1 is an internal fast path optimization
             if (queryString.Length > 1)
             {
                 var parsedQuery = QueryHelpers.ParseQuery(queryString);
                 foreach (var kvp in parsedQuery)
                 {
-                    if (!kvp.Key.Equals("page", StringComparison.OrdinalIgnoreCase) && 
+                    if (!kvp.Key.Equals("page", StringComparison.OrdinalIgnoreCase) &&
                         !kvp.Key.Equals("pageSize", StringComparison.OrdinalIgnoreCase))
                     {
                         foreach (var val in kvp.Value)
@@ -75,19 +75,19 @@ public static class PaginationExtensions
 
             // Always add pageSize at the end (or where it was? we just append it for simplicity, or we could insert it where it was. Replacing at the end is fine, the problem was alphabetizing).
             // Actually, let's just append them. The audit complained about dict.OrderBy changing the original order of the other params.
-            queryParams.Add(new KeyValuePair<string, string?>("pageSize", pagedList.PageSize.ToString()));
+            queryParams.Add(new KeyValuePair<string, string?>("pageSize", pagedList.PageSize.ToString(CultureInfo.InvariantCulture)));
 
             if (pagedList.HasNextPage)
             {
                 var nextParams = new List<KeyValuePair<string, string?>>(queryParams);
-                nextParams.Add(new KeyValuePair<string, string?>("page", (pagedList.Page + 1).ToString()));
+                nextParams.Add(new KeyValuePair<string, string?>("page", (pagedList.Page + 1).ToString(CultureInfo.InvariantCulture)));
                 nextPageUrl = QueryHelpers.AddQueryString(basePath, nextParams);
             }
 
             if (pagedList.HasPreviousPage)
             {
                 var prevParams = new List<KeyValuePair<string, string?>>(queryParams);
-                prevParams.Add(new KeyValuePair<string, string?>("page", (pagedList.Page - 1).ToString()));
+                prevParams.Add(new KeyValuePair<string, string?>("page", (pagedList.Page - 1).ToString(CultureInfo.InvariantCulture)));
                 prevPageUrl = QueryHelpers.AddQueryString(basePath, prevParams);
             }
         }

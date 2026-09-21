@@ -137,7 +137,7 @@ public class TestClass
     {
         var analyzer = new ExplicitBase64CursorEncoderAnalyzer();
         var rule = analyzer.SupportedDiagnostics[0];
-        
+
         AwesomeAssertions.AssertionExtensions.Should(rule.Id).Be("PAG008");
         AwesomeAssertions.AssertionExtensions.Should(rule.Title.ToString()).Be("Explicit Use of Insecure Base64CursorEncoder");
         AwesomeAssertions.AssertionExtensions.Should(rule.MessageFormat.ToString()).Be("Explicit use of Base64CursorEncoder is insecure and vulnerable to cursor tampering. Use HmacCursorEncoder with a secret key instead.");

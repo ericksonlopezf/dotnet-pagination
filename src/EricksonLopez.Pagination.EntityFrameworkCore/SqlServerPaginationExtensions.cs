@@ -87,7 +87,7 @@ public static partial class SqlServerPaginationExtensions
             cmd.Parameters.Add(pSchemaName);
 
             var result = await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
-            var count = result != DBNull.Value && result != null ? Convert.ToInt64(result) : 0;
+            var count = result != DBNull.Value && result != null ? Convert.ToInt64(result, System.Globalization.CultureInfo.InvariantCulture) : 0;
             return count < 0 ? 0 : count;
         }
         finally
