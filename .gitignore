@@ -1,21 +1,52 @@
-# .NET
-bin/
-obj/
-**/bin/
-**/obj/
+# ==============================================================================
+# .NET Build Outputs & Artifacts
+# ==============================================================================
+[Bb]in/
+[Oo]bj/
+[Aa]rtifacts/
+out/
+publish/
+aot-output/
+[Bb]uild[Ll]og.*
+*.binlog
 
-# Backup files
-*.bak
-
-# Strong Name Keys
-# *.snk (Allowed for Open Source projects)
-# Allow the public-key-only file (safe to commit — contains NO private key)
+# ==============================================================================
+# Strong Name Keys & Certificates
+# ==============================================================================
+# Real private key pairs must never be checked into version control.
+# In release workflows, private keys are injected dynamically via CI secrets.
+*.snk
+*.pfx
+*.p12
+*.key
+!DummyDevelopmentKey.snk
 !public.snk
 
-# NuGet packages
-nupkgs/
+# ==============================================================================
+# NuGet Packages
+# ==============================================================================
 *.nupkg
 *.snupkg
+nupkgs/
+packages/
+!**/packages.config
+
+# ==============================================================================
+# IDE & Editor User Settings
+# ==============================================================================
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.userprefs
+*.ide/
+
+# JetBrains Rider & ReSharper
+.idea/
+*.DotSettings.user
+_ReSharper*/
 
 # Visual Studio Code
 .vscode/*
@@ -23,48 +54,93 @@ nupkgs/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+!.vscode/*.code-snippets
 *.code-workspace
+.history/
+.ionide/
 
-# Visual Studio / Rider
-.vs/
-*.user
-*.suo
-.idea/
-*.DotSettings.user
-
-# Test & Analysis artifacts
+# ==============================================================================
+# Test, Coverage, Stryker & Benchmarks
+# ==============================================================================
+# Test Results & Trx
 [Tt]est[Rr]esults*/
 test-results/
+*.trx
+
+# Code Coverage Reports & Data
 [Cc]overage[Rr]eport*/
 coveragereport/
 coverage-report*/
 coverage-results/
-temp-coverage/
-temp-coverage-report/
-*.trx
+coverage/
+coverage.*/
+temp-coverage*/
 *.coverage
 *.coveragexml
 *.cobertura.xml
 *.opencover.xml
-coverage.*/
-**/coverage.*.xml
-**/coverage.*.cobertura.xml
-**/coverage.*.opencover.xml
-BenchmarkDotNet.Artifacts/
-benchmarks/results/*.log
-StrykerOutput/
 
-# Secrets & Local Config
+# Mutation Testing (Stryker)
+[Ss]tryker[Oo]utput/
+stryker-tmp/
+.stryker-tmp/
+
+# Benchmarks
+BenchmarkDotNet.Artifacts/
+benchmarks/results/*
+!benchmarks/results/baseline.json
+
+# ==============================================================================
+# Secrets, Environment & Local Configurations
+# ==============================================================================
 appsettings.Development.json
 appsettings.Local.json
+appsettings.*.Local.json
+appsettings.*.local.json
 secrets.json
+*.local.json
+.env
+.env.*
+!.env.example
 
-# OS files
-Thumbs.db
-Desktop.ini
-.DS_Store
-
-# Documentation & Generated Artifacts
+# ==============================================================================
+# Documentation Generated Artifacts
+# ==============================================================================
 docs/*.html
-*.binlog
-aot-output/
+_site/
+
+# ==============================================================================
+# Crash Dumps, Temp & Backup Files
+# ==============================================================================
+*.dmp
+*.mdmp
+*.bak
+*.tmp
+*.temp
+*~
+*.swp
+*.log
+
+# ==============================================================================
+# Operating System Files
+# ==============================================================================
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ==============================================================================
+# Web Tooling & Miscellaneous
+# ==============================================================================
+node_modules/
+.sonar/
+.scannerwork/

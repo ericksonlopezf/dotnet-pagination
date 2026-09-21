@@ -2,7 +2,7 @@
   "stryker-config": {
     "project": "EricksonLopez.Pagination.EntityFrameworkCore.csproj",
     "coverage-analysis": "perTest",
-    "concurrency": 4,
+    "concurrency": 2,
     "thresholds": {
       "high": 100,
       "low": 98,

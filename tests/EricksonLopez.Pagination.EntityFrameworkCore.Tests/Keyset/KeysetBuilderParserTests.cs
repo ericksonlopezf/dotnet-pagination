@@ -1,5 +1,4 @@
 // Copyright © Erickson Lopez. MIT License.
-using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using System;
 using System.Linq;
 using System.Threading;
@@ -7,6 +6,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using EricksonLopez.Pagination.Abstractions;
 using EricksonLopez.Pagination.EntityFrameworkCore;
+using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
@@ -14,7 +14,7 @@ namespace EricksonLopez.Pagination.EntityFrameworkCore.Tests;
 
 public class KeysetBuilderParserTests
 {
-    
+
 
     private class TestEntity
     {
@@ -49,7 +49,7 @@ public class KeysetBuilderParserTests
             .Keyset(new CursorPaginationParametersBuilder().WithAfter(cursor).Build())
             .Ascending(e => e.Id)
             .ToCursorPagedListAsync();
-        
+
         // It returns null, which means it starts from beginning without throwing
         result.Should().NotBeNull();
     }
@@ -60,11 +60,11 @@ public class KeysetBuilderParserTests
         using var ctx = GetContext();
         var longString = new string('a', 4097);
         var cursor = EricksonLopez.Pagination.HmacCursorEncoder.DevelopmentDefault.Encode(longString);
-        
+
         var query = ctx.Entities
             .Keyset(new CursorPaginationParametersBuilder().WithAfter(cursor).Build())
             .Ascending(e => e.Id);
-            
+
         Func<Task> act = async () => await query.ToCursorPagedListAsync();
         await act.Should().ThrowAsync<InvalidPaginationCursorException>();
     }
@@ -74,11 +74,11 @@ public class KeysetBuilderParserTests
     {
         using var ctx = GetContext();
         var cursor = EricksonLopez.Pagination.HmacCursorEncoder.DevelopmentDefault.Encode("S|123")!;
-        
+
         var query = ctx.Entities
             .Keyset(new CursorPaginationParametersBuilder().WithAfter(cursor).Build())
             .Ascending(e => e.Id);
-            
+
         Func<Task> act = async () => await query.ToCursorPagedListAsync();
         await act.Should().ThrowAsync<InvalidPaginationCursorException>()
             .WithMessage("*Expected a multi-column keyset cursor*");
@@ -89,12 +89,12 @@ public class KeysetBuilderParserTests
     {
         using var ctx = GetContext();
         var cursor = EricksonLopez.Pagination.HmacCursorEncoder.DevelopmentDefault.Encode("M|123")!;
-        
+
         // Use reflection to construct KeysetBuilder with acceptLegacyCursors = false
         var parameters = new CursorPaginationParametersBuilder().WithAfter(cursor).Build();
         var builder = new KeysetBuilder<TestEntity>(ctx.Entities, parameters, 10, null, acceptLegacyCursors: false)
             .Ascending(e => e.Id);
-            
+
         Func<Task> act = async () => await builder.ToCursorPagedListAsync();
         await act.Should().ThrowAsync<InvalidPaginationCursorException>()
             .WithMessage("*Legacy v1 cursor format is not accepted*");
@@ -106,11 +106,11 @@ public class KeysetBuilderParserTests
         using var ctx = GetContext();
         // M|v2|wrongfingerprint|123
         var cursor = EricksonLopez.Pagination.HmacCursorEncoder.DevelopmentDefault.Encode("M|v2|WRONG|123");
-        
+
         var query = ctx.Entities
             .Keyset(new CursorPaginationParametersBuilder().WithAfter(cursor).Build())
             .Ascending(e => e.Id);
-            
+
         Func<Task> act = async () => await query.ToCursorPagedListAsync();
         await act.Should().ThrowAsync<InvalidPaginationCursorException>()
             .WithMessage("*Cursor was generated for a different keyset*");
@@ -120,7 +120,7 @@ public class KeysetBuilderParserTests
     public async Task ParseCursor_InvalidPartFormat_ThrowsInvalidPaginationCursorException()
     {
         using var ctx = GetContext();
-        
+
         // We need the correct fingerprint to bypass the fingerprint check.
         var query = ctx.Entities.Keyset(new CursorPaginationParameters()).Ascending(e => e.Id);
         // Fingerprint is hashed. Let's just create a valid cursor and modify the value
@@ -128,17 +128,17 @@ public class KeysetBuilderParserTests
         await ctx.SaveChangesAsync();
         var validResult = await query.ToCursorPagedListAsync();
         var validCursor = validResult.StartCursor!;
-        
+
         var payload = EricksonLopez.Pagination.HmacCursorEncoder.DevelopmentDefault.Decode(validCursor)!;
         var parts = payload.Split('|');
         parts[3] = "NotAnInteger";
-        
+
         var badCursor = EricksonLopez.Pagination.HmacCursorEncoder.DevelopmentDefault.Encode(string.Join("|", parts))!;
-        
+
         var badQuery = ctx.Entities
             .Keyset(new CursorPaginationParametersBuilder().WithAfter(badCursor).Build())
             .Ascending(e => e.Id);
-            
+
         Func<Task> act = async () => await badQuery.ToCursorPagedListAsync();
         await act.Should().ThrowAsync<InvalidPaginationCursorException>()
             .WithMessage("*Could not convert cursor part*");

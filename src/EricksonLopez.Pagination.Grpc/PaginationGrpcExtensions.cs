@@ -135,7 +135,7 @@ public static class PaginationGrpcExtensions
             HasPreviousPage = pagedList.HasPreviousPage,
             HasNextPage = pagedList.HasNextPage
         };
-        
+
         if (pagedList.TotalCount.HasValue) message.TotalCount = pagedList.TotalCount.Value;
         if (pagedList.TotalPages.HasValue) message.TotalPages = pagedList.TotalPages.Value;
 

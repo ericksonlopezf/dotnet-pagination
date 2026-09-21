@@ -141,34 +141,43 @@ public readonly record struct PaginationParameters
             // Stryker disable once all : Unkillable mutation because true causes infinite loop when ampIndex is -1
             span = ampIndex >= 0 ? span[(ampIndex + 1)..] : ReadOnlySpan<char>.Empty;
 
-            int eqIndex = pair.IndexOf('=');
-            // Stryker disable once Equality : Unkillable mutation because when eqIndex is 0 the key is empty, which is ignored later anyway
-            if (eqIndex < 0) continue;
-
-            var key = pair[..eqIndex].Trim();
-            var value = pair[(eqIndex + 1)..].Trim();
-
-            if (key.Equals("page", StringComparison.OrdinalIgnoreCase))
+            if (!TryParsePair(pair, ref page, ref pageSize))
             {
-                if (!int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var parsedPage) || parsedPage < 1)
-                {
-                    result = default;
-                    return false;
-                }
-                page = parsedPage;
-            }
-            else if (key.Equals("pageSize", StringComparison.OrdinalIgnoreCase))
-            {
-                if (!int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var parsedSize) || parsedSize < 1 || parsedSize > 100_000)
-                {
-                    result = default;
-                    return false;
-                }
-                pageSize = parsedSize;
+                result = default;
+                return false;
             }
         }
 
         result = Create(page, pageSize);
+        return true;
+    }
+
+    private static bool TryParsePair(ReadOnlySpan<char> pair, ref int page, ref int pageSize)
+    {
+        int eqIndex = pair.IndexOf('=');
+        // Stryker disable once Equality : Unkillable mutation because when eqIndex is 0 the key is empty, which is ignored later anyway
+        if (eqIndex < 0) return true;
+
+        var key = pair[..eqIndex].Trim();
+        var value = pair[(eqIndex + 1)..].Trim();
+
+        if (key.Equals("page", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var parsedPage) || parsedPage < 1)
+            {
+                return false;
+            }
+            page = parsedPage;
+        }
+        else if (key.Equals("pageSize", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var parsedSize) || parsedSize < 1 || parsedSize > 100_000)
+            {
+                return false;
+            }
+            pageSize = parsedSize;
+        }
+
         return true;
     }
 #endif

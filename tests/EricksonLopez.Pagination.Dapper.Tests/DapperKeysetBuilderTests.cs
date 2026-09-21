@@ -118,7 +118,7 @@ public class DapperKeysetBuilderTests
     public async Task ExecuteAsync_1ColumnKeyset_FirstPage_ReturnsResults()
     {
         using var connection = await GetConnectionAsync();
-        
+
         var page = await new DapperKeysetBuilder<Product>(connection, CursorPaginationParameters.Parse("first=10", null))
             .Select("*")
             .From("Products")
@@ -136,7 +136,7 @@ public class DapperKeysetBuilderTests
     public async Task ExecuteAsync_2ColumnKeyset_FiltersCorrectly()
     {
         using var connection = await GetConnectionAsync();
-        
+
         var page = await new DapperKeysetBuilder<Product>(connection, CursorPaginationParameters.Parse("first=5", null))
             .Select("*")
             .From("Products")
@@ -155,7 +155,7 @@ public class DapperKeysetBuilderTests
         page.Count.Should().Be(5); // There are exactly 5 items with CategoryId 3 (3, 8, 13, 18, 23)
         page[0].Id.Should().Be(3);
         page[1].Id.Should().Be(8);
-        
+
         // Let's get the next page
         var nextPage = await new DapperKeysetBuilder<Product>(connection, CursorPaginationParameters.Parse("first=5&after=" + page.EndCursor, null))
             .Select("*")
@@ -176,7 +176,7 @@ public class DapperKeysetBuilderTests
     public async Task ExecuteAsync_BackwardPagination_ReversesResults()
     {
         using var connection = await GetConnectionAsync();
-        
+
         // Get last page (ids 16..25)
         var lastPage = await new DapperKeysetBuilder<Product>(connection, CursorPaginationParameters.Parse("last=10", null))
             .Select("*")
@@ -194,7 +194,7 @@ public class DapperKeysetBuilderTests
     public async Task ExecuteAsync_InvalidCursor_ThrowsInvalidPaginationCursorException()
     {
         using var connection = await GetConnectionAsync();
-        
+
         // Use an invalid cursor string
         var act = () => new DapperKeysetBuilder<Product>(connection, CursorPaginationParameters.Parse("first=10&after=INVALID_CURSOR", null))
             .Select("*")
@@ -207,18 +207,18 @@ public class DapperKeysetBuilderTests
 
         await act.Should().ThrowAsync<InvalidPaginationCursorException>();
     }
-    
+
     private class TestInvalidEncoder : ICursorEncoder
     {
         public string? Encode(string? cursor) => cursor;
         public string? Decode(string? cursor) => throw new FormatException("Invalid");
     }
-    
+
     [Fact]
     public async Task BuildCursorString_WithPercent_IsEscaped()
     {
         using var connection = await GetConnectionAsync();
-        
+
         var page = await new DapperKeysetBuilder<Product>(connection, CursorPaginationParameters.Parse("first=1", null))
             .Select("*")
             .From("Products")
@@ -236,7 +236,7 @@ public class DapperKeysetBuilderTests
     {
         using var connection = await GetConnectionAsync();
         using var transaction = connection.BeginTransaction();
-        
+
         var factory = Substitute.For<ICursorPagedListFactory>();
         var encoder = Substitute.For<ICursorEncoder>();
         encoder.Decode(Arg.Any<string>()).Returns((string?)null); // Force decoded to null
@@ -264,7 +264,7 @@ public class DapperKeysetBuilderTests
     {
         var connection = Substitute.For<System.Data.IDbConnection>();
         var builder = new DapperKeysetBuilder<Product>(connection, new CursorPaginationParameters());
-        
+
         var act = () => builder.WithFactory(null!);
         act.Should().Throw<ArgumentNullException>();
     }
@@ -273,7 +273,7 @@ public class DapperKeysetBuilderTests
     public async Task Builder_WithoutDecoders_UsesStringFallback()
     {
         using var connection = await GetConnectionAsync();
-        
+
         var encoder = Substitute.For<ICursorEncoder>();
         encoder.Decode(Arg.Any<string>()).Returns("123|Test"); // Provide valid string
 
@@ -287,7 +287,7 @@ public class DapperKeysetBuilderTests
             .WithEncoder(encoder);
 
         var result = await builder.ExecuteAsync();
-        
+
         // This will successfully execute the SQL query because Sqlite can implicitly cast the string "123" to integer!
         result.Count.Should().Be(0); // 123 is greater than any Id in seed data
     }
@@ -297,10 +297,10 @@ public class DapperKeysetBuilderTests
     {
         using var connection = new Microsoft.Data.Sqlite.SqliteConnection();
         var builder = new DapperKeysetBuilder<Product>(connection, new CursorPaginationParameters());
-        
+
         var act1 = () => builder.WithDefaultPageSize(0);
         act1.Should().Throw<ArgumentOutOfRangeException>();
-        
+
         var act2 = () => builder.WithMaxPageSize(0);
         act2.Should().Throw<ArgumentOutOfRangeException>();
     }
@@ -309,7 +309,7 @@ public class DapperKeysetBuilderTests
     public async Task ExecuteAsync_NullCursorSelector_UsesEmptyString()
     {
         using var connection = await GetConnectionAsync();
-        
+
         var page = await new DapperKeysetBuilder<Product>(connection, CursorPaginationParameters.Parse("first=1", null))
             .Select("*")
             .From("Products")
@@ -330,15 +330,15 @@ public class DapperKeysetBuilderTests
         var mockConn = NSubstitute.Substitute.For<IDbConnection>();
         var command = NSubstitute.Substitute.For<IDbCommand>();
         mockConn.CreateCommand().Returns(command);
-        
+
         var builder = new DapperKeysetBuilder<Entity>(mockConn, CursorPaginationParameters.Parse("first=10", null))
             .Select("Id, Name")
             .From("Entities")
             .OrderBy("Id")
             .WithCursorColumns(e => e.Id.ToString());
-            
+
         _ = await Record.ExceptionAsync(() => builder.ExecuteAsync());
-        
+
         command.CommandText.Should().StartWith("SELECT Id, Name FROM Entities");
     }
 
@@ -355,9 +355,9 @@ public class DapperKeysetBuilderTests
             .OrderBy("Id")
             .UseDialect(DatabaseDialect.SqlServer)
             .WithCursorColumns(e => e.Id.ToString());
-            
+
         _ = await Record.ExceptionAsync(() => builder.ExecuteAsync());
-        
+
         command.CommandText.Should().Contain("FETCH NEXT");
     }
 
@@ -402,6 +402,28 @@ public class DapperKeysetBuilderTests
         var builder = new DapperKeysetBuilder<Entity>(connection, new CursorPaginationParameters());
         Action act = () => builder.WithEncoder(null!);
         act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public async Task DecodeToken_WithEncodedPipeInValue_ParsesCorrectNumberOfColumns()
+    {
+        // Finding: HIGH-06 regression test
+        using var connection = await GetConnectionAsync();
+
+        // Token represents 2 columns: column 0 = "Product%7C1" (encoded pipe), column 1 = "1"
+        var token = HmacCursorEncoder.DevelopmentDefault.Encode("Product%7C1|1");
+        var parameters = new CursorPaginationParameters { First = 5, After = token };
+
+        var page = await new DapperKeysetBuilder<Product>(connection, parameters)
+            .Select("*")
+            .From("Products")
+            .OrderBy("Name")
+            .ThenBy("Id")
+            .WithCursorColumns(p => p.Name, p => p.Id.ToString())
+            .WithCursorDecoder(parts => parts[0], parts => int.Parse(parts[1]))
+            .ExecuteAsync();
+
+        page.Should().NotBeNull();
     }
 }
 

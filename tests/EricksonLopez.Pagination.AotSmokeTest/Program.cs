@@ -40,7 +40,7 @@ class Program
             new User { Id = 1, Name = "Alice" },
             new User { Id = 2, Name = "Bob" }
         };
-        var pagedList = new PagedList<User>(users, totalCount: users.Length, page: offsetParams.Page, pageSize: offsetParams.PageSize);
+        var pagedList = DefaultPagedListFactory.Instance.CreatePagedList(users, totalCount: users.Length, page: offsetParams.Page, pageSize: offsetParams.PageSize, hasNextPage: null);
         Console.WriteLine($"Offset Count: {pagedList.Count}");
 
         // 2. Test Keyset / Cursor Pagination Structures

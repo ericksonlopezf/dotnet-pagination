@@ -116,7 +116,7 @@ public static class QueryableCursorProjectionExtensions
 
         var projectedQuery = source.Select(selector);
         // Stryker disable once boolean
-var items = await projectedQuery.Take(pageSize + 1).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var items = await projectedQuery.Take(pageSize + 1).ToListAsync(cancellationToken).ConfigureAwait(false);
 
         var hasMore = items.Count > pageSize;
         if (hasMore)

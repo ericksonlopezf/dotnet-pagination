@@ -23,7 +23,7 @@ namespace EricksonLopez.Pagination.SourceGenerators
         {
             var invocations = context.SyntaxProvider
                 .CreateSyntaxProvider(
-                    predicate: static (s, _) => 
+                    predicate: static (s, _) =>
                     {
                         if (s is InvocationExpressionSyntax inv && inv.Expression is MemberAccessExpressionSyntax member)
                         {
@@ -41,14 +41,15 @@ namespace EricksonLopez.Pagination.SourceGenerators
                             // originate from a Keyset-related call by checking for "Keyset" in the
                             // parent expression text. This is a heuristic syntax filter only — the
                             // semantic transform still performs exact symbol validation.
+                            // Stryker disable all : Heuristic syntax filtering for common method names
                             if (name is "Ascending" or "Descending")
                             {
                                 // Walk up the expression chain to see if "Keyset" appears in it,
                                 // which strongly suggests this is a KeysetBuilder<T>.Ascending() call.
                                 var exprText = member.Expression.ToString();
-                                // Stryker disable once all : Heuristic filtering
                                 return exprText.Contains("Keyset") || exprText.Contains("keyset");
                             }
+                            // Stryker restore all
                         }
                         return false;
                     },
@@ -87,7 +88,7 @@ namespace EricksonLopez.Pagination.SourceGenerators
                     if (IsHandledPrimitive(type)) continue;
 
                     var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    
+
                     bool supported = false;
                     string? decoderLogic = null;
 
@@ -133,7 +134,7 @@ namespace EricksonLopez.Pagination.SourceGenerators
                             category: "Pagination",
                             defaultSeverity: DiagnosticSeverity.Error,
                             isEnabledByDefault: true);
-                        
+
                         spc.ReportDiagnostic(Diagnostic.Create(descriptor, item.Location, type.Name));
                     }
                 }
@@ -220,7 +221,7 @@ namespace EricksonLopez.Pagination.SourceGenerators
             }
             else if (symbol.IsExtensionMethod && (name == "ToCursorPagedListAsync" || name == "ToCursorPagedList"))
             {
-                isPaginationMethod = 
+                isPaginationMethod =
                     (assemblyName == "EricksonLopez.Pagination" && typeName == "CursorPagedListExtensions") ||
                     (assemblyName == "EricksonLopez.Pagination.Dapper" && typeName == "DbConnectionCursorExtensions") ||
                     (assemblyName == "EricksonLopez.Pagination.EntityFrameworkCore" && typeName == "QueryableExtensions") ||

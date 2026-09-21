@@ -3,6 +3,9 @@
 ## Status
 Accepted — August 2026
 
+## Date
+2026-09-04
+
 ## Context
 
 An earlier engineering document (the "CURRENT STATE" audit prompt) described the cursor decode path as using:

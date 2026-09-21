@@ -22,13 +22,13 @@ public class MRKeysetComparisonBenchmark
 {
     private const int DatasetSize = 100_000;
     private const int PageSize = 100;
-    
+
     // Page 500 = 49900 rows skipped.
-    private const int OffsetIndex = 49900; 
+    private const int OffsetIndex = 49900;
 
     private PostgreSqlContainer _postgreSqlContainer = null!;
     private BenchmarkDbContext _dbContext = null!;
-    
+
     private CursorPaginationParameters _elParams;
     private int _mrReferenceAge;
     private int _mrReferenceId;
@@ -36,13 +36,11 @@ public class MRKeysetComparisonBenchmark
     [GlobalSetup]
     public void Setup()
     {
-#pragma warning disable CS0618
-        _postgreSqlContainer = new PostgreSqlBuilder()
+        _postgreSqlContainer = new PostgreSqlBuilder("postgres:16-alpine")
             .WithDatabase("benchmark_db")
             .WithUsername("postgres")
             .WithPassword("postgres")
             .Build();
-#pragma warning restore CS0618
 
         _postgreSqlContainer.StartAsync().GetAwaiter().GetResult();
 
@@ -76,9 +74,9 @@ public class MRKeysetComparisonBenchmark
         // EricksonLopez requires an opaque cursor string for standard parsing,
         // but we can generate it easily:
         var rawCursor = $"{referenceUser.Age}|{referenceUser.Id}";
-        _elParams = new CursorPaginationParameters 
-        { 
-            First = PageSize, 
+        _elParams = new CursorPaginationParameters
+        {
+            First = PageSize,
             After = HmacCursorEncoder.DevelopmentDefault.Encode(rawCursor)
         };
 

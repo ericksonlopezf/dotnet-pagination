@@ -1,4 +1,11 @@
 # Architectural Decision Record: REJECT-009
+
+## Status
+Rejected
+
+## Date
+2026-09-04
+
 ## Rejection of Untyped Opaque String Cursors in Core Pagination
 
 ### Status

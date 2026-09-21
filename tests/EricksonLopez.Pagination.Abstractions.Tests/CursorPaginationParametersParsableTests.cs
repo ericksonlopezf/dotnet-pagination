@@ -18,7 +18,7 @@ public class CursorPaginationParametersParsableTests
         p.Last.Should().BeNull();
         p.Before.Should().BeNull();
     }
-    
+
     [Fact]
     public void Parse_NullInput_ThrowsArgumentNullException()
     {
@@ -40,7 +40,7 @@ public class CursorPaginationParametersParsableTests
     {
         CursorPaginationParameters.TryParse(null, null, out var p1).Should().BeFalse();
         p1.First.Should().BeNull();
-        
+
         CursorPaginationParameters.TryParse("   ", null, out var p2).Should().BeFalse();
         p2.First.Should().BeNull();
     }
@@ -49,7 +49,7 @@ public class CursorPaginationParametersParsableTests
     public void TryParse_AllParameters_ParsedCorrectly()
     {
         var success = CursorPaginationParameters.TryParse("first=15&after=abc", null, out var p);
-        
+
         success.Should().BeTrue();
         p.First.Should().Be(15);
         p.After.Should().Be("abc");
@@ -76,7 +76,7 @@ public class CursorPaginationParametersParsableTests
         CursorPaginationParameters.TryParse("first=1", null, out var p).Should().BeTrue();
         p.First.Should().Be(1);
     }
-    
+
     [Fact]
     public void TryParse_InvalidIntForLast_ReturnsFalse()
     {
@@ -114,7 +114,7 @@ public class CursorPaginationParametersParsableTests
         p.Last.Should().BeNull();
         p.Before.Should().Be("");
     }
-    
+
     [Fact]
     public void TryParse_KeyWithoutEquals()
     {

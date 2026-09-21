@@ -12,8 +12,8 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using NSubstitute;
-using SortDirection = EricksonLopez.Pagination.Abstractions.SortDirection;
 using Xunit;
+using SortDirection = EricksonLopez.Pagination.Abstractions.SortDirection;
 
 namespace EricksonLopez.Pagination.MongoDB.Tests;
 

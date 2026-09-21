@@ -9,7 +9,7 @@ namespace EricksonLopez.Pagination.Internal;
 /// Provides an ActivitySource for OpenTelemetry tracing.
 /// </summary>
 
-    internal static class PaginationActivity
+internal static class PaginationActivity
 {
     /// <summary>
     /// The ActivitySource used for emitting traces.

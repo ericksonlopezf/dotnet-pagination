@@ -21,7 +21,7 @@ By participating in this project, you are expected to uphold our [Code of Conduc
 1. **Fork** the repository on GitHub.
 2. **Clone** your fork locally:
    ```bash
-   git clone https://github.com/your-username/dotnet-pagination.git
+   git clone https://github.com/ericksonlopezf/dotnet-pagination.git
    cd dotnet-pagination
    ```
 3. **Restore local tools**:
@@ -81,9 +81,9 @@ dotnet tool restore
 dotnet stryker
 ```
 
-> **Note**: The CI Stryker workflow (`stryker.yml`) runs `dotnet stryker -s EricksonLopez.Pagination.slnx` (the main solution). The default local `dotnet stryker` command uses `stryker-config.json`, which also targets `EricksonLopez.Pagination.slnx`. A separate `stryker.slnx` file exists in the repository root but is not currently used by CI or the default config — it is a smaller subset solution for targeted manual runs.
+> **Note**: The CI mutation testing workflow (`.github/workflows/mutation-testing.yml`) executes Stryker across all 17 library packages. The default local `dotnet stryker` command uses `stryker-config.json`, which targets `EricksonLopez.Pagination.slnx`. A separate `stryker.slnx` file exists in the repository root for targeted manual execution.
 
-Thresholds (from `stryker-config.json`): `high=100`, `low=98`, `break=95`. A mutation score below **95** will block the pull request review.
+Thresholds (from `stryker-*.json`): `high=100`, `low=98`, `break=95`. A mutation score below **95** will fail the quality gate and block pull request approval.
 
 ### Benchmarks
 
@@ -93,7 +93,7 @@ If you are modifying hot paths (e.g., Cursor Encoders, Expression Caching, `Filt
 dotnet run -c Release --project tests/EricksonLopez.Pagination.Benchmarks/EricksonLopez.Pagination.Benchmarks.csproj
 ```
 
-Benchmark results are uploaded as CI artifacts on every push to `main`.
+Micro-benchmarks and regression assertions are validated in CI via `.github/workflows/benchmark-regression-gate.yml` (ensuring 0 B allocated on hot path combinators and latency regression within <= 5% of baseline).
 
 ## 4. Pull Request Process
 
@@ -119,8 +119,8 @@ Benchmark results are uploaded as CI artifacts on every push to `main`.
 ## 5. Backward Compatibility
 
 We strictly adhere to Semantic Versioning (SemVer 2.0.0).
-- **Breaking Changes:** Must be targeted for the next major release. `<EnablePackageValidation>` with `PackageValidationBaselineVersion=1.0.0` will enforce API surface stability during CI once a `1.0.0` NuGet baseline is published.
-- **Deprecations:** Use the `[Obsolete]` attribute with a clear message, diagnostic ID, and migration guidance before removing any API.
+- **Breaking Changes:** Must be targeted for the next major release. `<EnablePackageValidation>` with `PackageValidationBaselineVersion=1.0.0` enforces API surface stability during build and CI against breaking binary changes.
+- **Zero-Obsolete Policy:** Active library code maintains a zero `[Obsolete]` policy. Deprecated APIs from pre-release iterations are cleanly removed upon major version boundaries, preventing technical debt accumulation.
 
 ## 6. Proposing Features
 
@@ -130,6 +130,6 @@ If you have a feature idea, open an Issue with the `enhancement` label. Include:
 - Alternative solutions considered.
 - Whether the change is a breaking API change.
 
-See [roadmap.md](roadmap.md) for planned work and [docs/adr/](docs/adr/) for architectural decisions that define scope boundaries.
+See [ROADMAP.md](ROADMAP.md) for planned work and [docs/adr/](docs/adr/) for architectural decisions that define scope boundaries.
 
 Thank you for contributing!

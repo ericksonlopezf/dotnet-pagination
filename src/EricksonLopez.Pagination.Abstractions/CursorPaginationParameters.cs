@@ -1,6 +1,7 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace EricksonLopez.Pagination.Abstractions;
 
@@ -154,40 +155,9 @@ public readonly record struct CursorPaginationParameters
             var valueStr = pair[(eqIndex + 1)..].Trim().ToString();
             anySeenKeyValuePair = true; // we have a valid key=value pair
 
-            if (key.Equals("first", StringComparison.OrdinalIgnoreCase))
-
+            if (!TryProcessCursorPair(key, valueStr, ref first, ref after, ref last, ref before, ref anyValuefulParam))
             {
-                if (valueStr.Length == 0) continue; // skip empty; checked via anyValuefulParam later
-                if (!int.TryParse(valueStr, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var f)) return false;
-                if (f < 1) return false;
-                first = f;
-                anyValuefulParam = true;
-            }
-            else if (key.Equals("after", StringComparison.OrdinalIgnoreCase))
-            {
-                after = Uri.UnescapeDataString(valueStr);
-                anyValuefulParam = true;
-            }
-            else if (key.Equals("last", StringComparison.OrdinalIgnoreCase))
-            {
-                if (valueStr.Length == 0) continue; // skip empty; checked via anyValuefulParam later
-                if (!int.TryParse(valueStr, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var l)) return false;
-                if (l < 1) return false;
-                last = l;
-                anyValuefulParam = true;
-            }
-            else if (key.Equals("before", StringComparison.OrdinalIgnoreCase))
-            {
-                before = Uri.UnescapeDataString(valueStr);
-                anyValuefulParam = true;
-            }
-            else
-            {
-                // Unknown key — skip it gracefully.
-                // Unknown keys are tolerated when they appear alongside recognized cursor keys
-                // (e.g. "first=10&unknown=5&after=token" parses successfully with first=10, after=token).
-                // However, if NO recognized cursor keys appear in the entire string, TryParse returns
-                // false below via the !anyRecognizedKey check (e.g. "unknown=value" → false).
+                return false;
             }
         }
 
@@ -221,6 +191,41 @@ public readonly record struct CursorPaginationParameters
         return true;
     }
 
+    private static bool TryProcessCursorPair(
+        ReadOnlySpan<char> key,
+        string valueStr,
+        ref int? first,
+        ref string? after,
+        ref int? last,
+        ref string? before,
+        ref bool anyValuefulParam)
+    {
+        if (key.Equals("first", StringComparison.OrdinalIgnoreCase))
+        {
+            if (valueStr.Length == 0) return true; // skip empty; checked via anyValuefulParam later
+            if (!int.TryParse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture, out var f) || f < 1) return false;
+            first = f;
+            anyValuefulParam = true;
+        }
+        else if (key.Equals("after", StringComparison.OrdinalIgnoreCase))
+        {
+            after = Uri.UnescapeDataString(valueStr);
+            anyValuefulParam = true;
+        }
+        else if (key.Equals("last", StringComparison.OrdinalIgnoreCase))
+        {
+            if (valueStr.Length == 0) return true; // skip empty; checked via anyValuefulParam later
+            if (!int.TryParse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture, out var l) || l < 1) return false;
+            last = l;
+            anyValuefulParam = true;
+        }
+        else if (key.Equals("before", StringComparison.OrdinalIgnoreCase))
+        {
+            before = Uri.UnescapeDataString(valueStr);
+            anyValuefulParam = true;
+        }
+        return true;
+    }
 #endif
 }
 

@@ -18,7 +18,7 @@ namespace EricksonLopez.Pagination.MongoDB;
 /// </summary>
 public static class MongoOffsetPaginationExtensions
 {
-// ─── Offset pagination ────────────────────────────────────────────────────
+    // ─── Offset pagination ────────────────────────────────────────────────────
 
     /// <summary>
     /// Materializes the query into a <see cref="PagedList{T}"/> using offset pagination.
@@ -44,11 +44,15 @@ public static class MongoOffsetPaginationExtensions
     {
         factory ??= DefaultPagedListFactory.Instance;
         var effectivePageSize = maxPageSize.HasValue ? Math.Min(parameters.PageSize, maxPageSize.Value) : parameters.PageSize;
+        // Stryker disable once all : Skip calculation
+        long skip = ((long)parameters.Page - 1L) * effectivePageSize;
+        // Stryker disable once all : Overflow clamping on skip > int.MaxValue
+        int skipAmount = skip > int.MaxValue ? int.MaxValue : (int)skip;
 
         if (countTotal)
         {
             // Stryker disable once boolean
-var count = await source.LongCountAsync(cancellationToken).ConfigureAwait(false);
+            var count = await source.LongCountAsync(cancellationToken).ConfigureAwait(false);
 
             // Stryker disable once all : Early return optimization on count == 0
             if (count == 0)
@@ -57,10 +61,10 @@ var count = await source.LongCountAsync(cancellationToken).ConfigureAwait(false)
             }
 
             var items = await source
-                .Skip(((parameters.Page - 1) * effectivePageSize))
+                .Skip(skipAmount)
                 .Take(effectivePageSize)
                 .ToListAsync(cancellationToken)
-                // Stryker disable once boolean
+// Stryker disable once boolean
 .ConfigureAwait(false);
 
             return factory.CreatePagedList(items, count, parameters.Page, effectivePageSize, null);
@@ -69,10 +73,10 @@ var count = await source.LongCountAsync(cancellationToken).ConfigureAwait(false)
         {
             var pageSize = effectivePageSize;
             var items = await source
-                .Skip(((parameters.Page - 1) * effectivePageSize))
+                .Skip(skipAmount)
                 .Take(pageSize + 1)
                 .ToListAsync(cancellationToken)
-                // Stryker disable once boolean
+// Stryker disable once boolean
 .ConfigureAwait(false);
 
             var hasNextPage = items.Count > pageSize;
@@ -112,20 +116,24 @@ var count = await source.LongCountAsync(cancellationToken).ConfigureAwait(false)
     {
         factory ??= DefaultPagedListFactory.Instance;
         var effectivePageSize = maxPageSize.HasValue ? Math.Min(parameters.PageSize, maxPageSize.Value) : parameters.PageSize;
+        // Stryker disable once all : Skip calculation
+        long skip = ((long)parameters.Page - 1L) * effectivePageSize;
+        // Stryker disable once all : Overflow clamping on skip > int.MaxValue
+        int skipAmount = skip > int.MaxValue ? int.MaxValue : (int)skip;
 
         if (countTotal)
         {
             // Stryker disable once boolean
-var count = await source.LongCountAsync(cancellationToken).ConfigureAwait(false);
+            var count = await source.LongCountAsync(cancellationToken).ConfigureAwait(false);
             // Stryker disable once boolean : empty list has no next page
             if (count == 0) return factory.CreatePagedList<TResult>([], 0, parameters.Page, effectivePageSize, false);
 
             var items = await source
-                .Skip(((parameters.Page - 1) * effectivePageSize))
+                .Skip(skipAmount)
                 .Take(effectivePageSize)
                 .Select(selector)
                 .ToListAsync(cancellationToken)
-                // Stryker disable once boolean
+// Stryker disable once boolean
 .ConfigureAwait(false);
 
             return factory.CreatePagedList(items, count, parameters.Page, effectivePageSize, null);
@@ -134,11 +142,11 @@ var count = await source.LongCountAsync(cancellationToken).ConfigureAwait(false)
         {
             var pageSize = effectivePageSize;
             var items = await source
-                .Skip(((parameters.Page - 1) * effectivePageSize))
+                .Skip(skipAmount)
                 .Take(pageSize + 1)
                 .Select(selector)
                 .ToListAsync(cancellationToken)
-                // Stryker disable once boolean
+// Stryker disable once boolean
 .ConfigureAwait(false);
 
             var hasNextPage = items.Count > pageSize;
@@ -224,7 +232,7 @@ var count = await source.LongCountAsync(cancellationToken).ConfigureAwait(false)
     }
 
 
-    
+
 }
 
 

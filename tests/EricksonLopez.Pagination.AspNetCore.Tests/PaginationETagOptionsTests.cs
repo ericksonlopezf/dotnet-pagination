@@ -13,7 +13,7 @@ public class PaginationETagOptionsTests
         var options = new PaginationETagOptions();
         options.CustomETagFactory.Should().BeNull();
         options.CustomCursorETagFactory.Should().BeNull();
-        
+
         PaginationETagOptions.Default.Should().NotBeNull();
     }
 

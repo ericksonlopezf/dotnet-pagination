@@ -92,32 +92,16 @@ public readonly partial record struct SortParameters
             var segment = commaIdx != -1 ? span[..commaIdx] : span;
             span = commaIdx != -1 ? span[(commaIdx + 1)..] : ReadOnlySpan<char>.Empty;
             // Stryker restore all
-            
+
             var part = segment.Trim();
             if (part.IsEmpty) continue;
-            
-            var spaceIndex = part.LastIndexOf(' ');
-            if (spaceIndex != -1)
+
+            if (!IsValidSortSegment(part))
             {
-                var suffix = part[(spaceIndex + 1)..];
-                if (!suffix.Equals("asc", StringComparison.OrdinalIgnoreCase) && 
-                    !suffix.Equals("desc", StringComparison.OrdinalIgnoreCase))
-                {
-                    result = default;
-                    return false;
-                }
-                var colName = part[..spaceIndex].Trim();
-                if (colName.IndexOf(' ') != -1)
-                {
-                    result = default;
-                    return false;
-                }
-                hasValidPart = true;
+                result = default;
+                return false;
             }
-            else
-            {
-                hasValidPart = true;
-            }
+            hasValidPart = true;
         }
 
         if (!hasValidPart)
@@ -129,13 +113,33 @@ public readonly partial record struct SortParameters
         result = From(s);
         return true;
     }
+
+    private static bool IsValidSortSegment(ReadOnlySpan<char> part)
+    {
+        var spaceIndex = part.LastIndexOf(' ');
+        if (spaceIndex != -1)
+        {
+            var suffix = part[(spaceIndex + 1)..];
+            if (!suffix.Equals("asc", StringComparison.OrdinalIgnoreCase) &&
+                !suffix.Equals("desc", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            var colName = part[..spaceIndex].Trim();
+            if (colName.IndexOf(' ') != -1)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 #endif
 
     /// <inheritdoc />
     public override string ToString() => Value ?? string.Empty;
 
 #if NET7_0_OR_GREATER
-    
+
     [System.Text.RegularExpressions.GeneratedRegex(@"^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*$")]
     private static partial System.Text.RegularExpressions.Regex ValidColumnNameRegex();
 #else

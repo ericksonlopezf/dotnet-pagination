@@ -32,11 +32,11 @@ public class PostgreSqlPaginationExtensionsTests
         _parameters = Substitute.For<DbParameterCollection>();
 
         _command.Parameters.Returns(_parameters);
-        
+
         var param1 = Substitute.For<DbParameter>();
         var param2 = Substitute.For<DbParameter>();
         var toggle = true;
-        _command.CreateParameter().Returns(x => 
+        _command.CreateParameter().Returns(x =>
         {
             var p = toggle ? param1 : param2;
             toggle = !toggle;
@@ -95,11 +95,11 @@ public class PostgreSqlPaginationExtensionsTests
         _command.ExecuteScalarAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult<object?>(1000L));
 
         var count = await _dbContext.GetApproximateCountAsync("users");
-        
+
         count.Should().Be(1000);
         await _command.Received(1).ExecuteScalarAsync(Arg.Any<CancellationToken>());
     }
-    
+
     [Fact]
     public async Task GetApproximateCountAsync_NullResult_ReturnsZero()
     {
@@ -107,7 +107,7 @@ public class PostgreSqlPaginationExtensionsTests
         _command.ExecuteScalarAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult<object?>(null));
 
         var count = await _dbContext.GetApproximateCountAsync("users");
-        
+
         count.Should().Be(0);
     }
 
@@ -127,14 +127,14 @@ public class PostgreSqlPaginationExtensionsTests
 #pragma warning restore S6966
         _connection.BeginTransactionAsync(Arg.Any<CancellationToken>()).Returns(ValueTask.FromResult(dbTransaction));
         _connection.BeginTransactionAsync(Arg.Any<IsolationLevel>(), Arg.Any<CancellationToken>()).Returns(ValueTask.FromResult(dbTransaction));
-        
+
         // This is safe because _dbContext is using our mocked connection
         await _dbContext.Database.UseTransactionAsync(dbTransaction);
 
         var count = await _dbContext.GetApproximateCountAsync("users");
-        
+
         count.Should().Be(1000);
-        
+
         // Check that the command's transaction was set
         _command.Received(1).Transaction = dbTransaction;
     }
@@ -146,7 +146,7 @@ public class PostgreSqlPaginationExtensionsTests
         _command.ExecuteScalarAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult<object?>(-5L));
 
         var count = await _dbContext.GetApproximateCountAsync("users");
-        
+
         count.Should().Be(0);
     }
 
@@ -221,7 +221,7 @@ public class PostgreSqlPaginationExtensionsTests
         act.Should().Throw<ArgumentException>().Which.Message.Should().Contain("2").And.Contain("1");
     }
 
-[Fact]
+    [Fact]
     public async Task PostgreSqlPaginationExtensions_GetApproximateCountAsync_ThrowsOnSqlite()
     {
         var ctx = GetContext();
@@ -229,24 +229,24 @@ public class PostgreSqlPaginationExtensionsTests
         // We catch it to cover the code path up to execution.
         var act = () => ctx.GetApproximateCountAsync("Table");
         await act.Should().ThrowAsync<SqliteException>();
-        
-        
+
+
         var act2 = () => ctx.GetApproximateCountAsync("Table");
         await act2.Should().ThrowAsync<SqliteException>();
     }
 
-[Fact]
+    [Fact]
     public async Task PostgreSqlPaginationExtensions_GetApproximateCountAsync_ArgumentExceptions()
     {
         var act = () => ((DbContext)null!).GetApproximateCountAsync("Table");
         await act.Should().ThrowAsync<ArgumentNullException>();
-        
+
         var ctx = GetContext();
         var act2 = () => ctx.GetApproximateCountAsync("");
         await act2.Should().ThrowAsync<ArgumentException>();
     }
 
-[Fact]
+    [Fact]
     public async Task PostgreSqlPaginationExtensions_GetApproximateCountAsync_Arguments()
     {
         var act1 = () => PostgreSqlPaginationExtensions.GetApproximateCountAsync(null!, "table");
@@ -255,7 +255,7 @@ public class PostgreSqlPaginationExtensionsTests
         await act2.Should().ThrowAsync<ArgumentException>();
     }
 
-[Fact]
+    [Fact]
     public void PostgreSqlPaginationExtensions_BuildRowValuePredicate_HappyPath()
     {
         var columns = new List<string> { "col1", "col2" };

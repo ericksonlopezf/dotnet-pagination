@@ -120,7 +120,7 @@ public class SortParametersTests
         {
             return true;
         }
-        
+
         var secondParse = SortParameters.TryParse(firstResult.Value, null, out var secondResult);
         return secondParse && secondResult.Value == firstResult.Value;
     }
@@ -254,7 +254,7 @@ public class SortParametersTests
         var act = () => SortParameters.ValidateColumnName(invalidName!);
         act.Should().Throw<ArgumentException>()
            .WithMessage("*Column name cannot be null or whitespace.*");
-        
+
         // Also test the IReadOnlySet overload
         var set = new HashSet<string>();
         var act2 = () => SortParameters.ValidateColumnName(invalidName!, (IReadOnlySet<string>)set);
@@ -286,7 +286,7 @@ public class SortParametersTests
         var act = () => SortParameters.ValidateColumnName("age", allowed);
         act.Should().NotThrow();
     }
-    
+
     [Fact]
     public void ValidateColumnName_WithIReadOnlySet_AsIEnumerable_ShouldNotThrow()
     {

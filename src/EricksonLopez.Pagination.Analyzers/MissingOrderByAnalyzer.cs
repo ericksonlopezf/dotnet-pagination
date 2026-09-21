@@ -11,6 +11,8 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace EricksonLopez.Pagination.Analyzers;
 
+#pragma warning disable S3776 // Roslyn syntax/semantic traversal has inherently high cognitive complexity
+
 /// <summary>
 /// Provides a diagnostic analyzer that warns when an <see cref="IQueryable{T}"/> is not ordered before invoking pagination methods.
 /// </summary>
@@ -21,7 +23,7 @@ public class MissingOrderByAnalyzer : DiagnosticAnalyzer
     /// Represents the diagnostic identifier for missing ordering before offset pagination.
     /// </summary>
     public const string DiagnosticId = "PAG002";
-    
+
     /// <summary>
     /// Represents the diagnostic identifier for unexpected pre-ordering before cursor pagination.
     /// </summary>
@@ -55,7 +57,7 @@ public class MissingOrderByAnalyzer : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        
+
         context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
     }
     // Stryker restore all
@@ -68,7 +70,7 @@ public class MissingOrderByAnalyzer : DiagnosticAnalyzer
             return;
 
         var methodName = memberAccess.Name.Identifier.Text;
-        if (methodName != "ToPagedListAsync" && 
+        if (methodName != "ToPagedListAsync" &&
             methodName != "ToCursorPagedListAsync" &&
             methodName != "ToPagedListDeferredAsync")
             return;
@@ -99,7 +101,7 @@ public class MissingOrderByAnalyzer : DiagnosticAnalyzer
         // Stryker restore all
 
         // If there's an argument of type string named sortBy or passing a string as the 2nd/3rd arg, it has an implicit sort
-        var hasImplicitSort = invocation.ArgumentList.Arguments.Any(arg => 
+        var hasImplicitSort = invocation.ArgumentList.Arguments.Any(arg =>
         {
             var argType = context.SemanticModel.GetTypeInfo(arg.Expression).Type;
             return argType?.SpecialType == SpecialType.System_String || argType?.Name == "SortParameters";
@@ -159,7 +161,7 @@ public class MissingOrderByAnalyzer : DiagnosticAnalyzer
 
         while (expression != null)
         {
-            if (expression is InvocationExpressionSyntax invocation && 
+            if (expression is InvocationExpressionSyntax invocation &&
                 invocation.Expression is MemberAccessExpressionSyntax memberAccess)
             {
                 // Stryker disable all : Semantic symbol check with AST identifier fallback

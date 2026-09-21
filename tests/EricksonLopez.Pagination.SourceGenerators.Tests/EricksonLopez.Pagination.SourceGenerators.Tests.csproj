@@ -7,13 +7,23 @@
     <NoWarn>$(NoWarn);CA1707;CA1515;CA1861;CA1822;CA1001</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\..\src\EricksonLopez.Pagination.SourceGenerators\EricksonLopez.Pagination.SourceGenerators.csproj" />
     <ProjectReference Include="..\..\src\EricksonLopez.Pagination.Abstractions\EricksonLopez.Pagination.Abstractions.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Update="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>
 

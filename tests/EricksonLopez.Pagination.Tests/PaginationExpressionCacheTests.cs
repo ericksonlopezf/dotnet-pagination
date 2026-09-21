@@ -35,7 +35,7 @@ public class PaginationExpressionCacheTests
 
         var sortKey1 = Activator.CreateInstance(sortCacheKeyType, typeof(object), "s1")!;
         var sortKey2 = Activator.CreateInstance(sortCacheKeyType, typeof(object), "s1")!;
-        
+
         Expression<Func<object, object>> expr = x => x;
         var delegateKey1 = Activator.CreateInstance(delegateCacheKeyType, typeof(object), typeof(object), expr)!;
         var delegateKey2 = Activator.CreateInstance(delegateCacheKeyType, typeof(object), typeof(object), expr)!;
@@ -126,7 +126,7 @@ public class PaginationExpressionCacheTests
     {
         var capture = new object(); // This creates a closure!
         Expression<Func<object, object>> expr = x => capture;
-        
+
         var compiled = PaginationExpressionCache.GetOrCompile(expr);
         compiled(new object()).Should().BeSameAs(capture);
     }

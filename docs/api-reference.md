@@ -530,16 +530,25 @@ public PagedList<TResult> Map(Func<T, TResult> selector)
 
 **Signature:**
 ```csharp
-public IPagedList<TResult> LazyMap(this IPagedList<TSource> source, Func<TSource, TResult> selector)
+public IPagedList<TResult> LazyMap<TSource, TResult>(this IPagedList<TSource> source, Func<TSource, TResult> selector)
 ```
 
 **Parameters:**
-- `this IPagedList<TSource> source`
-- `Func<TSource, TResult> selector`
+- `this IPagedList<TSource> source` — The source paginated list to project.
+- `Func<TSource, TResult> selector` — The transform function applied to each element.
 
-**Return:** `IPagedList<TResult>`
+**Return:** `IPagedList<TResult>` — A lazily-projected view. The selector is **not** invoked at call time; it executes element-by-element during enumeration (e.g., during JSON serialization).
 
-**When to use:** Use in standard implementations of PagedListExtensions.
+**When to use:** Prefer `LazyMap` over `Map` when:
+1. **Hot paths with large pages**: Avoids allocating an intermediate `TResult[]` array when the result will be immediately serialized (e.g., returned directly from a Minimal API endpoint). The projection runs inline during the `System.Text.Json` serialization pass.
+2. **Streaming / lazy consumers**: When downstream code iterates the result once and discards it. If the result is re-enumerated multiple times, the selector runs on every pass — prefer `Map` in that case.
+
+**Performance note:** `LazyMap` internally wraps the source in a `MappedPagedList<TSource, TResult>` view — a zero-upfront-allocation wrapper. `Map` eagerly materializes a `TResult[]` array. For pages of `N` items, `LazyMap` saves `N * sizeof(TResult)` of heap allocation (plus GC pressure) at the cost of slightly more call overhead per element.
+
+**Throws:** `ArgumentNullException` if `source` or `selector` is `null`.
+
+**See also:** [`Map`](#map-1) (immediate materialization); [`docs/functional-map.md`](functional-map.md); [`docs/performance-guide.md`](performance-guide.md#immediate-map-vs-deferred-lazymap).
+
 
 ---
 #### `Map`
@@ -2869,7 +2878,7 @@ public Task<ICursorPagedList<T>> ExecuteAsync(CancellationToken cancellationToke
 
 Represents a bounded keyset partition for parallel execution.
 
-### Propiedades
+### Properties
 - `int PartitionIndex`
 - `TKey? LowerBound`
 - `TKey? UpperBound`

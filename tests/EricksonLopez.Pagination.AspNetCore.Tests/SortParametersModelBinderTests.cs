@@ -121,7 +121,7 @@ public class SortParametersModelBinderTests
         var context = new DefaultModelBindingContext
         {
             ModelName = "sort",
-            ValueProvider = new SimpleValueProvider(null, false), 
+            ValueProvider = new SimpleValueProvider(null, false),
             ModelState = new ModelStateDictionary()
         };
 

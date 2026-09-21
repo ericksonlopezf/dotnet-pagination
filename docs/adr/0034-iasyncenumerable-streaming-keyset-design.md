@@ -1,7 +1,10 @@
 # ADR-0034 — IAsyncEnumerable Streaming Keyset Pagination
 
 ## Status
-**Accepted** — August 2026
+Accepted — August 2026
+
+## Date
+2026-09-04
 
 ## Context
 Standard cursor pagination delivers fixed-size pages (`ICursorPagedList<T>`) designed for request-response HTTP APIs. However, data export, ETL batch jobs, and background workers often need to process large volumes (e.g. millions of rows) sequentially without loading entire datasets into memory and without experiencing $O(N)$ deep offset degradation.

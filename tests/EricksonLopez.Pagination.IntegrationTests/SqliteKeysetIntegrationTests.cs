@@ -61,7 +61,7 @@ public class SqliteKeysetIntegrationTests : IAsyncLifetime
     public async Task KeysetBuilder_MultiColumnSort_WorksCorrectly()
     {
         var parameters = new CursorPaginationParameters { First = 10 };
-        
+
         var pagedList = await _dbContext!.Users
             .Keyset(parameters)
             .Ascending(u => u.Age)
@@ -69,13 +69,13 @@ public class SqliteKeysetIntegrationTests : IAsyncLifetime
             .ToCursorPagedListAsync();
 
         pagedList.Count.Should().Be(10);
-        
+
         // Expected sort: Age ASC, Id ASC
         // Lowest age is 20, for i=10, 20, 30, 40, 50
         // Next age is 21, for i=1, 11, 21, 31, 41
         var expectedIds = new[] { 10, 20, 30, 40, 50, 1, 11, 21, 31, 41 };
         var actualIds = pagedList.Select(x => x.Id).ToArray();
-        
+
         actualIds.Should().Equal(expectedIds);
     }
 }

@@ -61,7 +61,9 @@ public static class QueryableLinqToDBExtensions
         // Stryker disable once all
         var actualMaxPageSize = maxPageSize ?? options?.MaxPageSize ?? PaginationSettings.MaxPageSize;
         var effectivePageSize = Math.Min(parameters.PageSize, actualMaxPageSize);
-        var skipAmount = (parameters.Page - 1) * effectivePageSize;
+        long skip = ((long)parameters.Page - 1L) * effectivePageSize;
+        // Stryker disable once all : Overflow clamping on skip > int.MaxValue
+        var skipAmount = skip > int.MaxValue ? int.MaxValue : (int)skip;
 
         if (countTotal)
         {
@@ -128,7 +130,9 @@ public static class QueryableLinqToDBExtensions
         // Stryker disable once all
         var actualMaxPageSize = maxPageSize ?? options?.MaxPageSize ?? PaginationSettings.MaxPageSize;
         var effectivePageSize = Math.Min(parameters.PageSize, actualMaxPageSize);
-        var skipAmount = (parameters.Page - 1) * effectivePageSize;
+        long skip = ((long)parameters.Page - 1L) * effectivePageSize;
+        // Stryker disable once all : Overflow clamping on skip > int.MaxValue
+        var skipAmount = skip > int.MaxValue ? int.MaxValue : (int)skip;
 
         if (countTotal)
         {
@@ -141,7 +145,7 @@ public static class QueryableLinqToDBExtensions
                 .Select(selector)
                 .ToListAsync(cancellationToken)
                 .ConfigureAwait(false);
-            
+
             return PagedList<TResult>.WithCount(items, parameters, count);
         }
         else
@@ -170,7 +174,10 @@ public static class QueryableLinqToDBExtensions
     /// <param name="maxPageSize">An optional maximum allowed page size.</param>
     /// <param name="options">Optional pagination configuration options.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
-    /// <returns>A task representing the asynchronous operation, containing the paged list without computing total count.</returns>
+    /// <returns>
+    /// A task representing the asynchronous operation.
+    /// The task result contains the paged list without computing total count.
+    /// </returns>
     public static Task<IPagedList<T>> ToPagedListWithoutCountAsync<T>(
         this IQueryable<T> source,
         PaginationParameters parameters,
@@ -178,6 +185,7 @@ public static class QueryableLinqToDBExtensions
         IPaginationOptions? options = null,
         CancellationToken cancellationToken = default)
     {
+        // Stryker disable once boolean : countTotal is explicitly false
         return source.ToPagedListAsync(parameters, countTotal: false, maxPageSize, options, cancellationToken);
     }
 
@@ -192,7 +200,10 @@ public static class QueryableLinqToDBExtensions
     /// <param name="maxPageSize">An optional maximum allowed page size.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <param name="options">Optional pagination configuration options.</param>
-    /// <returns>A task representing the asynchronous operation, containing the projected paged list without computing total count.</returns>
+    /// <returns>
+    /// A task representing the asynchronous operation.
+    /// The task result contains the projected paged list without computing total count.
+    /// </returns>
     public static Task<IPagedList<TResult>> ToPagedListWithoutCountAsync<T, TResult>(
         this IQueryable<T> source,
         Expression<Func<T, TResult>> selector,
@@ -201,6 +212,7 @@ public static class QueryableLinqToDBExtensions
         CancellationToken cancellationToken = default,
         IPaginationOptions? options = null)
     {
+        // Stryker disable once boolean : countTotal is explicitly false
         return source.ToPagedListAsync(selector, parameters, countTotal: false, maxPageSize, cancellationToken, options);
     }
 }

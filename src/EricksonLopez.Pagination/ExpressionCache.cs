@@ -44,7 +44,7 @@ internal static class PaginationExpressionCache
             // (e.g., PostgreSQL with C collation, in-memory evaluation).
             // Preserving the original rawValue avoids returning the wrong predicate from cache.
             // Stryker disable once string : Empty string fallback is functionally identical because null coalesces properly
-        RawValue = rawValue ?? "";
+            RawValue = rawValue ?? "";
             UnknownFieldBehavior = unknownFieldBehavior;
             MaxComplexity = maxComplexity;
             MaxFilterValueLength = maxFilterValueLength;
@@ -58,21 +58,18 @@ internal static class PaginationExpressionCache
             hash.Add(MaxComplexity);
             hash.Add(MaxFilterValueLength);
             // Stryker restore all
-            
+
             if (AllowedProperties != null)
             {
                 // Order-independent hash code sum
-                int propsHash = 0;
-                foreach (var prop in AllowedProperties)
+                var propsHash = 0;
+                foreach (var prop in AllowedProperties.Where(prop => prop != null))
                 {
-                    if (prop != null)
-                    {
-                        // Stryker disable once arithmetic : Hash code generation is an implementation detail
-                propsHash = unchecked(propsHash + StringComparer.OrdinalIgnoreCase.GetHashCode(prop));
-                    }
+                    // Stryker disable once arithmetic : Hash code generation is an implementation detail
+                    propsHash = unchecked(propsHash + StringComparer.OrdinalIgnoreCase.GetHashCode(prop));
                 }
                 // Stryker disable once statement : Hash code generation is an implementation detail
-            hash.Add(propsHash);
+                hash.Add(propsHash);
             }
             _hash = hash.ToHashCode();
         }
@@ -93,7 +90,7 @@ internal static class PaginationExpressionCache
 
             if (ReferenceEquals(AllowedProperties, other.AllowedProperties)) return true;
             if (AllowedProperties == null || other.AllowedProperties == null) return false;
-            
+
             return AllowedProperties.SetEquals(other.AllowedProperties);
         }
 
@@ -182,7 +179,7 @@ internal static class PaginationExpressionCache
     /// Returns a compiled delegate for the given expression, compiling it at most once
     /// per unique structural form.
     /// </summary>
-    
+
     /// <summary>
     /// Clears all cached expressions. Useful for testing or memory pressure scenarios.
     /// </summary>
@@ -196,10 +193,12 @@ internal static class PaginationExpressionCache
     }
     // Stryker restore all
 
-    internal static System.Reflection.MethodInfo GetCompareToMethod<TKey>()
-    {
-        return _compareToMethods.GetOrAdd(typeof(TKey), static t => typeof(IComparable<TKey>).GetMethod("CompareTo")!);
-    }
+    // AOT-002 fix: [DynamicallyAccessedMembers] ensures the trimmer preserves IComparable<TKey>.CompareTo
+    // under Native AOT. Without this annotation, GetMethod("CompareTo") may return null after trimming.
+    [return: System.Diagnostics.CodeAnalysis.MaybeNull]
+    internal static System.Reflection.MethodInfo GetCompareToMethod<
+        [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods)] TKey>()
+        => _compareToMethods.GetOrAdd(typeof(TKey), static t => typeof(IComparable<TKey>).GetMethod("CompareTo")!);
 
     internal static Func<T, TKey> GetOrCompile<T, TKey>(Expression<Func<T, TKey>> expression)
     {
@@ -257,13 +256,13 @@ internal static class PaginationExpressionCache
         // Types like Uri, byte[], or IPAddress should NOT be added as they are mutable or closures.
         private static bool IsSafeConstant(Type type)
         {
-            return type.IsPrimitive || 
-                   type.IsEnum || 
-                   type == typeof(string) || 
-                   type == typeof(decimal) || 
-                   type == typeof(Guid) || 
-                   type == typeof(DateTime) || 
-                   type == typeof(DateTimeOffset) || 
+            return type.IsPrimitive ||
+                   type.IsEnum ||
+                   type == typeof(string) ||
+                   type == typeof(decimal) ||
+                   type == typeof(Guid) ||
+                   type == typeof(DateTime) ||
+                   type == typeof(DateTimeOffset) ||
                    type == typeof(TimeSpan) ||
                    type == typeof(DateOnly) ||
                    type == typeof(TimeOnly);
