@@ -79,10 +79,19 @@ app.MapLevel7Endpoints();
 app.MapLevel8Endpoints();
 app.MapLevel9Endpoints();
 app.MapLevel10Endpoints();
+app.MapLevel11Endpoints();
 
 app.MapHealthChecks("/health");
 
-await app.RunAsync();
+if (args.Length > 0 && args[0] == "--server")
+{
+    await app.RunAsync();
+}
+else
+{
+    await Level11ComprehensiveApiCoverage.RunAsync(app.Services);
+    Console.WriteLine("All pagination showcase levels completed successfully (exit 0).");
+}
 
 // ── Seed helper ─────────────────────────────────────────────────────────────
 static async Task SeedDatabaseAsync(WebApplication app)

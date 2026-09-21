@@ -43,7 +43,7 @@ public class PagedList<T> : IPagedList<T>
         TotalCount = totalCount;
         Page = page;
         PageSize = pageSize;
-        TotalPages = totalCount.HasValue ? (totalCount.Value + pageSize - 1L) / pageSize : null;
+        TotalPages = CalculateTotalPages(totalCount, pageSize);
 
         if (totalCount.HasValue)
         {
@@ -83,7 +83,7 @@ public class PagedList<T> : IPagedList<T>
 
 
     /// <inheritdoc />
-    public bool HasPreviousPage 
+    public bool HasPreviousPage
     {
         get
         {
@@ -185,5 +185,20 @@ public class PagedList<T> : IPagedList<T>
         return new PagedList<TResult>(mapped, TotalCount, Page, PageSize, HasNextPage, _hasPreviousPage);
     }
     // Stryker restore all
+
+    private static long? CalculateTotalPages(long? totalCount, int pageSize)
+    {
+        if (!totalCount.HasValue)
+        {
+            return null;
+        }
+
+        if (totalCount.Value == 0L)
+        {
+            return 0L;
+        }
+
+        return (totalCount.Value - 1L) / pageSize + 1L;
+    }
 }
 

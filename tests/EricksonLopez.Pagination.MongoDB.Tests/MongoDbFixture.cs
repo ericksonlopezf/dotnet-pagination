@@ -5,13 +5,11 @@ using System.Threading.Tasks;
 using Testcontainers.MongoDb;
 using Xunit;
 
-#pragma warning disable CS0618
 namespace EricksonLopez.Pagination.MongoDB.Tests;
 
 public class MongoDbFixture : IAsyncLifetime
 {
-    // Fix obsolete warning by providing an image explicitly, e.g. MongoDbBuilder("mongo:6.0") or just suppressing it
-    public MongoDbContainer Container { get; } = new MongoDbBuilder().WithImage("mongo:6.0").Build();
+    public MongoDbContainer Container { get; } = new MongoDbBuilder("mongo:6.0").Build();
 
     public Task InitializeAsync()
     {

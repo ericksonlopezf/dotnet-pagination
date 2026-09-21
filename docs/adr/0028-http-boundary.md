@@ -1,7 +1,10 @@
 # ADR-0028 — HTTP Boundary: What the Library Does and Does Not Own
 
 ## Status
-**Accepted** — August 2026
+Accepted — August 2026
+
+## Date
+2026-09-04
 
 ## Context
 

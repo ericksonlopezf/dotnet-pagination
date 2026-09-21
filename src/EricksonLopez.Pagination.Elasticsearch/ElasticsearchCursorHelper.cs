@@ -44,7 +44,7 @@ public static class ElasticsearchCursorHelper
     /// </summary>
     /// <param name="cursor">The opaque cursor string.</param>
     /// <param name="encoder">The cursor encoder to use, or <see langword="null"/> for default base64.</param>
-    /// <returns>An array of <see cref="FieldValue"/> objects, or <see langword="null"/> if cursor is null or empty.</returns>
+    /// <returns>An array of <see cref="FieldValue"/> objects, or <see langword="null"/> if <paramref name="cursor"/> is <see langword="null"/> or empty.</returns>
     public static FieldValue[]? DecodeSort(string? cursor, ICursorEncoder? encoder = null)
     {
         if (string.IsNullOrWhiteSpace(cursor))

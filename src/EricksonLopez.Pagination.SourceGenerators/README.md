@@ -13,7 +13,7 @@ This source generator solves that by intercepting calls to `ToCursorPagedListAsy
 Install the package into the project where you execute your queries:
 
 ```xml
-<PackageReference Include="EricksonLopez.Pagination.SourceGenerators" Version="[VERSION]" />
+<PackageReference Include="EricksonLopez.Pagination.SourceGenerators" Version="2.0.0" />
 ```
 
 *Note: The generator is a development dependency and will not be included as a runtime dependency in your published output.*

@@ -1,5 +1,4 @@
 // Copyright © Erickson Lopez. MIT License.
-#pragma warning disable CS0618
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -26,9 +25,9 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities WHERE (@Cursor1 IS NULL OR Id > @Cursor1) ORDER BY Id LIMIT @__Pagination_Limit__;";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql, 
-            parameters, 
-            keySelector: e => (e.Id, e.Name), 
+            sql,
+            parameters,
+            keySelector: e => (e.Id, e.Name),
             cursorDecoder: s => (int.Parse(s.Split(',')[0]), s.Split(',')[1]));
 
         pagedList.Should().NotBeNull();
@@ -40,7 +39,7 @@ public partial class DbConnectionCursorExtensionsTests
     {
         using var connection = await GetConnectionAsync();
         using var transaction = connection.BeginTransaction();
-        var parameters = new CursorPaginationParameters(); 
+        var parameters = new CursorPaginationParameters();
         var sql = "SELECT * FROM Entities WHERE Name LIKE @SearchPattern AND (@Cursor1 IS NULL OR Id > @Cursor1) ORDER BY Id LIMIT @__Pagination_Limit__;";
         var param = new { SearchPattern = "Entity %" };
 
@@ -49,9 +48,9 @@ public partial class DbConnectionCursorExtensionsTests
         var tokenSource = new CancellationTokenSource();
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql, 
-            parameters, 
-            keySelector: e => (e.Id, e.Name), 
+            sql,
+            parameters,
+            keySelector: e => (e.Id, e.Name),
             cursorDecoder: s => (int.Parse(s.Split(',')[0]), s.Split(',')[1]),
             param: param,
             transaction: transaction,
@@ -76,9 +75,9 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id < @Cursor1 ORDER BY Id DESC LIMIT @__Pagination_Limit__;";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql, 
-            parameters, 
-            keySelector: e => (e.Id, e.Name), 
+            sql,
+            parameters,
+            keySelector: e => (e.Id, e.Name),
             cursorDecoder: s => (int.Parse(s.Split(',')[0]), s.Split(',')[1]));
 
         pagedList.Should().NotBeNull();
@@ -95,9 +94,9 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id < @Cursor1 ORDER BY Id DESC LIMIT @__Pagination_Limit__;";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql, 
-            parameters, 
-            keySelector: e => (e.Id, e.Name), 
+            sql,
+            parameters,
+            keySelector: e => (e.Id, e.Name),
             cursorDecoder: s => (int.Parse(s.Split(',')[0]), s.Split(',')[1]));
 
         pagedList.Count.Should().Be(5);
@@ -114,8 +113,8 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id > @Cursor1 ORDER BY Id LIMIT @__Pagination_Limit__;";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => (e.Id, e.Name));
 
         pagedList.Count.Should().Be(5);
@@ -129,26 +128,26 @@ public partial class DbConnectionCursorExtensionsTests
         await connection.ExecuteAsync(
             "INSERT INTO Entities (Id, Name) VALUES (@Id, @Name)",
             new { Id = 999, Name = "Entity|With%Special" });
-            
+
         var after = EricksonLopez.Pagination.HmacCursorEncoder.DevelopmentDefault.Encode("999|Entity%7CWith%25Special");
         var parameters = CursorPaginationParameters.Parse($"first=5&after={after}", null);
         var sql = "SELECT * FROM Entities WHERE Id > @Cursor1 ORDER BY Id LIMIT @__Pagination_Limit__;";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => (e.Id, e.Name));
 
         pagedList.Count.Should().Be(0);
-        
+
         var dummyParams = CursorPaginationParameters.Parse("first=5", null);
         var sql2 = "SELECT * FROM Entities WHERE Id = 999 ORDER BY Id LIMIT @__Pagination_Limit__;";
-        
+
         var pagedList2 = await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql2, 
-            dummyParams, 
+            sql2,
+            dummyParams,
             keySelector: e => (e.Id, e.Name));
-            
+
         pagedList2.Count.Should().Be(1);
         pagedList2.StartCursor.Should().Be(after);
     }
@@ -161,15 +160,15 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities ORDER BY Id DESC LIMIT @__Pagination_Limit__;";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => (e.Id, e.Name));
 
         pagedList.Count.Should().Be(5);
-        pagedList[^1].Id.Should().Be(25); 
+        pagedList[^1].Id.Should().Be(25);
         pagedList[0].Id.Should().Be(21);
     }
-    
+
     [Fact]
     public async Task ToCursorPagedListAsync_2Keys_InvalidParts_ThrowsException()
     {
@@ -179,13 +178,13 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id > @Cursor1 ORDER BY Id LIMIT @__Pagination_Limit__;";
 
         Func<Task> act = async () => await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => (e.Id, e.Name));
 
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*Expected 2 parts*");
     }
-    
+
     [Fact]
     public async Task ToCursorPagedListAsync_2Keys_UnDecodable_ThrowsException()
     {
@@ -195,8 +194,8 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id > @Cursor1 ORDER BY Id LIMIT @__Pagination_Limit__;";
 
         Func<Task> act = async () => await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => (e.Id, e.Name));
 
         await act.Should().ThrowAsync<InvalidPaginationCursorException>().WithMessage("*could not be decoded*");
@@ -211,8 +210,8 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id > @Cursor1 ORDER BY Id LIMIT @__Pagination_Limit__;";
 
         Func<Task> act = async () => await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => (e.Id, e.Name));
 
         await act.Should().ThrowAsync<FormatException>();
@@ -226,8 +225,8 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id > @Cursor1 ORDER BY Id LIMIT @__Pagination_Limit__;";
 
         Func<Task> act = async () => await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => (e.Id, e.Name),
             cursorEncoder: new NullReturningEncoder());
 
@@ -242,8 +241,8 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id > COALESCE(@Cursor1, 0) ORDER BY Id LIMIT @__Pagination_Limit__";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => (e.Id, e.Name),
             maxPageSize: null);
 
@@ -259,8 +258,8 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities ORDER BY Id LIMIT @__Pagination_Limit__";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int, int>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => (e.Id, e.Id),
             maxPageSize: 10);
 
@@ -277,8 +276,8 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities ORDER BY Id LIMIT @__Pagination_Limit__";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int, int>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => (e.Id, e.Id));
 
         pagedList.Should().NotBeNull();
@@ -295,13 +294,13 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities ORDER BY Id, Name LIMIT @__Pagination_Limit__;";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql, 
-            parameters, 
-            keySelector: e => (e.Id, e.Name)); 
+            sql,
+            parameters,
+            keySelector: e => (e.Id, e.Name));
 
         pagedList.Should().NotBeNull();
     }
-    
+
     [Fact]
     public async Task ToCursorPagedListAsync_2Keys_WithAfter_InvalidParts_ThrowsInvalidOperationException()
     {
@@ -311,9 +310,9 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities ORDER BY Id, Name LIMIT @__Pagination_Limit__;";
 
         var act = async () => await connection.ToCursorPagedListAsync<Entity, int, string>(
-            sql, 
-            parameters, 
-            keySelector: e => (e.Id, e.Name)); 
+            sql,
+            parameters,
+            keySelector: e => (e.Id, e.Name));
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*Expected 2 parts in composite cursor*");
@@ -404,67 +403,67 @@ public partial class DbConnectionCursorExtensionsTests
         using var db = await DapperTestHelper.GetConnectionAsync();
         var before = EricksonLopez.Pagination.HmacCursorEncoder.DevelopmentDefault.Encode("21|210")!;
         var parameters = new CursorPaginationParameters { Last = 10, Before = before };
-        
+
         var result = await db.ToCursorPagedListAsync<Entity, int, int>(
             "SELECT * FROM Entities WHERE (@Cursor1 IS NULL OR Id1 < @Cursor1) OR (Id1 = @Cursor1 AND Id2 < @Cursor2) ORDER BY Id1 DESC, Id2 DESC LIMIT @__Pagination_Limit__",
             parameters,
             e => (e.Id1, e.Id2));
-            
+
         result.Count.Should().Be(10);
         result.HasNextPage.Should().BeTrue();
         result.HasPreviousPage.Should().BeTrue();
         result[0].Id1.Should().Be(11);
         result[^1].Id1.Should().Be(20);
     }
-    
+
     [Fact]
     public async Task CompositeKey_Backward_WithoutBefore_ReturnsLastPage()
     {
         using var db = await DapperTestHelper.GetConnectionAsync();
         var parameters = new CursorPaginationParameters { Last = 10 };
-        
+
         var result = await db.ToCursorPagedListAsync<Entity, int, int>(
             "SELECT * FROM Entities WHERE (@Cursor1 IS NULL OR Id1 < @Cursor1) OR (Id1 = @Cursor1 AND Id2 < @Cursor2) ORDER BY Id1 DESC, Id2 DESC LIMIT @__Pagination_Limit__",
             parameters,
             e => (e.Id1, e.Id2));
-            
+
         result.Count.Should().Be(10);
         result.HasNextPage.Should().BeFalse();
         result.HasPreviousPage.Should().BeTrue();
         result[0].Id1.Should().Be(16);
         result[^1].Id1.Should().Be(25);
     }
-    
+
     [Fact]
     public async Task CompositeKey_Forward_WithAfter_PaginatesCorrectly()
     {
         using var db = await DapperTestHelper.GetConnectionAsync();
         var after = EricksonLopez.Pagination.HmacCursorEncoder.DevelopmentDefault.Encode("10|100")!;
         var parameters = new CursorPaginationParameters { First = 10, After = after };
-        
+
         var result = await db.ToCursorPagedListAsync<Entity, int, int>(
             "SELECT * FROM Entities WHERE (@Cursor1 IS NULL OR Id1 > @Cursor1) OR (Id1 = @Cursor1 AND Id2 > @Cursor2) ORDER BY Id1 ASC, Id2 ASC LIMIT @__Pagination_Limit__",
             parameters,
             e => (e.Id1, e.Id2));
-            
+
         result.Count.Should().Be(10);
         result.HasNextPage.Should().BeTrue();
         result.HasPreviousPage.Should().BeTrue();
         result[0].Id1.Should().Be(11);
         result[^1].Id1.Should().Be(20);
     }
-    
+
     [Fact]
     public async Task CompositeKey_Forward_WithoutAfter_ReturnsFirstPage()
     {
         using var db = await DapperTestHelper.GetConnectionAsync();
         var parameters = new CursorPaginationParameters { First = 10 };
-        
+
         var result = await db.ToCursorPagedListAsync<Entity, int, int>(
             "SELECT * FROM Entities WHERE (@Cursor1 IS NULL OR Id1 > @Cursor1) OR (Id1 = @Cursor1 AND Id2 > @Cursor2) ORDER BY Id1 ASC, Id2 ASC LIMIT @__Pagination_Limit__",
             parameters,
             e => (e.Id1, e.Id2));
-            
+
         result.Count.Should().Be(10);
         result.HasNextPage.Should().BeTrue();
         result.HasPreviousPage.Should().BeFalse();
@@ -482,15 +481,15 @@ public partial class DbConnectionCursorExtensionsTests
         {
             db.Execute("INSERT INTO Entities (Id1, Id2, Name) VALUES (1, @i, 'Entity ' || @i)", new { i });
         }
-        
+
         var afterCursor = EricksonLopez.Pagination.HmacCursorEncoder.DevelopmentDefault.Encode("1|5");
         var parameters = new CursorPaginationParameters { First = 10, After = afterCursor };
-        
+
         var result = await db.ToCursorPagedListAsync<Entity, int, int>(
             "SELECT * FROM Entities WHERE (@Cursor1 IS NULL OR Id1 > @Cursor1) OR (Id1 = @Cursor1 AND Id2 > @Cursor2) ORDER BY Id1 ASC, Id2 ASC LIMIT @__Pagination_Limit__",
             parameters,
             e => (e.Id1, e.Id2));
-            
+
         result.Count.Should().Be(5);
         result[0].Id2.Should().Be(6);
         result[^1].Id2.Should().Be(10);
@@ -501,17 +500,17 @@ public partial class DbConnectionCursorExtensionsTests
     {
         using var db = await DapperTestHelper.GetConnectionAsync(10);
         var parameters = new CursorPaginationParameters { First = 10 };
-        
+
         var result = await db.ToCursorPagedListAsync<Entity, int, int>(
             "SELECT * FROM Entities WHERE (@Cursor1 IS NULL OR Id1 > @Cursor1) OR (Id1 = @Cursor1 AND Id2 > @Cursor2) ORDER BY Id1 ASC, Id2 ASC LIMIT @__Pagination_Limit__",
             parameters,
             e => (e.Id1, e.Id2));
-            
+
         result.Count.Should().Be(10);
         result.HasNextPage.Should().BeFalse();
         result.HasPreviousPage.Should().BeFalse();
         result.EndCursor.Should().NotBeNull();
-        
+
         var decodedEnd = EricksonLopez.Pagination.HmacCursorEncoder.DevelopmentDefault.Decode(result.EndCursor!);
         decodedEnd.Should().Be("10|100");
     }

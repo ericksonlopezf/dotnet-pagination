@@ -18,6 +18,10 @@ namespace EricksonLopez.Pagination.SourceGenerators
     {
         private const string AttributeName = "EricksonLopez.Pagination.Abstractions.GenerateFilterProviderAttribute";
         private const string ShortAttributeName = "GenerateFilterProvider";
+        private const string IndentedOpenBrace = "                {";
+        private const string IndentedCloseBrace = "                }";
+        private const string SwitchOp = "                switch (op)";
+        private const string DefaultReturnNull = "                    default: return null;";
 
         /// <summary>
         /// Initializes the incremental source generator.
@@ -134,9 +138,9 @@ namespace EricksonLopez.Pagination.SourceGenerators
             sb.AppendLine();
             sb.AppendLine("                var expr = BuildClauseExpression(clause);");
             sb.AppendLine("                if (expr != null)");
-            sb.AppendLine("                {");
+            sb.AppendLine(IndentedOpenBrace);
             sb.AppendLine("                    result = result == null ? expr : result.And(expr);");
-            sb.AppendLine("                }");
+            sb.AppendLine(IndentedCloseBrace);
             sb.AppendLine("            }");
             sb.AppendLine();
             sb.AppendLine("            return result;");
@@ -183,119 +187,119 @@ namespace EricksonLopez.Pagination.SourceGenerators
 
                 if (isString)
                 {
-                    sb.AppendLine("                switch (op)");
-                    sb.AppendLine("                {");
+                    sb.AppendLine(SwitchOp);
+                    sb.AppendLine(IndentedOpenBrace);
                     sb.AppendLine($"                    case \"=\": return x => x.{propName} == valueStr;");
                     sb.AppendLine($"                    case \"!=\": return x => x.{propName} != valueStr;");
                     sb.AppendLine($"                    case \"~=\": return x => x.{propName} != null && x.{propName}.Contains(valueStr);");
                     sb.AppendLine($"                    case \"^=\": return x => x.{propName} != null && x.{propName}.StartsWith(valueStr);");
                     sb.AppendLine($"                    case \"$=\": return x => x.{propName} != null && x.{propName}.EndsWith(valueStr);");
-                    sb.AppendLine("                    default: return null;");
-                    sb.AppendLine("                }");
+                    sb.AppendLine(DefaultReturnNull);
+                    sb.AppendLine(IndentedCloseBrace);
                 }
                 else if (isInt)
                 {
                     sb.AppendLine("                if (!int.TryParse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v)) return null;");
-                    sb.AppendLine("                switch (op)");
-                    sb.AppendLine("                {");
+                    sb.AppendLine(SwitchOp);
+                    sb.AppendLine(IndentedOpenBrace);
                     sb.AppendLine($"                    case \"=\": return x => x.{propName} == v;");
                     sb.AppendLine($"                    case \"!=\": return x => x.{propName} != v;");
                     sb.AppendLine($"                    case \">\": return x => x.{propName} > v;");
                     sb.AppendLine($"                    case \">=\": return x => x.{propName} >= v;");
                     sb.AppendLine($"                    case \"<\": return x => x.{propName} < v;");
                     sb.AppendLine($"                    case \"<=\": return x => x.{propName} <= v;");
-                    sb.AppendLine("                    default: return null;");
-                    sb.AppendLine("                }");
+                    sb.AppendLine(DefaultReturnNull);
+                    sb.AppendLine(IndentedCloseBrace);
                 }
                 else if (isLong)
                 {
                     sb.AppendLine("                if (!long.TryParse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v)) return null;");
-                    sb.AppendLine("                switch (op)");
-                    sb.AppendLine("                {");
+                    sb.AppendLine(SwitchOp);
+                    sb.AppendLine(IndentedOpenBrace);
                     sb.AppendLine($"                    case \"=\": return x => x.{propName} == v;");
                     sb.AppendLine($"                    case \"!=\": return x => x.{propName} != v;");
                     sb.AppendLine($"                    case \">\": return x => x.{propName} > v;");
                     sb.AppendLine($"                    case \">=\": return x => x.{propName} >= v;");
                     sb.AppendLine($"                    case \"<\": return x => x.{propName} < v;");
                     sb.AppendLine($"                    case \"<=\": return x => x.{propName} <= v;");
-                    sb.AppendLine("                    default: return null;");
-                    sb.AppendLine("                }");
+                    sb.AppendLine(DefaultReturnNull);
+                    sb.AppendLine(IndentedCloseBrace);
                 }
                 else if (isDouble)
                 {
                     sb.AppendLine("                if (!double.TryParse(valueStr, NumberStyles.Float, CultureInfo.InvariantCulture, out var v)) return null;");
-                    sb.AppendLine("                switch (op)");
-                    sb.AppendLine("                {");
+                    sb.AppendLine(SwitchOp);
+                    sb.AppendLine(IndentedOpenBrace);
                     sb.AppendLine($"                    case \"=\": return x => x.{propName} == v;");
                     sb.AppendLine($"                    case \"!=\": return x => x.{propName} != v;");
                     sb.AppendLine($"                    case \">\": return x => x.{propName} > v;");
                     sb.AppendLine($"                    case \">=\": return x => x.{propName} >= v;");
                     sb.AppendLine($"                    case \"<\": return x => x.{propName} < v;");
                     sb.AppendLine($"                    case \"<=\": return x => x.{propName} <= v;");
-                    sb.AppendLine("                    default: return null;");
-                    sb.AppendLine("                }");
+                    sb.AppendLine(DefaultReturnNull);
+                    sb.AppendLine(IndentedCloseBrace);
                 }
                 else if (isDecimal)
                 {
                     sb.AppendLine("                if (!decimal.TryParse(valueStr, NumberStyles.Number, CultureInfo.InvariantCulture, out var v)) return null;");
-                    sb.AppendLine("                switch (op)");
-                    sb.AppendLine("                {");
+                    sb.AppendLine(SwitchOp);
+                    sb.AppendLine(IndentedOpenBrace);
                     sb.AppendLine($"                    case \"=\": return x => x.{propName} == v;");
                     sb.AppendLine($"                    case \"!=\": return x => x.{propName} != v;");
                     sb.AppendLine($"                    case \">\": return x => x.{propName} > v;");
                     sb.AppendLine($"                    case \">=\": return x => x.{propName} >= v;");
                     sb.AppendLine($"                    case \"<\": return x => x.{propName} < v;");
                     sb.AppendLine($"                    case \"<=\": return x => x.{propName} <= v;");
-                    sb.AppendLine("                    default: return null;");
-                    sb.AppendLine("                }");
+                    sb.AppendLine(DefaultReturnNull);
+                    sb.AppendLine(IndentedCloseBrace);
                 }
                 else if (isBool)
                 {
                     sb.AppendLine("                if (!bool.TryParse(valueStr, out var v)) return null;");
-                    sb.AppendLine("                switch (op)");
-                    sb.AppendLine("                {");
+                    sb.AppendLine(SwitchOp);
+                    sb.AppendLine(IndentedOpenBrace);
                     sb.AppendLine($"                    case \"=\": return x => x.{propName} == v;");
                     sb.AppendLine($"                    case \"!=\": return x => x.{propName} != v;");
-                    sb.AppendLine("                    default: return null;");
-                    sb.AppendLine("                }");
+                    sb.AppendLine(DefaultReturnNull);
+                    sb.AppendLine(IndentedCloseBrace);
                 }
                 else if (isGuid)
                 {
                     sb.AppendLine("                if (!Guid.TryParse(valueStr, out var v)) return null;");
-                    sb.AppendLine("                switch (op)");
-                    sb.AppendLine("                {");
+                    sb.AppendLine(SwitchOp);
+                    sb.AppendLine(IndentedOpenBrace);
                     sb.AppendLine($"                    case \"=\": return x => x.{propName} == v;");
                     sb.AppendLine($"                    case \"!=\": return x => x.{propName} != v;");
-                    sb.AppendLine("                    default: return null;");
-                    sb.AppendLine("                }");
+                    sb.AppendLine(DefaultReturnNull);
+                    sb.AppendLine(IndentedCloseBrace);
                 }
                 else if (isDateTimeOffset)
                 {
                     sb.AppendLine("                if (!DateTimeOffset.TryParse(valueStr, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var v)) return null;");
-                    sb.AppendLine("                switch (op)");
-                    sb.AppendLine("                {");
+                    sb.AppendLine(SwitchOp);
+                    sb.AppendLine(IndentedOpenBrace);
                     sb.AppendLine($"                    case \"=\": return x => x.{propName} == v;");
                     sb.AppendLine($"                    case \"!=\": return x => x.{propName} != v;");
                     sb.AppendLine($"                    case \">\": return x => x.{propName} > v;");
                     sb.AppendLine($"                    case \">=\": return x => x.{propName} >= v;");
                     sb.AppendLine($"                    case \"<\": return x => x.{propName} < v;");
                     sb.AppendLine($"                    case \"<=\": return x => x.{propName} <= v;");
-                    sb.AppendLine("                    default: return null;");
-                    sb.AppendLine("                }");
+                    sb.AppendLine(DefaultReturnNull);
+                    sb.AppendLine(IndentedCloseBrace);
                 }
                 else if (isDateTime)
                 {
                     sb.AppendLine("                if (!DateTime.TryParse(valueStr, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var v)) return null;");
-                    sb.AppendLine("                switch (op)");
-                    sb.AppendLine("                {");
+                    sb.AppendLine(SwitchOp);
+                    sb.AppendLine(IndentedOpenBrace);
                     sb.AppendLine($"                    case \"=\": return x => x.{propName} == v;");
                     sb.AppendLine($"                    case \"!=\": return x => x.{propName} != v;");
                     sb.AppendLine($"                    case \">\": return x => x.{propName} > v;");
                     sb.AppendLine($"                    case \">=\": return x => x.{propName} >= v;");
                     sb.AppendLine($"                    case \"<\": return x => x.{propName} < v;");
                     sb.AppendLine($"                    case \"<=\": return x => x.{propName} <= v;");
-                    sb.AppendLine("                    default: return null;");
-                    sb.AppendLine("                }");
+                    sb.AppendLine(DefaultReturnNull);
+                    sb.AppendLine(IndentedCloseBrace);
                 }
 
                 sb.AppendLine("            }");

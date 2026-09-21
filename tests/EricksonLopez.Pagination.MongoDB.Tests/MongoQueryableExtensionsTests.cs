@@ -31,22 +31,22 @@ public class MongoQueryableExtensionsTests
     {
         var users = new List<User> { new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users).OrderBy(u => u.Id);
-        
+
         var result = await query.ToPagedListAsync(new PaginationParameters { Page = 1, PageSize = 10 }, countTotal: true);
-        
+
         result.TotalCount.Should().Be(1);
         result.TotalPages.Should().Be(1);
         result.Should().HaveCount(1);
     }
-    
+
     [Fact]
     public async Task ToPagedListAsync_NoCountTotal_ReturnsPagedList()
     {
         var users = new List<User> { new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users).OrderBy(u => u.Id);
-        
+
         var result = await query.ToPagedListAsync(new PaginationParameters { Page = 1, PageSize = 10 }, countTotal: false);
-        
+
         result.TotalCount.Should().BeNull();
         result.Should().HaveCount(1);
     }
@@ -56,13 +56,13 @@ public class MongoQueryableExtensionsTests
     {
         var users = new List<User> { new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var result = await query.ToCursorPagedListAsync(
             u => u.Id,
-            
+
             parameters: new CursorPaginationParameters { First = 10 }
         );
-        
+
         result.Should().HaveCount(1);
         result.StartCursor.Should().NotBeNullOrEmpty();
     }
@@ -72,14 +72,14 @@ public class MongoQueryableExtensionsTests
     {
         var users = new List<User> { new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var result = await query.ToCursorPagedListAsync(
             u => u.Id,
-            
-            
+
+
             parameters: new CursorPaginationParameters { Last = 10, Before = EricksonLopez.Pagination.HmacCursorEncoder.DevelopmentDefault.Encode("15") }
         );
-        
+
         result.Should().HaveCount(1);
         result.StartCursor.Should().NotBeNullOrEmpty();
     }
@@ -89,12 +89,12 @@ public class MongoQueryableExtensionsTests
     {
         var users = new List<User> { new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var result = await query.ToCursorPagedListAsync(
             u => u.Name,
             parameters: new CursorPaginationParameters { Last = 10, Before = EricksonLopez.Pagination.HmacCursorEncoder.DevelopmentDefault.Encode("Z") }
         );
-        
+
         result.Should().HaveCount(1);
         result.StartCursor.Should().NotBeNullOrEmpty();
     }
@@ -114,7 +114,7 @@ public class MongoQueryableExtensionsTests
     {
         var users = new List<User> { new User { Id = 1, Name = "Alice" }, new User { Id = 3, Name = "Charlie" } };
         var query = new MockMongoQueryable<User>(users);
-        var result = await query.ToCursorPagedListAsync(u => u.Name,   parameters: new CursorPaginationParameters { First = 10 });
+        var result = await query.ToCursorPagedListAsync(u => u.Name, parameters: new CursorPaginationParameters { First = 10 });
         result.Should().HaveCount(2);
     }
 
@@ -184,14 +184,14 @@ public class MongoQueryableExtensionsTests
     {
         var users = Enumerable.Range(1, 15).Select(i => new User { Id = i, Name = $"User {i}" }).ToList();
         var query = new MockMongoQueryable<User>(users);
-        
+
         var result = await query.ToCursorPagedListAsync(
             u => u.Id,
-            
-            
+
+
             parameters: new CursorPaginationParameters { Last = 10, Before = EricksonLopez.Pagination.HmacCursorEncoder.DevelopmentDefault.Encode("15") }
         );
-        
+
         result.Should().HaveCount(10);
         result.HasNextPage.Should().BeTrue();
     }
@@ -201,12 +201,12 @@ public class MongoQueryableExtensionsTests
     {
         var users = new List<User> { new User { Id = 1, Name = null! } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var act = async () => await query.ToCursorPagedListAsync(
             u => u.Name,
             parameters: new CursorPaginationParameters { First = 10 }
         );
-        
+
         await act.Should().ThrowAsync<System.InvalidOperationException>()
             .WithMessage("*first item*");
     }
@@ -219,12 +219,12 @@ public class MongoQueryableExtensionsTests
         // We will just mock the list returned to have null LAST.
         // Wait, MockMongoQueryable does sort. If we use Ascending, null is first. 
         // Let's use Descending, so "Alice" is first and null is last.
-        var query = new MockMongoQueryable<User>(users).OrderByDescending(u => u.Name); 
+        var query = new MockMongoQueryable<User>(users).OrderByDescending(u => u.Name);
         // Wait, if I explicitly pre-sort it, ToCursorPagedListAsync might apply ANOTHER OrderByDescending which works.
         // Let's just do it with Ascending, but we make the FIRST item NOT null, and LAST item null.
         // If Ascending puts null first, then we need null to be LARGER than the other element!
         // We can do this by using a keySelector that returns a type where null is considered LARGER? No.
-        
+
         // Actually, just test the method directly with a FakeAsyncCursor!
         // ToCursorPagedListAsync internally calls ToListAsync.
         // If we provide a query provider that returns ["Alice", null] without sorting, it will work.
@@ -233,7 +233,7 @@ public class MongoQueryableExtensionsTests
             u => u.Name,
             parameters: new CursorPaginationParameters { First = 10 }
         );
-        
+
         await act.Should().ThrowAsync<System.InvalidOperationException>()
             .WithMessage("*last item*");
     }

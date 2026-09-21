@@ -29,12 +29,12 @@ public class CursorPagedListPagerTests : TestContext
         var cut = RenderComponent<CursorPagedListPager>(parameters => parameters
             .Add(p => p.PagedList, CursorPagedList<int>.Empty)
             .Add(p => p.AlwaysShow, true));
-        
+
         cut.Find("nav").Should().NotBeNull();
-        
+
         var buttons = cut.FindAll("button");
         buttons.Count.Should().Be(2);
-        
+
         // Both buttons should be disabled
         buttons[0].HasAttribute("disabled").Should().BeTrue();
         buttons[1].HasAttribute("disabled").Should().BeTrue();
@@ -47,9 +47,9 @@ public class CursorPagedListPagerTests : TestContext
 
         var cut = RenderComponent<CursorPagedListPager>(parameters => parameters
             .Add(p => p.PagedList, pagedList));
-        
+
         var buttons = cut.FindAll("button");
-        
+
         // Previous is disabled
         buttons[0].HasAttribute("disabled").Should().BeTrue();
         // Next is enabled
@@ -63,9 +63,9 @@ public class CursorPagedListPagerTests : TestContext
 
         var cut = RenderComponent<CursorPagedListPager>(parameters => parameters
             .Add(p => p.PagedList, pagedList));
-        
+
         var buttons = cut.FindAll("button");
-        
+
         // Previous is enabled
         buttons[0].HasAttribute("disabled").Should().BeFalse();
         // Next is disabled
@@ -81,10 +81,10 @@ public class CursorPagedListPagerTests : TestContext
         var cut = RenderComponent<CursorPagedListPager>(parameters => parameters
             .Add(p => p.PagedList, pagedList)
             .Add(p => p.OnNextPage, EventCallback.Factory.Create<string>(this, c => invokedCursor = c)));
-        
+
         var nextButton = cut.FindAll("button")[1];
         nextButton.Click();
-        
+
         invokedCursor.Should().Be("end_cursor");
     }
 
@@ -97,13 +97,13 @@ public class CursorPagedListPagerTests : TestContext
         var cut = RenderComponent<CursorPagedListPager>(parameters => parameters
             .Add(p => p.PagedList, pagedList)
             .Add(p => p.OnPreviousPage, EventCallback.Factory.Create<string>(this, c => invokedCursor = c)));
-        
+
         var prevButton = cut.FindAll("button")[0];
         prevButton.Click();
-        
+
         invokedCursor.Should().Be("start_cursor");
     }
-    
+
     [Fact]
     public void CSSClasses_AreAppliedCorrectly()
     {
@@ -113,10 +113,10 @@ public class CursorPagedListPagerTests : TestContext
             .Add(p => p.PagedList, pagedList)
             .Add(p => p.ContainerClass, "my-container")
             .Add(p => p.PaginationClass, "my-pagination"));
-            
+
         var nav = cut.Find("nav");
         nav.ClassList.Should().Contain("my-container");
-        
+
         var ul = cut.Find("ul");
         ul.ClassList.Should().Contain("my-pagination");
     }
@@ -150,7 +150,7 @@ public class CursorPagedListPagerTests : TestContext
         var cut = RenderComponent<CursorPagedListPager>(parameters => parameters
             .Add(p => p.PagedList, pagedList)
             .Add(p => p.HeadlessTemplate, context => builder => { builder.AddMarkupContent(0, "<div class='headless-test'>Headless</div>"); }));
-            
+
         cut.Markup.Should().Contain("headless-test");
         cut.Markup.Should().NotContain("nav");
     }
@@ -163,9 +163,9 @@ public class CursorPagedListPagerTests : TestContext
         var cut = RenderComponent<CursorPagedListPager>(parameters => parameters
             .Add(p => p.PagedList, pagedList)
             .Add(p => p.OnPreviousPage, EventCallback.Factory.Create<string>(this, c => invoked = true)));
-            
+
         await cut.Instance.GoPreviousAsync();
-        
+
         invoked.Should().BeFalse();
     }
 
@@ -177,9 +177,9 @@ public class CursorPagedListPagerTests : TestContext
         var cut = RenderComponent<CursorPagedListPager>(parameters => parameters
             .Add(p => p.PagedList, pagedList)
             .Add(p => p.OnNextPage, EventCallback.Factory.Create<string>(this, c => invoked = true)));
-            
+
         await cut.Instance.GoNextAsync();
-        
+
         invoked.Should().BeFalse();
     }
 
@@ -192,10 +192,10 @@ public class CursorPagedListPagerTests : TestContext
 
         // First call to initialize previous state variables
         cut.Instance.TriggerShouldRender();
-        
+
         // Second call without any state change should return false
         var result = cut.Instance.TriggerShouldRender();
-        
+
         result.Should().BeFalse();
     }
 
@@ -207,9 +207,9 @@ public class CursorPagedListPagerTests : TestContext
         var cut = RenderComponent<CursorPagedListPager>(parameters => parameters
             .Add(p => p.PagedList, pagedList)
             .Add(p => p.OnPreviousPage, EventCallback.Factory.Create<string>(this, c => invoked = true)));
-            
+
         await cut.Instance.GoPreviousAsync();
-        
+
         invoked.Should().BeFalse();
     }
 
@@ -221,9 +221,9 @@ public class CursorPagedListPagerTests : TestContext
         var cut = RenderComponent<CursorPagedListPager>(parameters => parameters
             .Add(p => p.PagedList, pagedList)
             .Add(p => p.OnNextPage, EventCallback.Factory.Create<string>(this, c => invoked = true)));
-            
+
         await cut.Instance.GoNextAsync();
-        
+
         invoked.Should().BeFalse();
     }
 
@@ -234,18 +234,18 @@ public class CursorPagedListPagerTests : TestContext
         var pagedList = CursorPagedList<int>.Create(new List<int> { 1 }, "start", "end", true, true);
         var cut = RenderComponent<CursorPagedListPager>(parameters => parameters
             .Add(p => p.PagedList, pagedList)
-            .Add(p => p.OnPreviousPage, EventCallback.Factory.Create<string>(this, async c => 
+            .Add(p => p.OnPreviousPage, EventCallback.Factory.Create<string>(this, async c =>
             {
                 invoked = true;
                 await Task.Delay(100); // Simulate work
             })));
-            
+
         // Trigger a long-running click which sets IsLoading
         var task = cut.Instance.GoPreviousAsync();
-        
+
         // While IsLoading is true, call it again
         await cut.Instance.GoPreviousAsync();
-        
+
         await task;
         // Would be invoked twice if not guarded, but actually we only test if it skips the second
         // Since we can't easily assert exactly 1 invocation count without a counter, just verify it runs.
@@ -259,16 +259,16 @@ public class CursorPagedListPagerTests : TestContext
         var pagedList = CursorPagedList<int>.Create(new List<int> { 1 }, "start", "end", true, true);
         var cut = RenderComponent<CursorPagedListPager>(parameters => parameters
             .Add(p => p.PagedList, pagedList)
-            .Add(p => p.OnNextPage, EventCallback.Factory.Create<string>(this, async c => 
+            .Add(p => p.OnNextPage, EventCallback.Factory.Create<string>(this, async c =>
             {
                 invoked = true;
                 await Task.Delay(100);
             })));
-            
+
         var task = cut.Instance.GoNextAsync();
         await cut.Instance.GoNextAsync();
         await task;
-        
+
         invoked.Should().BeTrue();
     }
 
@@ -276,8 +276,8 @@ public class CursorPagedListPagerTests : TestContext
     public void CSSClasses_FallBackToUIOptions_WhenParametersAreEmpty()
     {
         var pagedList = CursorPagedList<int>.Create(new List<int> { 1 }, "start", "end", true, true);
-        var options = Microsoft.Extensions.Options.Options.Create(new PaginationUIOptions 
-        { 
+        var options = Microsoft.Extensions.Options.Options.Create(new PaginationUIOptions
+        {
             ContainerClass = "opt-container",
             PaginationClass = "opt-pagination",
             ListClass = "opt-list",
@@ -285,21 +285,21 @@ public class CursorPagedListPagerTests : TestContext
             LinkClass = "opt-link",
             DisabledClass = "opt-disabled"
         });
-        
+
         Services.AddSingleton<Microsoft.Extensions.Options.IOptions<PaginationUIOptions>>(options);
 
         var cut = RenderComponent<CursorPagedListPager>(parameters => parameters
             .Add(p => p.PagedList, pagedList));
-            
+
         var nav = cut.Find("nav");
         nav.ClassList.Should().Contain("opt-container");
         var ul = cut.Find("ul");
         ul.ClassList.Should().Contain("opt-list");
         ul.ClassList.Should().Contain("opt-pagination");
-        
+
         var lis = cut.FindAll("li");
         lis[0].ClassList.Should().Contain("opt-item");
-        
+
         var buttons = cut.FindAll("button");
         buttons[0].ClassList.Should().Contain("opt-link");
     }
@@ -313,10 +313,10 @@ public class CursorPagedListPagerTests : TestContext
             .Add(p => p.PagedList, pagedList1));
 
         cut.Instance.TriggerShouldRender(); // initialize
-        
+
         cut.Instance.UpdatePagedList(pagedList2);
         var result = cut.Instance.TriggerShouldRender();
-        
+
         result.Should().BeTrue();
     }
 

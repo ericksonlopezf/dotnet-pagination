@@ -2,8 +2,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
+using Microsoft.EntityFrameworkCore;
 
 namespace EricksonLopez.Pagination.EntityFrameworkCore.Tests;
 

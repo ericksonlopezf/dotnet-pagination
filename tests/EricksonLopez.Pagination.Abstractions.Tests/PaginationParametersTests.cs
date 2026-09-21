@@ -65,7 +65,7 @@ public class PaginationParametersTests
     public void Create_WithValidValues_SetsProperties(int page, int pageSize)
     {
         var parameters = PaginationParameters.Create(page, pageSize);
-        
+
         parameters.Page.Should().Be(page);
         parameters.PageSize.Should().Be(pageSize);
     }
@@ -76,7 +76,7 @@ public class PaginationParametersTests
     public void InitPage_WithInvalidValue_ThrowsArgumentOutOfRangeException(int invalidPage)
     {
         var act = () => new PaginationParameters { Page = invalidPage };
-        
+
         act.Should().Throw<ArgumentOutOfRangeException>()
             .WithMessage("*Page must be greater than or equal to 1.*");
     }
@@ -87,7 +87,7 @@ public class PaginationParametersTests
     public void InitPageSize_WithInvalidValue_ThrowsArgumentOutOfRangeException(int invalidPageSize)
     {
         var act = () => new PaginationParameters { PageSize = invalidPageSize };
-        
+
         act.Should().Throw<ArgumentOutOfRangeException>()
             .WithMessage("*PageSize must be greater than or equal to 1.*");
     }
@@ -96,7 +96,7 @@ public class PaginationParametersTests
     public void Create_WithInvalidPage_ThrowsArgumentOutOfRangeException()
     {
         var act = () => PaginationParameters.Create(0, 10);
-        
+
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
@@ -104,7 +104,7 @@ public class PaginationParametersTests
     public void Create_WithInvalidPageSize_ThrowsArgumentOutOfRangeException()
     {
         var act = () => PaginationParameters.Create(1, 0);
-        
+
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
@@ -145,7 +145,7 @@ public class PaginationParametersTests
         var parameters = new PaginationParameters { Page = 1 };
         parameters.Page.Should().Be(1);
     }
-    
+
     [Fact]
     public void PaginationParameters_Init_WithPageSize1_DoesNotThrow()
     {

@@ -9,7 +9,7 @@ This package provides native, highly optimized pagination extension methods for 
 ## Installation
 
 ```xml
-<PackageReference Include="EricksonLopez.Pagination.MongoDB" Version="[VERSION]" />
+<PackageReference Include="EricksonLopez.Pagination.MongoDB" Version="2.0.0" />
 ```
 
 ## Usage

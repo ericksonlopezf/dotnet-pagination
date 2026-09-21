@@ -3,6 +3,9 @@
 ## Status
 Accepted
 
+## Date
+2026-09-04
+
 ## Context
 When designing a pagination library, a common anti-pattern is creating a monolithic package that includes dependencies for various ORMs (Entity Framework, Dapper, etc.) or web frameworks (ASP.NET Core). This approach leads to "dependency bloat," where a domain project referencing the pagination library is forced to transitively depend on packages it does not need.
 

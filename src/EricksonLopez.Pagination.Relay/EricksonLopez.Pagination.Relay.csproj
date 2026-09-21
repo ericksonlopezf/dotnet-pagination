@@ -10,7 +10,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <PackageId>EricksonLopez.Pagination.Relay</PackageId>
     <Description>GraphQL Relay Cursor Connections specification adapter for the EricksonLopez.Pagination ecosystem.</Description>
-    <PackageTags>pagination;graphql;relay;cursor-connection;edges;pageinfo</PackageTags>
+    <PackageTags>$(CommonPackageTags);graphql;relay;cursor-connection;edges;page-info;cursor-pagination;native-aot</PackageTags>
     <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 

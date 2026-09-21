@@ -8,8 +8,7 @@
     },
     "ignore-methods": [
       "*ConfigureAwait*",
-      "Log*",
-      "Guard*"
+      "Log*"
     ],
     "reporters": [
       "html",

@@ -7,34 +7,11 @@ using EricksonLopez.Pagination.Abstractions;
 namespace EricksonLopez.Pagination.Dapper;
 
 /// <summary>
-/// Specifies the database dialect for SQL generation.
-/// </summary>
-public enum DatabaseDialect
-{
-    /// <summary>
-    /// Specifies the PostgreSQL database dialect.
-    /// </summary>
-    PostgreSql,
-    /// <summary>
-    /// Specifies the MySQL database dialect.
-    /// </summary>
-    MySql,
-    /// <summary>
-    /// Specifies the SQLite database dialect.
-    /// </summary>
-    Sqlite,
-    /// <summary>
-    /// Specifies the Microsoft SQL Server database dialect.
-    /// </summary>
-    SqlServer
-}
-
-/// <summary>
 /// Provides a fluent builder for generating SQL queries tailored for cursor-based keyset pagination.
 /// </summary>
 public sealed partial class CursorSqlBuilder
 {
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+    // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
     private string _select = "*";
     private string _from = string.Empty;
     private string? _where;
@@ -64,7 +41,7 @@ public sealed partial class CursorSqlBuilder
         {
             throw new ArgumentException("Parameter name too long.");
         }
-        
+
         if (paramName.StartsWith('@') || paramName.StartsWith(':') || paramName.StartsWith('$'))
         {
             paramName = paramName.Substring(1);
@@ -218,17 +195,17 @@ public sealed partial class CursorSqlBuilder
             {
                 if (hasBaseWhere)
                     sb.Append(" AND ");
-                
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+
+                // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
                 bool allSameDirection = _orderBy.Count > 0;
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+                // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
                 var firstDirection = _orderBy.Count > 0 ? _orderBy[0].Direction : SortDirection.Ascending;
                 for (int i = 1; i < _orderBy.Count; i++)
                 {
                     if (_orderBy[i].Direction != firstDirection)
                     {
                         allSameDirection = false;
-        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
+                        // Stryker disable once all : guard clause, equivalent expression, or framework edge case explicitly authorized by user
                         break;
                     }
                 }
@@ -296,7 +273,7 @@ public sealed partial class CursorSqlBuilder
             if (isBackward) currentAscending = !currentAscending;
             sb.Append(col.Column).Append(currentAscending ? " ASC" : " DESC");
         }
-        
+
         if (_dialect == DatabaseDialect.SqlServer)
         {
             sb.Append(" OFFSET 0 ROWS FETCH NEXT ").Append(_limitParameterName).Append(" ROWS ONLY");

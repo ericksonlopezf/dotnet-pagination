@@ -87,13 +87,13 @@ public class DbConnectionPaginationExtensionsTests
         pagedList.HasNextPage.Should().BeTrue();
         pagedList.Count.Should().Be(10);
     }
-    
+
     [Fact]
     public async Task ToPagedListAsync_WithoutCount_ExactPageSize_ReturnsHasNextPageFalse()
     {
         using var connection = await GetConnectionAsync();
         var parameters = PaginationParameters.Create(page: 1, pageSize: 10);
-        
+
         // Return exactly 10 items instead of 11 using a where clause or just by the nature of the table.
         // Wait, if we use LIMIT @__Pagination_PageSize__ (not @__Pagination_Limit__), Dapper pagination uses `@__Pagination_Limit__` when we don't count?
         // Wait, ToPagedListAsync automatically passes effectivePageSize + 1 as `@__Pagination_Limit__`? No, we pass `dynParams.Add("@__Pagination_PageSize__", effectivePageSize);`.
@@ -148,7 +148,7 @@ public class DbConnectionPaginationExtensionsTests
         var factory = NSubstitute.Substitute.For<IPagedListFactory>();
         factory.CreatePagedList(Arg.Any<IReadOnlyList<Entity>>(), null, 1, 10, Arg.Any<bool>())
                .Returns(new EricksonLopez.Pagination.PagedList<Entity>(System.Array.Empty<Entity>(), null, 1, 10, false));
-        
+
         var sql = "SELECT * FROM Entities ORDER BY Id LIMIT @__Pagination_PageSize__ OFFSET @__Pagination_Skip__";
 
         var pagedList = await connection.ToPagedListAsync<Entity>(sql, parameters, countTotal: false, factory: factory);
@@ -166,8 +166,8 @@ public class DbConnectionPaginationExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id > COALESCE(@Cursor, 0) ORDER BY Id LIMIT @__Pagination_Limit__";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => e.Id);
 
         pagedList.Should().NotBeNull();
@@ -176,11 +176,11 @@ public class DbConnectionPaginationExtensionsTests
         pagedList.EndCursor.Should().NotBeNull();
         pagedList.HasNextPage.Should().BeTrue();
         pagedList.HasPreviousPage.Should().BeFalse();
-        
+
         var nextParams = new CursorPaginationParameters { First = 10, After = pagedList.EndCursor };
         var nextPagedList = await connection.ToCursorPagedListAsync<Entity, int>(
-            sql, 
-            nextParams, 
+            sql,
+            nextParams,
             keySelector: e => e.Id);
 
         nextPagedList.Count.Should().Be(10);
@@ -195,8 +195,8 @@ public class DbConnectionPaginationExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id < COALESCE(@Cursor, 999) ORDER BY Id DESC LIMIT @__Pagination_Limit__";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => e.Id);
 
         pagedList.Should().NotBeNull();
@@ -205,7 +205,7 @@ public class DbConnectionPaginationExtensionsTests
         pagedList[9].Id.Should().Be(24);
         pagedList.HasNextPage.Should().BeTrue();
         pagedList.HasPreviousPage.Should().BeTrue();
-        
+
         var lastParams = new CursorPaginationParameters { Last = 10 };
         var sqlLast = "SELECT * FROM Entities ORDER BY Id DESC LIMIT @__Pagination_Limit__";
         var lastPagedList = await connection.ToCursorPagedListAsync<Entity, int>(
@@ -225,8 +225,8 @@ public class DbConnectionPaginationExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id > 100 ORDER BY Id LIMIT @__Pagination_Limit__";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => e.Id);
 
         pagedList.Should().NotBeNull();
@@ -244,8 +244,8 @@ public class DbConnectionPaginationExtensionsTests
         var sql = "SELECT * FROM Entities ORDER BY Id LIMIT @__Pagination_Limit__";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => e.Id);
 
         pagedList.Should().NotBeNull();
@@ -263,8 +263,8 @@ public class DbConnectionPaginationExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id > COALESCE(@Cursor, 0) ORDER BY Id LIMIT @__Pagination_Limit__";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => e.Id,
             maxPageSize: 10);
 
@@ -282,8 +282,8 @@ public class DbConnectionPaginationExtensionsTests
         var sql = "SELECT * FROM Entities ORDER BY Name LIMIT @__Pagination_Limit__";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, string>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => e.Name,
             cursorDecoder: s => s);
 
@@ -300,8 +300,8 @@ public class DbConnectionPaginationExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id > COALESCE(@Cursor, 0) ORDER BY Id LIMIT @__Pagination_Limit__";
 
         var act = async () => await connection.ToCursorPagedListAsync<Entity, int>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => e.Id);
 
         await act.Should().ThrowAsync<InvalidPaginationCursorException>()
@@ -316,8 +316,8 @@ public class DbConnectionPaginationExtensionsTests
         var sql = "SELECT * FROM Entities ORDER BY Id LIMIT @__Pagination_Limit__";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int?>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: _ => null);
 
         pagedList.StartCursor.Should().BeNull();
@@ -494,9 +494,9 @@ public class DbConnectionPaginationExtensionsTests
         using var connection = await DapperTestHelper.GetConnectionAsync(10);
         var parameters = PaginationParameters.Create(1, 10);
         var sql = "SELECT * FROM Entities ORDER BY Id LIMIT @__Pagination_Limit__ OFFSET @__Pagination_Skip__;";
-        
+
         var paged = await connection.ToPagedListAsync<Entity>(sql, parameters, countTotal: false);
-        
+
         paged.HasNextPage.Should().BeFalse();
         paged.Count.Should().Be(10);
     }
@@ -518,9 +518,9 @@ public class DbConnectionPaginationExtensionsTests
         var parameters = PaginationParameters.Create(1, 10);
         var sql = "SELECT * FROM Entities ORDER BY Id LIMIT @__Pagination_Limit__ OFFSET @__Pagination_Skip__;";
         var factory = new CustomOffsetFactory();
-        
+
         await connection.ToPagedListAsync<Entity>(sql, parameters, countTotal: false, factory: factory);
-        
+
         factory.WasCalled.Should().BeTrue();
     }
 

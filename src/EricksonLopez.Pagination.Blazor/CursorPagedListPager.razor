@@ -120,7 +120,7 @@
     /// <summary>
     /// Navigates to the preceding page by invoking the previous page callback with the start cursor.
     /// </summary>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task GoPreviousAsync()
     {
         if (IsLoading || PagedList == null || !PagedList.HasPreviousPage || string.IsNullOrEmpty(PagedList.StartCursor))
@@ -140,7 +140,7 @@
     /// <summary>
     /// Navigates to the subsequent page by invoking the next page callback with the end cursor.
     /// </summary>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task GoNextAsync()
     {
         if (IsLoading || PagedList == null || !PagedList.HasNextPage || string.IsNullOrEmpty(PagedList.EndCursor))

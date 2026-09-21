@@ -23,8 +23,11 @@
       "progress"
     ],
     "ignore-methods": [
-      "ConfigureAwait",
-      "Dispose"
-    ]
+      "*ConfigureAwait*",
+      "Dispose",
+      "*RecordCursorError*",
+      "*LogCursorTampered*"
+    ],
+    "concurrency": 2
   }
 }

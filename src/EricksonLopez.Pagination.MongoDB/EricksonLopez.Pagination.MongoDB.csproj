@@ -20,7 +20,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>EricksonLopez.Pagination.MongoDB</PackageId>
     <Description>MongoDB Driver offset and cursor pagination extensions for the EricksonLopez.Pagination ecosystem.</Description>
-    <PackageTags>pagination;mongodb;cursor;offset</PackageTags>
+    <PackageTags>$(CommonPackageTags);mongodb;mongo;nosql;cursor-pagination;offset-pagination;objectid</PackageTags>
   </PropertyGroup>
 
 </Project>

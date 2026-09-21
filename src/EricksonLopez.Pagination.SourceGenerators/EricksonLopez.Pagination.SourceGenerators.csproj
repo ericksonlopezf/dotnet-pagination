@@ -12,7 +12,7 @@
     <DisablePackageValidationBaseline>true</DisablePackageValidationBaseline>
     <PackageId>EricksonLopez.Pagination.SourceGenerators</PackageId>
     <Description>Roslyn source generator for Native AOT cursor decoders in EricksonLopez.Pagination.</Description>
-    <PackageTags>pagination;aot;sourcegenerator;roslyn</PackageTags>
+    <PackageTags>$(CommonPackageTags);source-generator;incremental-generator;roslyn;code-generation;native-aot;compile-time</PackageTags>
     <NoWarn>$(NoWarn);NU5128</NoWarn>
     <IncludeSymbols>false</IncludeSymbols>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
@@ -29,7 +29,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>

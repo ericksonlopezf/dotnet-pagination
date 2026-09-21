@@ -1,5 +1,4 @@
 // Copyright © Erickson Lopez. MIT License.
-using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using System;
 using System.Linq;
 using System.Threading;
@@ -7,6 +6,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using EricksonLopez.Pagination.Abstractions;
 using EricksonLopez.Pagination.EntityFrameworkCore;
+using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
@@ -58,7 +58,7 @@ public class CompositeQueryableExtensionsTests
         page1[^1].Id.Should().Be(21);
         page1.HasNextPage.Should().BeTrue();
     }
-    
+
     [Fact]
     public async Task ToCursorPagedListAsync_Composite_WithAfterKey_ReturnsCorrectNextPage()
     {

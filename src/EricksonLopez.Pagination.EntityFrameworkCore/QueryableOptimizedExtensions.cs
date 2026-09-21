@@ -43,8 +43,8 @@ public static class QueryableOptimizedExtensions
         where TKey : notnull
     {
         // Stryker disable all
-        var effectivePageSize = maxPageSize.HasValue 
-            ? Math.Min(parameters.PageSize, maxPageSize.Value) 
+        var effectivePageSize = maxPageSize.HasValue
+            ? Math.Min(parameters.PageSize, maxPageSize.Value)
             : parameters.PageSize;
 
         // The deferred join pattern with `WHERE IN` degrades performance for large pages
@@ -55,6 +55,10 @@ public static class QueryableOptimizedExtensions
         }
         // Stryker restore all
 
+        long skip = ((long)parameters.Page - 1L) * effectivePageSize;
+        // Stryker disable once all : Overflow clamping on skip > int.MaxValue
+        int skipAmount = skip > int.MaxValue ? int.MaxValue : (int)skip;
+
         if (countTotal)
         {
             var count = await source.CountAsync(cancellationToken).ConfigureAwait(false);
@@ -62,7 +66,7 @@ public static class QueryableOptimizedExtensions
 
             var pagedKeys = await source
                 .Select(keySelector)
-                .Skip((parameters.Page - 1) * effectivePageSize)
+                .Skip(skipAmount)
                 .Take(effectivePageSize)
                 .ToListAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -76,7 +80,7 @@ public static class QueryableOptimizedExtensions
         {
             var pagedKeys = await source
                 .Select(keySelector)
-                .Skip((parameters.Page - 1) * effectivePageSize)
+                .Skip(skipAmount)
                 .Take(effectivePageSize + 1)
                 .ToListAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -91,7 +95,7 @@ public static class QueryableOptimizedExtensions
         }
     }
 
-    
+
 
     private static async Task<List<T>> FetchEntitiesByKeysAsync<T, TKey>(
         IQueryable<T> source,
@@ -125,7 +129,7 @@ public static class QueryableOptimizedExtensions
         var ordered = new List<T>(pagedKeys.Count);
         foreach (var key in pagedKeys)
         {
-            #pragma warning disable S4158
+#pragma warning disable S4158
             if (keyToItem.TryGetValue(key, out var item))
 #pragma warning restore S4158
             {

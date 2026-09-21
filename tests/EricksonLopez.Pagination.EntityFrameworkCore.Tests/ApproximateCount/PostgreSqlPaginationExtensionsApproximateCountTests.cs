@@ -69,7 +69,7 @@ public class PostgreSqlPaginationExtensionsApproximateCountTests
         protected override DbParameter CreateDbParameter() => new FakeParameter();
         protected override DbDataReader ExecuteDbDataReader(System.Data.CommandBehavior behavior) => null!;
     }
-    
+
     private sealed class FakeParameter : DbParameter
     {
         public override System.Data.DbType DbType { get; set; }
@@ -82,7 +82,7 @@ public class PostgreSqlPaginationExtensionsApproximateCountTests
         public override object Value { get; set; } = null!;
         public override void ResetDbType() { }
     }
-    
+
     private sealed class FakeParameterCollection : DbParameterCollection
     {
         public List<FakeParameter> Parameters = [];

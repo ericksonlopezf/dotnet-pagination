@@ -10,7 +10,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <PackageId>EricksonLopez.Pagination.Elasticsearch</PackageId>
     <Description>Elasticsearch 8.x search_after cursor pagination extensions for the EricksonLopez.Pagination ecosystem.</Description>
-    <PackageTags>pagination;elasticsearch;elastic;search-after;cursor;pit</PackageTags>
+    <PackageTags>$(CommonPackageTags);elasticsearch;elastic;search-after;point-in-time;pit;cursor-pagination</PackageTags>
     <IsAotCompatible>false</IsAotCompatible>
   </PropertyGroup>
 

@@ -13,7 +13,7 @@
     <DisablePackageValidationBaseline>true</DisablePackageValidationBaseline>
     <PackageId>EricksonLopez.Pagination.Analyzers</PackageId>
     <Description>Roslyn analyzers for catching pagination bugs at compile time in EricksonLopez.Pagination.</Description>
-    <PackageTags>pagination;analyzers;roslyn</PackageTags>
+    <PackageTags>$(CommonPackageTags);roslyn;analyzers;diagnostics;code-analysis;compile-time</PackageTags>
     <IncludeSymbols>false</IncludeSymbols>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
