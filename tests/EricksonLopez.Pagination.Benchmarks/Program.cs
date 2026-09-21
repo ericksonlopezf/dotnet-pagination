@@ -38,7 +38,7 @@ namespace EricksonLopez.Pagination.Benchmarks
             {
                 Value = "Name~=John,Age>=18"
             };
-            
+
             // JIT warm-up
             _ = FilterExpression.Build<TestEntity>(_filterParameters, unknownFieldBehavior: FilterUnknownFieldBehavior.Ignore);
         }

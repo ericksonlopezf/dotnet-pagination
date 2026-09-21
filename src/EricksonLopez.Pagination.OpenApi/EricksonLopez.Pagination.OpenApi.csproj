@@ -27,7 +27,7 @@
     <DisablePackageValidationBaseline>true</DisablePackageValidationBaseline>
     <PackageId>EricksonLopez.Pagination.OpenApi</PackageId>
     <Description>Swagger and OpenAPI pagination documentation extensions for the EricksonLopez.Pagination ecosystem.</Description>
-    <PackageTags>pagination;openapi;swagger;swashbuckle</PackageTags>
+    <PackageTags>$(CommonPackageTags);openapi;swagger;swashbuckle;cursor-pagination;api-documentation</PackageTags>
   </PropertyGroup>
   
 </Project>

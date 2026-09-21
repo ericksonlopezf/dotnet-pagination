@@ -158,4 +158,100 @@ public sealed class LinqToDBAdvancedKeysetTests : IDisposable
 
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void WithTenant_EmptyOrWhitespace_ThrowsArgumentException(string tenantId)
+    {
+        using var db = GetDatabase();
+        var builder = db.Entities.Keyset(new CursorPaginationParameters());
+        var act = () => builder.WithTenant(tenantId);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void WithTenant_ProducesDifferentFingerprintPerTenant()
+    {
+        using var db = GetDatabase();
+        var builderBase = db.Entities
+            .Keyset(new CursorPaginationParameters())
+            .Ascending(e => e.Id);
+
+        var builderTenant1 = builderBase.WithTenant("tenant-1");
+        var builderTenant2 = builderBase.WithTenant("tenant-2");
+
+        var fpBase = builderBase.GetKeysetSchemaFingerprint();
+        var fpTenant1 = builderTenant1.GetKeysetSchemaFingerprint();
+        var fpTenant2 = builderTenant2.GetKeysetSchemaFingerprint();
+
+        fpTenant1.Should().NotBe(fpBase);
+        fpTenant2.Should().NotBe(fpBase);
+        fpTenant1.Should().NotBe(fpTenant2);
+    }
+
+    [Fact]
+    public async Task WithTenant_RejectsCursorFromDifferentTenant()
+    {
+        using var db = GetDatabase();
+        var paramsPage1 = new CursorPaginationParameters { First = 2 };
+
+        // Page 1 for tenant-A
+        var builderTenantA = db.Entities
+            .Keyset(paramsPage1)
+            .WithTenant("tenant-A")
+            .Ascending(e => e.Id);
+
+        var page1 = await builderTenantA.ToCursorPagedListAsync();
+        page1.EndCursor.Should().NotBeNullOrEmpty();
+
+        // Attempt to use tenant-A cursor in tenant-B query
+        var paramsPage2 = new CursorPaginationParameters
+        {
+            First = 2,
+            After = page1.EndCursor
+        };
+
+        var builderTenantB = db.Entities
+            .Keyset(paramsPage2)
+            .WithTenant("tenant-B")
+            .Ascending(e => e.Id);
+
+        var act = async () => await builderTenantB.ToCursorPagedListAsync();
+        var ex = await act.Should().ThrowAsync<InvalidPaginationCursorException>();
+        ex.WithMessage("*different keyset*");
+    }
+
+    [Fact]
+    public async Task WithTenant_AcceptsCursorFromSameTenant()
+    {
+        using var db = GetDatabase();
+        var paramsPage1 = new CursorPaginationParameters { First = 2 };
+
+        // Page 1 for tenant-A
+        var builderTenantA = db.Entities
+            .Keyset(paramsPage1)
+            .WithTenant("tenant-A")
+            .Ascending(e => e.Id);
+
+        var page1 = await builderTenantA.ToCursorPagedListAsync();
+        page1.EndCursor.Should().NotBeNullOrEmpty();
+
+        // Page 2 for tenant-A using same tenant
+        var paramsPage2 = new CursorPaginationParameters
+        {
+            First = 2,
+            After = page1.EndCursor
+        };
+
+        var builderTenantAPage2 = db.Entities
+            .Keyset(paramsPage2)
+            .WithTenant("tenant-A")
+            .Ascending(e => e.Id);
+
+        var page2 = await builderTenantAPage2.ToCursorPagedListAsync();
+        page2.Count.Should().Be(2);
+        page2[0].Id.Should().Be(3);
+        page2[1].Id.Should().Be(4);
+    }
 }

@@ -39,17 +39,13 @@ internal static class PaginationExpressionCacheHotReloadHandler
     /// this is negligible in development and this method is never called in production.
     /// </remarks>
     internal static void UpdateApplication(Type[]? updatedTypes)
-    {
-        PaginationExpressionCache.Clear();
-    }
+        => PaginationExpressionCache.Clear();
 
     /// <summary>
     /// Invoked by the Hot Reload infrastructure during a clear-metadata phase.
     /// </summary>
     internal static void ClearCache(Type[]? updatedTypes)
-    {
-        PaginationExpressionCache.Clear();
-    }
+        => PaginationExpressionCache.Clear();
 }
 #endif
 

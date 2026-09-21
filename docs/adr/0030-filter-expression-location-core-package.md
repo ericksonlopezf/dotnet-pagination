@@ -3,8 +3,10 @@
 Date: 2026-08-14
 
 ## Status
-
 Accepted (status quo formalized)
+
+## Date
+2026-08-14
 
 ## Context
 

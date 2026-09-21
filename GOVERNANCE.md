@@ -29,5 +29,5 @@ For any major architectural change, breaking API change, or significant new feat
 
 ## Security Policy
 1. **Reporting Vulnerabilities**: Do not open a public issue. Use a private GitHub Security Advisory or contact the maintainers directly. See [SECURITY.md](SECURITY.md) for the full vulnerability reporting process.
-2. **Supported Versions**: Security patches are applied to the `main` branch only. No backport policy exists until a stable `1.0.0` release establishes a supported baseline. See [SECURITY.md](SECURITY.md) for the current supported versions table.
+2. **Supported Versions**: Security patches are applied to the active `1.0.x` supported release baseline and the `main` branch. See [SECURITY.md](SECURITY.md) for the current supported versions table.
 3. **Disclosure Timeline**: We aim to resolve critical vulnerabilities within 48 hours and coordinate a public advisory on GitHub.

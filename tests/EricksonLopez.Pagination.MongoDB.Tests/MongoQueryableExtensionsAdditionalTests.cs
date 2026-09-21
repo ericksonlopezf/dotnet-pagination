@@ -23,29 +23,29 @@ public class MongoQueryableExtensionsAdditionalTests
     {
         var users = new List<User> { new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var sorted = query.ApplySort(default);
         sorted.Should().BeSameAs(query);
     }
-    
+
     [Fact]
     public void ApplySort_EmptySort_WithDefault_UsesDefault()
     {
         var users = new List<User> { new User { Id = 1, Name = "Alice" }, new User { Id = 2, Name = "Bob" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var sorted = query.ApplySort(default, EricksonLopez.Pagination.Abstractions.SortDirection.Descending, e => e.Id);
         var result = sorted.ToList();
         result[0].Id.Should().Be(2);
         result[1].Id.Should().Be(1);
     }
-    
+
     [Fact]
     public void ApplySort_Ascending_ValidProperty()
     {
         var users = new List<User> { new User { Id = 2, Name = "Bob" }, new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var sorted = query.ApplySort(new EricksonLopez.Pagination.Abstractions.SortParameters { Value = "Name asc" });
         var result = sorted.ToList();
         result[0].Name.Should().Be("Alice");
@@ -57,60 +57,60 @@ public class MongoQueryableExtensionsAdditionalTests
     {
         var users = new List<User> { new User { Id = 1, Name = "Alice" }, new User { Id = 2, Name = "Bob" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var sorted = query.ApplySort(new EricksonLopez.Pagination.Abstractions.SortParameters { Value = "Name desc" });
         var result = sorted.ToList();
         result[0].Name.Should().Be("Bob");
         result[1].Name.Should().Be("Alice");
     }
-    
+
     [Fact]
     public void ApplySort_MultipleProperties()
     {
-        var users = new List<User> 
-        { 
-            new User { Id = 1, Name = "Alice" }, 
+        var users = new List<User>
+        {
+            new User { Id = 1, Name = "Alice" },
             new User { Id = 2, Name = "Alice" },
             new User { Id = 3, Name = "Bob" }
         };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var sorted = query.ApplySort(new EricksonLopez.Pagination.Abstractions.SortParameters { Value = "Name asc, Id desc" });
         var result = sorted.ToList();
         result[0].Id.Should().Be(2); // Alice Id 2
         result[1].Id.Should().Be(1); // Alice Id 1
         result[2].Id.Should().Be(3); // Bob Id 3
     }
-    
+
     [Fact]
     public void ApplySort_MultipleProperties_Ascending()
     {
-        var users = new List<User> 
-        { 
-            new User { Id = 2, Name = "Alice" }, 
+        var users = new List<User>
+        {
+            new User { Id = 2, Name = "Alice" },
             new User { Id = 1, Name = "Alice" },
             new User { Id = 3, Name = "Bob" }
         };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var sorted = query.ApplySort(new EricksonLopez.Pagination.Abstractions.SortParameters { Value = "Name desc, Id asc" });
         var result = sorted.ToList();
         result[0].Name.Should().Be("Bob");
         result[1].Id.Should().Be(1);
         result[2].Id.Should().Be(2);
     }
-    
+
     [Fact]
     public void ApplySort_EmptyPart_IsIgnored()
     {
-        var users = new List<User> 
-        { 
-            new User { Id = 1, Name = "Alice" }, 
+        var users = new List<User>
+        {
+            new User { Id = 1, Name = "Alice" },
             new User { Id = 2, Name = "Alice" },
             new User { Id = 3, Name = "Bob" }
         };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var sorted = query.ApplySort(new EricksonLopez.Pagination.Abstractions.SortParameters { Value = "Name asc, , Id desc" });
         var result = sorted.ToList();
         result[0].Id.Should().Be(2);
@@ -123,32 +123,32 @@ public class MongoQueryableExtensionsAdditionalTests
     {
         var users = new List<User> { new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var sorted = query.ApplySort(new EricksonLopez.Pagination.Abstractions.SortParameters { Value = "InvalidProperty" });
         sorted.Should().BeSameAs(query); // Should ignore invalid property
     }
-    
+
     [Fact]
     public void ApplyFilter_Empty_ReturnsSource()
     {
         var users = new List<User> { new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var filtered = query.ApplyFilter(new FilterParameters());
         filtered.Should().BeSameAs(query);
     }
-    
+
     [Fact]
     public void ApplyFilter_Valid_AppliesFilter()
     {
         var users = new List<User> { new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var filter = new FilterParameters { Value = "Name=Alice" };
         var filtered = query.ApplyFilter(filter);
         filtered.Should().NotBeSameAs(query);
     }
-    
+
     internal sealed class NonComparableClass { public int Id { get; set; } }
 
     [Fact]
@@ -169,7 +169,7 @@ public class MongoQueryableExtensionsAdditionalTests
     {
         var users = new List<EntityWithTimeSpan> { new EntityWithTimeSpan { Id = 1, Duration = TimeSpan.FromMinutes(5) } };
         var query = new MockMongoQueryable<EntityWithTimeSpan>(users);
-        
+
         var filter = new FilterParameters { Value = "Duration=00:05:00" };
         var filtered = query.ApplyFilter(filter);
         filtered.Should().NotBeSameAs(query);
@@ -184,13 +184,13 @@ public class MongoQueryableExtensionsAdditionalTests
         var users = new List<User> { new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users);
         var factory = NSubstitute.Substitute.For<IPagedListFactory>();
-        
+
         factory.CreatePagedList<User>(Arg.Any<IReadOnlyList<User>>(), Arg.Any<long?>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<bool?>())
                .Returns(new PagedList<User>(users, 1, 1, 1));
 
         var parameters = new PaginationParameters { Page = 1, PageSize = 10 };
         var pagedList = await query.ToPagedListAsync(parameters, factory: factory);
-        
+
         factory.ReceivedWithAnyArgs().CreatePagedList<User>(default!, default, default, default, default);
     }
 
@@ -200,13 +200,13 @@ public class MongoQueryableExtensionsAdditionalTests
         var users = new List<User> { new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users);
         var factory = NSubstitute.Substitute.For<IPagedListFactory>();
-        
+
         factory.CreatePagedList<int>(Arg.Any<IReadOnlyList<int>>(), Arg.Any<long?>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<bool?>())
                .Returns(new PagedList<int>(new[] { 1 }, 1, 1, 1));
 
         var parameters = new PaginationParameters { Page = 1, PageSize = 10 };
         var pagedList = await query.ToPagedListAsync(u => u.Id, parameters, factory: factory);
-        
+
         factory.ReceivedWithAnyArgs().CreatePagedList<int>(default!, default, default, default, default);
     }
 
@@ -216,10 +216,10 @@ public class MongoQueryableExtensionsAdditionalTests
         var users = new List<User> { new User { Id = 1, Name = "Alice" }, new User { Id = 2, Name = "Bob" }, new User { Id = 3, Name = "Charlie" } };
         var query = new MockMongoQueryable<User>(users);
         var factory = Substitute.For<ICursorPagedListFactory>();
-        
+
         var parameters = new CursorPaginationParameters { First = 1 };
         var pagedList = await query.ToCursorPagedListAsync(u => u.Id, parameters, factory: factory);
-        
+
         factory.ReceivedWithAnyArgs().CreateCursorPagedList<User>(default!, default, default, default, default, default);
     }
 
@@ -228,7 +228,7 @@ public class MongoQueryableExtensionsAdditionalTests
     {
         var users = new List<User> { new User { Id = 2, Name = "Bob" }, new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var sorted = query.ApplySort(default, EricksonLopez.Pagination.Abstractions.SortDirection.Ascending, e => e.Id);
         var result = sorted.ToList();
         result[0].Id.Should().Be(1);
@@ -240,7 +240,7 @@ public class MongoQueryableExtensionsAdditionalTests
     {
         var users = new List<User> { new User { Id = 2, Name = "Bob" }, new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var sorted = query.ApplySort(new EricksonLopez.Pagination.Abstractions.SortParameters { Value = "Invalid1, Invalid2" }, EricksonLopez.Pagination.Abstractions.SortDirection.Ascending, e => e.Id);
         var result = sorted.ToList();
         result[0].Id.Should().Be(1);
@@ -286,7 +286,7 @@ public class MongoQueryableExtensionsAdditionalTests
         var query = new MockMongoQueryable<User>(users);
         var parameters = new PaginationParameters { Page = 1, PageSize = 10 };
         var enumerable1 = query.OrderBy(u => u.Id).ToPagedAsyncEnumerable(parameters);
-        
+
         var list1 = new List<User>();
         await foreach (var item in enumerable1) list1.Add(item);
         list1.Should().HaveCount(1);
@@ -299,7 +299,7 @@ public class MongoQueryableExtensionsAdditionalTests
         var query = new MockMongoQueryable<User>(users);
         var parameters = new PaginationParameters { Page = 2, PageSize = 10 };
         var enumerable1 = query.OrderBy(u => u.Id).ToPagedAsyncEnumerable(parameters);
-        
+
         var list1 = new List<User>();
         await foreach (var item in enumerable1) list1.Add(item);
         list1.Should().BeEmpty();
@@ -342,7 +342,7 @@ public class MongoQueryableExtensionsAdditionalTests
 
         var pagedList = await query.ToPagedListAsync(
             selector: u => u.Id,
-            parameters: parameters, 
+            parameters: parameters,
             countTotal: false);
 
         pagedList.Count.Should().Be(10);
@@ -359,7 +359,7 @@ public class MongoQueryableExtensionsAdditionalTests
 
         var pagedList = await query.ToPagedListAsync(
             selector: u => u.Id,
-            parameters: parameters, 
+            parameters: parameters,
             countTotal: false);
 
         pagedList.Count.Should().Be(5);
@@ -405,10 +405,10 @@ public class MongoQueryableExtensionsAdditionalTests
     {
         var users = new List<User> { new User { Id = 1, Name = "A" }, new User { Id = 2, Name = "B" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         // Request page size 2, exactly matching the number of items
         var parameters = PaginationParameters.Create(1, 2);
-        
+
         // This will query Take(3) and get exactly 2 items.
         // items.Count > pageSize (2 > 2) is false.
         // Mutant >= will be true, and try to RemoveAt(2) which throws exception.
@@ -423,9 +423,9 @@ public class MongoQueryableExtensionsAdditionalTests
     {
         var users = new List<User> { new User { Id = 1, Name = "A" }, new User { Id = 2, Name = "B" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var parameters = PaginationParameters.Create(1, 2);
-        
+
         var pagedList = await query.ToPagedListAsync(u => u.Id, parameters, countTotal: false);
 
         pagedList.HasNextPage.Should().BeFalse();
@@ -461,7 +461,7 @@ public class MongoQueryableExtensionsAdditionalTests
     {
         var users = new List<User> { new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         var longName = new string('A', 129);
         var sorted = query.ApplySort(new EricksonLopez.Pagination.Abstractions.SortParameters { Value = longName });
         sorted.Should().BeSameAs(query);
@@ -472,11 +472,11 @@ public class MongoQueryableExtensionsAdditionalTests
     {
         var users = new List<User> { new User { Id = 1, Name = "Alice" } };
         var query = new MockMongoQueryable<User>(users);
-        
+
         // A filter that parses to an empty/null expression (e.g. invalid syntax)
         var filter = new FilterParameters { Value = "InvalidSyntax" };
         var filtered = query.ApplyFilter(filter, unknownFieldBehavior: EricksonLopez.Pagination.FilterUnknownFieldBehavior.Ignore);
-        
+
         // The predicate is null because there are no valid clauses
         filtered.Should().BeSameAs(query);
     }

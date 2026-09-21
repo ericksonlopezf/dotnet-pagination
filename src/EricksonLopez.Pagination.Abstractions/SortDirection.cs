@@ -10,7 +10,7 @@ public enum SortDirection
     /// Sorts results in ascending order, from smallest to largest.
     /// </summary>
     Ascending,
-    
+
     /// <summary>
     /// Sorts results in descending order, from largest to smallest.
     /// </summary>

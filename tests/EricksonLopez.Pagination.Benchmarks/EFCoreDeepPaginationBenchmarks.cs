@@ -34,13 +34,11 @@ public class EFCoreDeepPaginationBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-#pragma warning disable CS0618
-        _postgreSqlContainer = new PostgreSqlBuilder()
+        _postgreSqlContainer = new PostgreSqlBuilder("postgres:16-alpine")
             .WithDatabase("benchmark_db")
             .WithUsername("postgres")
             .WithPassword("postgres")
             .Build();
-#pragma warning restore CS0618
 
         _postgreSqlContainer.StartAsync().GetAwaiter().GetResult();
 

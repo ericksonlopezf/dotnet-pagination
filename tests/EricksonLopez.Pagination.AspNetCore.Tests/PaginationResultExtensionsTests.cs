@@ -148,7 +148,7 @@ public class PaginationResultExtensionsTests
         var response = pagedList.ToPagedResponse(request);
         var etagOptions = new PaginationETagOptions { CustomETagFactory = _ => "\"custom-etag\"" };
         var context = new DefaultHttpContext();
-        
+
         response.ApplyETagHeaders(context, etagOptions: etagOptions);
 
         context.Response.Headers.ETag.ToString().Should().Be("\"custom-etag\"");
@@ -176,7 +176,7 @@ public class PaginationResultExtensionsTests
         var pagedList = CursorPagedList<string>.Create(new[] { "Item1" }, "start", "end", false, false);
         var response = pagedList.ToCursorPagedResponse(x => x);
         var etagOptions = new PaginationETagOptions { CustomCursorETagFactory = _ => "custom-cursor-etag" };
-        
+
         var context = new DefaultHttpContext();
         response.ApplyETagHeaders(context, etagOptions: etagOptions);
 

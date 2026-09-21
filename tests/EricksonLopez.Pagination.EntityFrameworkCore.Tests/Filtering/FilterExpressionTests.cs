@@ -17,7 +17,7 @@ public class FilterExpressionTests
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        
+
         public TestStatus Status { get; set; }
         public char Initial { get; set; }
     }
@@ -128,11 +128,11 @@ public class FilterExpressionTests
     {
         var parameters = FilterParameters.From("Unknown=5");
         var expr = FilterExpression.Build<TestEntity>(parameters, unknownFieldBehavior: FilterUnknownFieldBehavior.Ignore);
-        
+
         // When ignored and it's the only one, it returns null expression
         expr.Should().BeNull();
     }
-    
+
     [Fact]
     public void Build_WithUnknownField_ThrowBehavior_Throws()
     {
@@ -156,7 +156,7 @@ public class FilterExpressionTests
         var act = () => FilterExpression.Build<TestEntity>(parameters, unknownFieldBehavior: FilterUnknownFieldBehavior.ThrowException);
         act.Should().Throw<ArgumentException>();
     }
-    
+
     [Fact]
     public void Build_EmptyParameters_ReturnsNull()
     {
@@ -164,7 +164,7 @@ public class FilterExpressionTests
         var expr = FilterExpression.Build<TestEntity>(parameters);
         expr.Should().BeNull();
     }
-    
+
     [Fact]
     public void Build_StripsQuotesFromStringValue()
     {
@@ -230,9 +230,9 @@ public class FilterExpressionTests
     {
         var parameters = FilterParameters.From(filterString);
         var expr = FilterExpression.Build<TestEntity>(parameters);
-        
+
         var func = expr!.Compile();
-        
+
         var entity = new TestEntity { Name = expectedName };
         func(entity).Should().BeTrue();
     }

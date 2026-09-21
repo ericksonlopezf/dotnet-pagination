@@ -1,7 +1,10 @@
 # ADR-0036 — Parallel Keyset Partitioning (Multi-Cursor ETL)
 
 ## Status
-**Accepted** — August 2026
+Accepted — August 2026
+
+## Date
+2026-09-04
 
 ## Context
 High-throughput background jobs, data pipelines, and parallel batch workers (e.g. `Parallel.ForEachAsync`, distributed job runners) need to partition a dataset across $K$ concurrent workers. Doing so with offset pagination causes severe database scanning and lock contention.

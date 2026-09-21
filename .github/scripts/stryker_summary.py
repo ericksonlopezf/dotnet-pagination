@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# Copyright © Erickson Lopez. MIT License.
 """
 Stryker.NET Summary & Quality Gate Processor
 Parses Stryker.NET mutation testing outputs, generates GitHub Step Summary,
@@ -214,7 +215,7 @@ def main():
     step_summary_path = os.environ.get("GITHUB_STEP_SUMMARY", "")
     now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
-    print(f"=== Stryker.NET Summary Processor ===")
+    print("=== Stryker.NET Summary Processor ===")
     print(f"Commit SHA: {commit_sha}")
     print(f"Profile:    {profile}")
     print(f"Timestamp:  {now_utc}")

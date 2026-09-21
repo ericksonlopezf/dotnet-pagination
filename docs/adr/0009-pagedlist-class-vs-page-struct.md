@@ -3,6 +3,9 @@
 ## Status
 Accepted — August 2026
 
+## Date
+2026-09-04
+
 ## Context
 
 An earlier design specification proposed `Page<T>` as a `struct` (value type) for zero-allocation pagination results. The current implementation uses `PagedList<T>` as a `class` (reference type).

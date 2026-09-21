@@ -23,8 +23,7 @@ public class PostgreSqlKeysetIntegrationTests : IAsyncLifetime
     {
         try
         {
-            _dbContainer = new PostgreSqlBuilder()
-                .WithImage("postgres:15-alpine")
+            _dbContainer = new PostgreSqlBuilder("postgres:15-alpine")
                 .Build();
             await _dbContainer.StartAsync();
         }
@@ -74,7 +73,7 @@ public class PostgreSqlKeysetIntegrationTests : IAsyncLifetime
         Skip.If(!_dockerAvailable || _dbContext == null, "Docker is not available or PostgreSQL container failed to start.");
 
         var parameters = new CursorPaginationParameters { First = 10 };
-        
+
         var pagedList = await _dbContext!.Users
             .Keyset(parameters)
             .Ascending(u => u.Id)
@@ -92,7 +91,7 @@ public class PostgreSqlKeysetIntegrationTests : IAsyncLifetime
             .Keyset(parameters2)
             .Ascending(u => u.Id)
             .ToCursorPagedListAsync();
-                
+
         pagedList2.Count.Should().Be(10);
         pagedList2[0].Name.Should().Be("User 011");
         pagedList2[pagedList2.Count - 1].Name.Should().Be("User 020");
@@ -118,7 +117,7 @@ public class PostgreSqlKeysetIntegrationTests : IAsyncLifetime
         Skip.If(!_dockerAvailable || _dbContext == null, "Docker is not available or PostgreSQL container failed to start.");
 
         var parameters = new CursorPaginationParameters { First = 10 };
-        
+
         var pagedList = await _dbContext!.Users
             .Keyset(parameters)
             .Ascending(u => u.Name)
@@ -134,7 +133,7 @@ public class PostgreSqlKeysetIntegrationTests : IAsyncLifetime
             .Keyset(parameters2)
             .Ascending(u => u.Name)
             .ToCursorPagedListAsync();
-                
+
         pagedList2.Count.Should().Be(10);
         pagedList2[0].Name.Should().Be("User 011");
     }

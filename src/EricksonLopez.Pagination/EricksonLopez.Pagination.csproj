@@ -10,6 +10,7 @@
     <LangVersion>latest</LangVersion>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
+    <PackageTags>$(CommonPackageTags);keyset-pagination;cursor-pagination;offset-pagination;paged-list;cursor;dynamic-filtering;native-aot;trimming</PackageTags>
   </PropertyGroup>
   
   <ItemGroup>

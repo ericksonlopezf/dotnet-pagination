@@ -31,27 +31,27 @@ public sealed class CursorPaginationParametersModelBinder : IModelBinder
         var beforeValue = bindingContext.ValueProvider.GetValue("before");
 
         int? first = null;
-        if (firstValue.FirstValue is { } f && int.TryParse(f, out var fi))
+        if (firstValue.FirstValue is { } f && int.TryParse(f, out var parsedFirst))
         {
-            if (fi < 1)
+            if (parsedFirst < 1)
             {
                 bindingContext.ModelState.AddModelError("first", "first must be greater than or equal to 1.");
                 bindingContext.Result = ModelBindingResult.Failed();
                 return Task.CompletedTask;
             }
-            first = fi;
+            first = parsedFirst;
         }
 
         int? last = null;
-        if (lastValue.FirstValue is { } l && int.TryParse(l, out var la))
+        if (lastValue.FirstValue is { } l && int.TryParse(l, out var parsedLast))
         {
-            if (la < 1)
+            if (parsedLast < 1)
             {
                 bindingContext.ModelState.AddModelError("last", "last must be greater than or equal to 1.");
                 bindingContext.Result = ModelBindingResult.Failed();
                 return Task.CompletedTask;
             }
-            last = la;
+            last = parsedLast;
         }
 
         var maxPageSize = _options.MaxPageSize;

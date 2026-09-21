@@ -40,7 +40,7 @@ public static class ICursorPagedListExtensions
         {
             mappedItems[i] = selector(source[i]);
         }
-        
+
         return new CursorPagedList<TResult>(mappedItems, source.StartCursor, source.EndCursor, source.HasPreviousPage, source.HasNextPage);
     }
 }

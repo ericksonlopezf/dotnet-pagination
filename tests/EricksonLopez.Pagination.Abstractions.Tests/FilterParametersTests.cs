@@ -44,7 +44,7 @@ public class FilterParametersTests
         success.Should().BeTrue();
         p.Value.Should().Be("age>=18");
     }
-    
+
     [Theory]
     [InlineData("name=John")]
     [InlineData("name!=John")]
@@ -104,7 +104,7 @@ public class FilterParametersTests
         parameters.HasValue.Should().BeFalse();
         parameters.Value.Should().BeNull();
     }
-    
+
     [Fact]
     public void TryParse_MissingOperator_ReturnsFalse()
     {
@@ -123,7 +123,7 @@ public class FilterParametersTests
         {
             return true;
         }
-        
+
         var secondParse = FilterParameters.TryParse(firstResult.Value, null, out var secondResult);
         return secondParse && secondResult.Value == firstResult.Value;
     }
@@ -170,7 +170,7 @@ public class FilterParametersTests
         var success = FilterParameters.TryParse(",", null, out var p);
         success.Should().BeFalse();
         p.Value.Should().BeNull();
-        
+
         // Tests the orSegments.Length == 0 check (e.g. string with only pipes in a segment)
         var success2 = FilterParameters.TryParse("name=John,|", null, out var p2);
         success2.Should().BeFalse();
@@ -191,7 +191,7 @@ public class FilterParametersTests
     }
 
 
-    
+
     [Theory]
     [InlineData("!name=John")]
     [InlineData(" name = John ")]

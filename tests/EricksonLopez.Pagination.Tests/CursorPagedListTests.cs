@@ -89,7 +89,7 @@ public class CursorPagedListTests
         var enumerator = pagedList.GetEnumerator();
         enumerator.MoveNext().Should().BeTrue();
         enumerator.Current.Should().Be("A");
-        
+
         // Non-generic enumerator
         var nonGenericEnumerator = ((IEnumerable)pagedList).GetEnumerator();
         nonGenericEnumerator.MoveNext().Should().BeTrue();

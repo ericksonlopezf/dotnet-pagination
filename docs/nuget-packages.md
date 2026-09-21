@@ -22,31 +22,34 @@ All external package versions are centrally managed via `Directory.Packages.prop
 | `EricksonLopez.Pagination.Grpc` | Protobuf messages and gRPC mappings. | `net8.0`, `net9.0`, `net10.0` | ✅ In `publish.yml` | `Google.Protobuf`, `Abstractions` |
 | `EricksonLopez.Pagination.OpenApi` | Swagger/OpenAPI schema filters for paginated models. | `net8.0`, `net9.0`, `net10.0` | ✅ In `publish.yml` | `Swashbuckle.AspNetCore.SwaggerGen`, `Microsoft.OpenApi`, `Core` |
 | `EricksonLopez.Pagination.Cosmos` | Azure Cosmos DB pagination extensions. | `net8.0`, `net9.0`, `net10.0` | ✅ In `publish.yml` | `Microsoft.Azure.Cosmos`, `Core` |
-| `EricksonLopez.Pagination.Result` | Railway-Oriented Programming integration with `EricksonLopez.Result`. | `net8.0`, `net9.0`, `net10.0` | ✅ In `publish.yml` | `Core`, `Abstractions` |
+| `EricksonLopez.Pagination.Result` | Railway-Oriented Programming integration with `EricksonLopez.Result`. | `net8.0`, `net9.0`, `net10.0` | ✅ In `publish.yml` | `Abstractions`, `EricksonLopez.Result` |
 | `EricksonLopez.Pagination.SourceGenerators` | AOT-friendly cursor decoders generator. | `netstandard2.0` | ✅ In `publish.yml` | `Microsoft.CodeAnalysis.CSharp` (compile-time) |
-| `EricksonLopez.Pagination.Analyzers` | Roslyn analyzers (`PAG001`–`PAG008`). | `netstandard2.0` | ✅ In `publish.yml` | `Microsoft.CodeAnalysis.CSharp` (compile-time) |
+| `EricksonLopez.Pagination.Analyzers` | Roslyn analyzers (`PAG002`–`PAG008`, `PAG001` reserved). | `netstandard2.0` | ✅ In `publish.yml` | `Microsoft.CodeAnalysis.CSharp` (compile-time) |
 
 > [!NOTE]
 > The `SourceGenerators` and `Analyzers` packages target `netstandard2.0` because Roslyn analyzers must run inside the compiler host process. They do not add runtime dependencies to consuming projects.
 
 ## AOT and Trimming Compatibility
 
-| Package | AOT Compatible | Trimmable |
-|---------|---------------|-----------|
-| `Abstractions` | ✅ | ✅ |
-| `Core` | ✅ | ✅ |
-| `AspNetCore` | ✅ | ✅ |
-| `EntityFrameworkCore` | ❌ (`Expression.Compile()`) | ✅ |
-| `Dapper` | Not declared | Not declared |
-| `LinqToDB` | ❌ (reflection-based query translation) | Not declared |
-| `MongoDB` | ❌ (explicit) | Not declared |
-| `Redis` | ✅ | ✅ |
-| `Relay` | ✅ | ✅ |
-| `Elasticsearch` | ❌ (dynamic serializers) | Not declared |
-| `Blazor` | ✅ | Not declared |
-| `Grpc` | ✅ | Not declared |
-| `OpenApi` | Not declared | Not declared |
-| `Cosmos` | Not declared | Not declared |
+| Package | AOT Compatible | Trimmable | Notes |
+|---------|---------------|-----------|---|
+| `Abstractions` | ✅ | ✅ | Pure contracts, zero runtime reflection. |
+| `Core` | ✅ | ✅ | Core implementations and cryptographic encoders. |
+| `AspNetCore` | ✅ | ✅ | Includes JSON serializer contexts for Native AOT. |
+| `EntityFrameworkCore` | ❌ | ✅ | Dynamic LINQ expression trees rely on `Expression.Compile()`. |
+| `Dapper` | Not declared | Not declared | Dynamic mapping relies on runtime IL emission in Dapper. |
+| `LinqToDB` | ❌ | ✅ | Expression tree compilation (`IL3050`/`IL2026`). |
+| `MongoDB` | ❌ | Not declared | MongoDB BSON serializer uses dynamic reflection. |
+| `Redis` | ✅ | ✅ | AOT compatible with StackExchange.Redis. |
+| `Relay` | ✅ | ✅ | Zero-reflection GraphQL Relay specification models. |
+| `Elasticsearch` | ❌ | Not declared | Elasticsearch 8.x client serializer dynamic dispatch. |
+| `Blazor` | ✅ | Not declared | Headless Razor components fully AOT-ready. |
+| `Grpc` | ✅ | Not declared | Google Protobuf generated classes are AOT-compatible. |
+| `OpenApi` | Not declared | Not declared | Swashbuckle reflection-based schema generators. |
+| `Cosmos` | ❌ | Not declared | Azure Cosmos DB SDK dynamic Newtonsoft/System.Text.Json paths. |
+| `Result` | ✅ | ✅ | Struct-based zero-allocation Result pattern integration. |
+| `SourceGenerators` | N/A | N/A | Compile-time Roslyn generator (`netstandard2.0`). |
+| `Analyzers` | N/A | N/A | Compile-time Roslyn analyzer (`netstandard2.0`). |
 
 ## Public API Surface Summary
 
@@ -75,7 +78,7 @@ All external package versions are centrally managed via `Directory.Packages.prop
 
 ## Breaking Changes & Semantic Versioning
 
-* The project adheres to strict **Semantic Versioning** via `MinVer`.
+* The project adheres to strict **Semantic Versioning** via `Release Please`.
 * Major version bumps are required when changing contracts in `EricksonLopez.Pagination.Abstractions` due to downstream impacts on EF Core, Dapper, and all other provider extensions.
 * Package API validation is enabled via `<EnablePackageValidation>true</EnablePackageValidation>` with a baseline version of `1.0.0` for all packable projects.
 

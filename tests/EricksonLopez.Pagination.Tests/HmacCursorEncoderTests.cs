@@ -107,7 +107,7 @@ public class HmacCursorEncoderTests
 
         // Act
         Action act = () => encoder.Decode(base64WithoutDot);
-        
+
         // Assert
         act.Should().Throw<InvalidPaginationCursorException>();
     }
@@ -146,7 +146,7 @@ public class HmacCursorEncoderTests
     {
         using var hmac = new HmacCursorEncoder("01234567890123456789012345678901");
         var base64WithLeadingDot = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(".something"));
-        
+
         Action act = () => hmac.Decode(base64WithLeadingDot);
         act.Should().Throw<InvalidPaginationCursorException>();
     }
@@ -209,7 +209,7 @@ public class HmacCursorEncoderTests
     public void Encode_ShouldReturnNullOrEmpty_WhenDataIsNullOrEmpty()
     {
         using var encoder = new HmacCursorEncoder("my-super-secret-key-16-bytes-1234567890123456");
-        
+
         encoder.Encode(null).Should().BeNull();
         encoder.Encode("").Should().Be("");
     }
@@ -218,7 +218,7 @@ public class HmacCursorEncoderTests
     public void Decode_ShouldReturnNullOrEmpty_WhenCursorIsNullOrEmpty()
     {
         using var encoder = new HmacCursorEncoder("my-super-secret-key-16-bytes-1234567890123456");
-        
+
         encoder.Decode(null).Should().BeNull();
         encoder.Decode("").Should().Be("");
     }
@@ -227,7 +227,7 @@ public class HmacCursorEncoderTests
     public void Decode_ShouldThrowInvalidPaginationCursorException_WhenCursorIsInvalidBase64Url()
     {
         using var encoder = new HmacCursorEncoder("my-super-secret-key-16-bytes-1234567890123456");
-        
+
         Action act = () => encoder.Decode("invalid!@#$%^&*()");
 
         act.Should().Throw<InvalidPaginationCursorException>();
@@ -248,7 +248,7 @@ public class HmacCursorEncoderTests
     {
         using var encoder = new HmacCursorEncoder("my-super-secret-key-32-bytes-long-1234", timeToLive: TimeSpan.FromMinutes(5));
         var encoded = encoder.Encode("test_cursor");
-        
+
         var decoded = encoder.Decode(encoded);
         decoded.Should().Be("test_cursor");
     }
@@ -260,11 +260,11 @@ public class HmacCursorEncoderTests
         // (not the generic InvalidPaginationCursorException) when the TTL has elapsed.
         // This allows callers to differentiate between expiry (operational) and tampering (security).
         using var encoder = new HmacCursorEncoder(
-            "my-super-secret-key-32-bytes-long-1234", 
+            "my-super-secret-key-32-bytes-long-1234",
             timeToLive: TimeSpan.FromSeconds(-2),
             clockSkewTolerance: TimeSpan.Zero); // Must be zero so it expires instantly instead of falling into the 30s grace period
         var encoded = encoder.Encode("test_cursor");
-        
+
         Action act = () => encoder.Decode(encoded);
         act.Should().Throw<EricksonLopez.Pagination.Abstractions.ExpiredPaginationCursorException>()
            .Which.ExpiredAt.Should().BeBefore(DateTimeOffset.UtcNow);
@@ -277,11 +277,11 @@ public class HmacCursorEncoderTests
         // Existing catch (InvalidPaginationCursorException) blocks must continue to catch expiry events
         // without modification — backward compatibility guarantee.
         using var encoder = new HmacCursorEncoder(
-            "my-super-secret-key-32-bytes-long-1234", 
+            "my-super-secret-key-32-bytes-long-1234",
             timeToLive: TimeSpan.FromSeconds(-2),
             clockSkewTolerance: TimeSpan.Zero);
         var encoded = encoder.Encode("test_cursor");
-        
+
         Action act = () => encoder.Decode(encoded);
         act.Should().Throw<EricksonLopez.Pagination.Abstractions.InvalidPaginationCursorException>(); // base type still catches it
     }
@@ -291,7 +291,7 @@ public class HmacCursorEncoderTests
     {
         var encoder = new HmacCursorEncoder("my-super-secret-key-32-bytes-long-1234");
         encoder.Dispose();
-        
+
         Action act = () => encoder.Encode("test");
         act.Should().Throw<ObjectDisposedException>();
     }
@@ -301,7 +301,7 @@ public class HmacCursorEncoderTests
     {
         var encoder = new HmacCursorEncoder("my-super-secret-key-32-bytes-long-1234");
         encoder.Dispose();
-        
+
         Action act = () => encoder.Decode("test");
         act.Should().Throw<ObjectDisposedException>();
     }
@@ -312,10 +312,10 @@ public class HmacCursorEncoderTests
         using var encoder = new HmacCursorEncoder("my-super-secret-key-32-bytes-long-1234");
         // maxByteCount > 768 requires string length > 256 for UTF8, let's use a 1000 char string
         var largeCursor = new string('A', 1000);
-        
+
         var encoded = encoder.Encode(largeCursor);
         var decoded = encoder.Decode(encoded);
-        
+
         decoded.Should().Be(largeCursor);
     }
 
@@ -324,7 +324,7 @@ public class HmacCursorEncoderTests
     {
         const string key = "my-super-secret-key-32-bytes-long-1234";
         using var hmac = new HmacCursorEncoder(key);
-        
+
         // Hand-craft a T-prefixed payload with invalid TTL format: T<UnixTimeInSeconds>:<RawCursor>
         var cursor = CreateSignedOpaqueCursor(key, "Tinvalidttl:mycursor");
 
@@ -337,7 +337,7 @@ public class HmacCursorEncoderTests
     {
         const string key = "my-super-secret-key-32-bytes-long-1234";
         using var hmac = new HmacCursorEncoder(key);
-        
+
         // Hand-craft a T-prefixed payload missing the colon
         var cursor = CreateSignedOpaqueCursor(key, "T99999999999");
 
@@ -357,7 +357,7 @@ public class HmacCursorEncoderTests
         // Deterministically tests that URL-safe characters ('-', '_') are produced and properly decoded
         // without '+' or '/' characters in the outer representation.
         using var encoder = new HmacCursorEncoder("my-super-secret-key-32-bytes-long-1234");
-        
+
         var encoded = encoder.Encode(rawPayload);
         encoded.Should().NotBeNull();
         encoded.Should().NotContain("+").And.NotContain("/");
@@ -391,7 +391,7 @@ public class HmacCursorEncoderTests
     {
         const string key = "my-super-secret-key-32-bytes-long-1234";
         using var hmac = new HmacCursorEncoder(key);
-        
+
         // Signed R:cursor where colon is at index 1 (no nonce)
         var cursor = CreateSignedOpaqueCursor(key, "R:mycursor");
 
@@ -404,7 +404,7 @@ public class HmacCursorEncoderTests
     {
         const string key = "my-super-secret-key-32-bytes-long-1234";
         using var hmac = new HmacCursorEncoder(key);
-        
+
         // Signed T9999999999:R:mycursor where TR has no nonce
         var cursor = CreateSignedOpaqueCursor(key, "T9999999999:R:mycursor");
 
@@ -417,7 +417,7 @@ public class HmacCursorEncoderTests
     {
         const string key = "my-super-secret-key-32-bytes-long-1234";
         using var hmac = new HmacCursorEncoder(key);
-        
+
         // Signed Z:mycursor (unknown prefix)
         var cursor = CreateSignedOpaqueCursor(key, "Z:mycursor");
 
@@ -448,7 +448,7 @@ public class HmacCursorEncoderTests
     {
         const string key = "my-super-secret-key-32-bytes-long-1234";
         using var encoder = new HmacCursorEncoder(key);
-        
+
         // Future timestamp payload with prefix 'X' instead of 'T'
         long futureEpoch = DateTimeOffset.UtcNow.AddHours(5).ToUnixTimeSeconds();
         var contentToSign = $"X{futureEpoch}:validcursor";
@@ -467,7 +467,7 @@ public class HmacCursorEncoderTests
         var decodedInner = innerEncoder.Decode(encoded)!;
         var dotIndex = decodedInner.LastIndexOf('.');
         var content = decodedInner[..dotIndex];
-        
+
         // Construct a dummy 32-byte valid Base64URL signature that does NOT match
         var fakeHmac = Convert.ToBase64String(new byte[32]).TrimEnd('=').Replace('+', '-').Replace('/', '_');
         var tamperedPayload = content + "." + fakeHmac;
@@ -484,7 +484,7 @@ public class HmacCursorEncoderTests
         // An expired cursor (5 seconds ago) is still valid when within the 30-second clock skew tolerance
         using var encoder = new HmacCursorEncoder("my-super-secret-key-32-bytes-long-1234", timeToLive: TimeSpan.FromSeconds(-5), clockSkewTolerance: clockSkew);
         var encoded = encoder.Encode("skew-test-cursor")!;
-        
+
         var decoded = encoder.Decode(encoded);
         decoded.Should().Be("skew-test-cursor");
     }
@@ -495,10 +495,10 @@ public class HmacCursorEncoderTests
         var store = new TrackingReplayStore();
         using var encoder = new HmacCursorEncoder("my-super-secret-key-32-bytes-long-1234", replayStore: store, timeToLive: TimeSpan.FromMinutes(10));
         var encoded = encoder.Encode("replay-ttl-cursor")!;
-        
+
         var decoded = encoder.Decode(encoded);
         decoded.Should().Be("replay-ttl-cursor");
-        
+
         store.LastNonce.Should().NotBeNull();
         store.LastNonce!.Length.Should().Be(32);
         Guid.TryParseExact(store.LastNonce, "N", out _).Should().BeTrue();
@@ -510,10 +510,10 @@ public class HmacCursorEncoderTests
         var store = new TrackingReplayStore();
         using var encoder = new HmacCursorEncoder("my-super-secret-key-32-bytes-long-1234", replayStore: store, timeToLive: null);
         var encoded = encoder.Encode("replay-noturn-cursor")!;
-        
+
         var decoded = encoder.Decode(encoded);
         decoded.Should().Be("replay-noturn-cursor");
-        
+
         store.LastNonce.Should().NotBeNull();
         store.LastNonce!.Length.Should().Be(32);
         Guid.TryParseExact(store.LastNonce, "N", out _).Should().BeTrue();
@@ -583,6 +583,139 @@ public class HmacCursorEncoderTests
 
         var decoded = encoder.Decode(encoded);
         decoded.Should().Be(largePayload);
+    }
+
+    [Fact]
+    public void Encode_WithTenantContext_DecodesSuccessfullyWhenTenantMatches()
+    {
+        string currentTenant = "tenant-alpha";
+        using var encoder = new HmacCursorEncoder(
+            "my-super-secret-key-32-bytes-long-1234",
+            tenantContextProvider: () => currentTenant);
+
+        var encoded = encoder.Encode("item_99");
+        encoded.Should().NotBeNullOrEmpty();
+
+        var decoded = encoder.Decode(encoded);
+        decoded.Should().Be("item_99");
+    }
+
+    [Fact]
+    public void Decode_WhenTenantMismatches_ThrowsInvalidPaginationCursorException()
+    {
+        using var encoderTenantA = new HmacCursorEncoder(
+            "my-super-secret-key-32-bytes-long-1234",
+            tenantContextProvider: () => "tenant-alpha");
+
+        using var encoderTenantB = new HmacCursorEncoder(
+            "my-super-secret-key-32-bytes-long-1234",
+            tenantContextProvider: () => "tenant-beta");
+
+        var encodedA = encoderTenantA.Encode("item_99");
+
+        var act = () => encoderTenantB.Decode(encodedA);
+
+        act.Should().Throw<InvalidPaginationCursorException>()
+            .WithMessage("*invalid for the current tenant context*");
+    }
+
+    [Fact]
+    public void Decode_WhenTenantExpectedButCursorHasNoTenant_ThrowsInvalidPaginationCursorException()
+    {
+        using var encoderWithoutTenant = new HmacCursorEncoder("my-super-secret-key-32-bytes-long-1234");
+        using var encoderWithTenant = new HmacCursorEncoder(
+            "my-super-secret-key-32-bytes-long-1234",
+            tenantContextProvider: () => "tenant-alpha");
+
+        var encoded = encoderWithoutTenant.Encode("item_123");
+
+        var act = () => encoderWithTenant.Decode(encoded);
+
+        act.Should().Throw<InvalidPaginationCursorException>()
+            .WithMessage("*missing required tenant context*");
+    }
+
+    [Fact]
+    public void Decode_WhenCursorHasTenantButEncoderHasNoTenant_ThrowsInvalidPaginationCursorException()
+    {
+        using var encoderWithTenant = new HmacCursorEncoder(
+            "my-super-secret-key-32-bytes-long-1234",
+            tenantContextProvider: () => "tenant-alpha");
+        using var encoderWithoutTenant = new HmacCursorEncoder("my-super-secret-key-32-bytes-long-1234");
+
+        var encoded = encoderWithTenant.Encode("item_123");
+
+        var act = () => encoderWithoutTenant.Decode(encoded);
+
+        act.Should().Throw<InvalidPaginationCursorException>()
+            .WithMessage("*scoped to a specific tenant but no tenant context was provided*");
+    }
+
+    [Fact]
+    public void Encode_WithTenantAndTtl_DecodesSuccessfullyWhenMatching()
+    {
+        using var encoder = new HmacCursorEncoder(
+            "my-super-secret-key-32-bytes-long-1234",
+            timeToLive: TimeSpan.FromMinutes(5),
+            tenantContextProvider: () => "tenant-alpha");
+
+        var encoded = encoder.Encode("item_ttl");
+        var decoded = encoder.Decode(encoded);
+        decoded.Should().Be("item_ttl");
+
+        using var encoderWrongTenant = new HmacCursorEncoder(
+            "my-super-secret-key-32-bytes-long-1234",
+            timeToLive: TimeSpan.FromMinutes(5),
+            tenantContextProvider: () => "tenant-beta");
+
+        var act = () => encoderWrongTenant.Decode(encoded);
+        act.Should().Throw<InvalidPaginationCursorException>()
+            .WithMessage("*invalid for the current tenant context*");
+    }
+
+    [Fact]
+    public void Encode_WithTenantAndReplayStore_DecodesOnceAndPreventsReplay()
+    {
+        var store = new InMemoryCursorReplayStore();
+        using var encoder = new HmacCursorEncoder(
+            "my-super-secret-key-32-bytes-long-1234",
+            replayStore: store,
+            tenantContextProvider: () => "tenant-alpha");
+
+        var encoded = encoder.Encode("item_replay");
+        var decoded = encoder.Decode(encoded);
+        decoded.Should().Be("item_replay");
+
+        // Second decode with same token should throw ReplayedPaginationCursorException
+        var actReplay = () => encoder.Decode(encoded);
+        actReplay.Should().Throw<ReplayedPaginationCursorException>();
+    }
+
+    // CURSOR-006 / ATTACK-RT-003 Regression Tests — Cursor Length DoS Protection
+    [Fact]
+    public void Decode_WithCursorExceedingMaxLength_ThrowsInvalidPaginationCursorException()
+    {
+        // A cursor > 8192 chars is rejected before any ArrayPool allocation or HMAC computation.
+        using var encoder = new HmacCursorEncoder("my-super-secret-key-32-bytes-long-1234");
+        var oversizedCursor = new string('A', 8193);
+
+        var act = () => encoder.Decode(oversizedCursor);
+
+        act.Should().Throw<InvalidPaginationCursorException>()
+            .WithMessage("*exceeds the maximum allowed length*");
+    }
+
+    [Fact]
+    public void Decode_WithCursorAtExactMaxLength_FailsForContentNotLength()
+    {
+        // A cursor exactly at the limit is processed (but fails for HMAC/content reasons).
+        using var encoder = new HmacCursorEncoder("my-super-secret-key-32-bytes-long-1234");
+        var atLimitCursor = new string('A', 8192);
+
+        var act = () => encoder.Decode(atLimitCursor);
+
+        act.Should().Throw<InvalidPaginationCursorException>()
+            .Which.Message.Should().NotContain("exceeds the maximum allowed length");
     }
 }
 

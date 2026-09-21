@@ -177,7 +177,7 @@ public class PaginationOperationFilterTests
         var filter = new PaginationOperationFilter();
         var operation = new OpenApiOperation();
         var context = CreateContext(methodName);
-        
+
         filter.Apply(operation, context);
 
         var sortByParam = operation.Parameters.FirstOrDefault(p => p.Name == "sortBy");
@@ -201,7 +201,7 @@ public class PaginationOperationFilterTests
             }
         };
         var context = CreateContext(nameof(DummyController.WithSortByAndPagination));
-        
+
         filter.Apply(operation, context);
 
         var sortByParam = operation.Parameters.First(p => p.Name == "sortBy");
@@ -213,7 +213,7 @@ public class PaginationOperationFilterTests
     public void OpenApiParameterDetector_DetectParameters_Null_ReturnsAllFalse()
     {
         var (hasPagination, hasCursorPagination, hasFilter, hasSort) = OpenApiParameterDetector.DetectParameters(null);
-        
+
         hasPagination.Should().BeFalse();
         hasCursorPagination.Should().BeFalse();
         hasFilter.Should().BeFalse();
@@ -240,7 +240,7 @@ public class PaginationOperationFilterTests
             }
         };
         var context = CreateContext(nameof(DummyController.WithAll));
-        
+
         filter.Apply(operation, context);
 
         operation.Parameters.First(p => p.Name == "page").Description.Should().Be("Epage");
@@ -268,7 +268,7 @@ public class PaginationOperationFilterTests
             }
         };
         var context = CreateContext(nameof(DummyController.WithFilter));
-        
+
         filter.Apply(operation, context);
 
         operation.Parameters.Count(p => p.Name == "filter").Should().Be(1);
@@ -288,7 +288,7 @@ public class PaginationOperationFilterTests
             }
         };
         var context = CreateContext(methodName);
-        
+
         filter.Apply(operation, context);
 
         var param = operation.Parameters.First(p => p.Name == paramName);
@@ -309,7 +309,7 @@ public class PaginationOperationFilterTests
             }
         };
         var context = CreateContext(nameof(DummyController.WithPrimitiveTypes));
-        
+
         filter.Apply(operation, context);
 
         operation.Parameters.First(p => p.Name == "page").Description.Should().Contain("1-indexed page number");
@@ -324,7 +324,7 @@ public class PaginationOperationFilterTests
         var filter = new PaginationOperationFilter();
         var operation = new OpenApiOperation { Parameters = new List<OpenApiParameter>() };
         var context = CreateContext(nameof(DummyController.WithSortParameters));
-        
+
         filter.Apply(operation, context);
 
         operation.Parameters.Count(p => p.Name == "sortBy").Should().Be(1);
@@ -351,7 +351,7 @@ public class PaginationOperationFilterTests
             }
         };
         var context = CreateContext(nameof(DummyController.WithAll));
-        
+
         filter.Apply(operation, context);
 
         operation.Parameters.First(p => p.Name == "page").Description.Should().Contain("1-indexed page number");
@@ -361,7 +361,7 @@ public class PaginationOperationFilterTests
         operation.Parameters.First(p => p.Name == "after").Description.Should().Contain("opaque cursor returned from the previous page");
         operation.Parameters.First(p => p.Name == "before").Description.Should().Contain("opaque cursor returned from the next page");
         operation.Parameters.First(p => p.Name == "unrelatedParam").Description.Should().BeNull();
-        
+
         var filterParam = operation.Parameters.First(p => p.Name == "filter");
         filterParam.Description.Should().Contain("comma-separated filter expression").And.Contain("Supported operators:").And.Contain("starts with").And.Contain("Example:");
         filterParam.Example.Should().BeOfType<Microsoft.OpenApi.Any.OpenApiString>().Which.Value.Should().Be("name~=John,age>=18,isActive=true");

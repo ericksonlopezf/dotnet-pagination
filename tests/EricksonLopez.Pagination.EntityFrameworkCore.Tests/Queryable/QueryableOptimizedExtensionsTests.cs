@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using EricksonLopez.Pagination.Abstractions;
 using EricksonLopez.Pagination.EntityFrameworkCore;
+using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
-using EricksonLopez.Pagination.EntityFrameworkCore.Tests.Infrastructure.Builders;
 
 namespace EricksonLopez.Pagination.EntityFrameworkCore.Tests;
 
@@ -47,7 +47,7 @@ public class QueryableOptimizedExtensionsTests
         paged[0].Id.Should().Be(11);
         paged.HasNextPage.Should().BeTrue();
     }
-    
+
     [Fact]
     public async Task ToPagedListDeferredAsync_WithCount_EmptyResult_ReturnsEmptyList()
     {
@@ -61,7 +61,7 @@ public class QueryableOptimizedExtensionsTests
         paged.Count.Should().Be(0);
         paged.HasNextPage.Should().BeFalse();
     }
-    
+
     [Fact]
     public async Task ToPagedListDeferredAsync_WithCount_PageOutOfRange_ReturnsEmptyList()
     {
@@ -90,7 +90,7 @@ public class QueryableOptimizedExtensionsTests
         paged[0].Id.Should().Be(91);
         paged.HasNextPage.Should().BeFalse();
     }
-    
+
     [Fact]
     public async Task ToPagedListDeferredAsync_WithoutCount_WithNextPage_ReturnsHasNextPageTrue()
     {
@@ -103,7 +103,7 @@ public class QueryableOptimizedExtensionsTests
         paged.Count.Should().Be(10);
         paged.HasNextPage.Should().BeTrue();
     }
-    
+
     [Fact]
     public async Task ToPagedListDeferredAsync_WithoutCount_EmptyResult_ReturnsEmptyList()
     {
@@ -116,7 +116,7 @@ public class QueryableOptimizedExtensionsTests
         paged.Count.Should().Be(0);
         paged.HasNextPage.Should().BeFalse();
     }
-    
+
     [Fact]
     public async Task ToPagedListDeferredAsync_LargePageSize_FallsBackToStandardPagination()
     {
@@ -130,7 +130,7 @@ public class QueryableOptimizedExtensionsTests
         paged.Count.Should().Be(100);
         paged.TotalCount.Should().Be(100);
     }
-    
+
     [Fact]
     public async Task ToPagedListDeferredAsync_WithMaxPageSizeApplied_UsesEffectivePageSize()
     {

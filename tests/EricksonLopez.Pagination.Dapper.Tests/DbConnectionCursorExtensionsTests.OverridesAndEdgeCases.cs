@@ -1,5 +1,4 @@
 // Copyright © Erickson Lopez. MIT License.
-#pragma warning disable CS0618
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -54,9 +53,9 @@ public partial class DbConnectionCursorExtensionsTests
         var tokenSource = new CancellationTokenSource();
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int>(
-            sql, 
-            parameters, 
-            keySelector: e => e.Id, 
+            sql,
+            parameters,
+            keySelector: e => e.Id,
             cursorDecoder: s => int.Parse(s),
             param: param,
             transaction: transaction,
@@ -84,9 +83,9 @@ public partial class DbConnectionCursorExtensionsTests
         var encoder = new CustomCursorEncoder();
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, int>(
-            sql, 
-            parameters, 
-            keySelector: e => e.Id, 
+            sql,
+            parameters,
+            keySelector: e => e.Id,
             cursorDecoder: s => int.Parse(s),
             cursorEncoder: encoder);
 
@@ -101,8 +100,8 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id > @Cursor ORDER BY Id LIMIT @__Pagination_Limit__;";
 
         Func<Task> act = async () => await connection.ToCursorPagedListAsync<Entity, int>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => e.Id);
 
         await act.Should().ThrowAsync<InvalidPaginationCursorException>();
@@ -121,7 +120,7 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id > @Cursor ORDER BY Id LIMIT @__Pagination_Limit__;";
 
         Func<Task> act;
-        
+
         if (type == typeof(int))
             act = async () => await connection.ToCursorPagedListAsync<Entity, int>(sql, parameters, e => e.Id);
         else if (type == typeof(Guid))
@@ -130,7 +129,7 @@ public partial class DbConnectionCursorExtensionsTests
             act = async () => await connection.ToCursorPagedListAsync<Entity, short>(sql, parameters, e => 0);
         else if (type == typeof(TimeSpan))
             act = async () => await connection.ToCursorPagedListAsync<Entity, TimeSpan>(sql, parameters, e => TimeSpan.Zero);
-        else 
+        else
             throw new InvalidOperationException("Unknown type");
 
         await act.Should().ThrowAsync<InvalidOperationException>()
@@ -145,9 +144,9 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities WHERE Id > @Cursor ORDER BY Id LIMIT @__Pagination_Limit__;";
 
         Func<Task> act = async () => await connection.ToCursorPagedListAsync<Entity, int>(
-            sql, 
-            parameters, 
-            keySelector: e => e.Id, 
+            sql,
+            parameters,
+            keySelector: e => e.Id,
             cursorEncoder: new NullReturningEncoder());
 
         await act.Should().ThrowAsync<InvalidOperationException>()
@@ -165,8 +164,8 @@ public partial class DbConnectionCursorExtensionsTests
         var sql = "SELECT * FROM Entities ORDER BY Id LIMIT @__Pagination_Limit__;";
 
         var pagedList = await connection.ToCursorPagedListAsync<Entity, DateTime>(
-            sql, 
-            parameters, 
+            sql,
+            parameters,
             keySelector: e => new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
             decoderRegistry: registry);
 
@@ -184,9 +183,9 @@ public partial class DbConnectionCursorExtensionsTests
         cts.Cancel();
 
         var asyncEnumerable = connection.ToCursorPagedAsyncEnumerable<Entity, int>(
-            sql, 
-            parameters, 
-            keySelector: e => e.Id, 
+            sql,
+            parameters,
+            keySelector: e => e.Id,
             cursorDecoder: s => int.Parse(s),
             cancellationToken: cts.Token);
 

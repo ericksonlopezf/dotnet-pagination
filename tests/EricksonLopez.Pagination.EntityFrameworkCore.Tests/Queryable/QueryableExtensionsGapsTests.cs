@@ -48,37 +48,37 @@ public class QueryableExtensionsGapsTests
         var query = Enumerable.Empty<TestEntity>().AsQueryable();
         var sortParams = new SortParameters { Value = " , " };
         var allowedProps = new[] { "Id" };
-        
+
         var result = query.ApplySort(sortParams, allowedProperties: allowedProps);
-        
+
         // When the sort col is not allowed, it skips it. Since there's no valid col and no default sort,
         // it returns the original query. We can check if it's the exact same query object.
         result.Should().BeSameAs(query);
     }
-    
+
     [Fact]
     public void ApplySort_InvalidSortCol_WithDefaultSortAscending_AppliesDefaultSort()
     {
         var data = new List<TestEntity> { new TestEntityBuilder().WithId(2).Build(), new TestEntityBuilder().WithId(1).Build() }.AsQueryable();
         var sortParams = new SortParameters { Value = " , " };
         var allowedProps = new[] { "Id" };
-        
+
         var result = data.ApplySort(sortParams, SortDirection.Ascending, e => e.Id, allowedProperties: allowedProps);
-        
+
         var list = result.ToList();
         list[0].Id.Should().Be(1);
         list[1].Id.Should().Be(2);
     }
-    
+
     [Fact]
     public void ApplySort_InvalidSortCol_WithDefaultSortDescending_AppliesDefaultSort()
     {
         var data = new List<TestEntity> { new TestEntityBuilder().WithId(1).Build(), new TestEntityBuilder().WithId(2).Build() }.AsQueryable();
         var sortParams = new SortParameters { Value = " , " };
         var allowedProps = new[] { "Id" };
-        
+
         var result = data.ApplySort(sortParams, SortDirection.Descending, e => e.Id, allowedProperties: allowedProps);
-        
+
         var list = result.ToList();
         list[0].Id.Should().Be(2);
         list[1].Id.Should().Be(1);
@@ -90,9 +90,9 @@ public class QueryableExtensionsGapsTests
         var query = Enumerable.Empty<TestEntity>().AsQueryable();
         var filterParams = new FilterParameters { Value = "Id=1" };
         var options = new PaginationCoreOptions { MaxFilterStringLength = 3 }; // "Id=1" is 4 chars
-        
+
         var action = () => query.ApplyFilter(filterParams, options: options);
-        
+
         action.Should().Throw<ArgumentException>()
             .WithMessage("*exceeds the maximum allowed length*");
     }
@@ -101,10 +101,10 @@ public class QueryableExtensionsGapsTests
     public async Task ToPagedListAsync_SkipExceedsIntMaxValue_ThrowsArgumentOutOfRangeException()
     {
         var parameters = new PaginationParametersBuilder().WithPage(30000).WithPageSize(100_000).Build();
-        
+
         var action = async () => await Enumerable.Empty<TestEntity>().AsQueryable()
             .ToPagedListAsync(parameters, false, maxPageSize: 100_000, cancellationToken: default, options: null);
-        
+
         await action.Should().ThrowAsync<ArgumentOutOfRangeException>();
     }
 }

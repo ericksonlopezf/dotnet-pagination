@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 namespace EricksonLopez.Pagination;
 
 /// <summary>
-/// Validates <see cref="PaginationCoreOptions"/> instances.
+/// Provides validation for <see cref="PaginationCoreOptions"/> instances.
 /// </summary>
 [OptionsValidator]
 [ExcludeFromCodeCoverage]

@@ -54,14 +54,14 @@ public class PaginationServiceCollectionExtensionsTests
         });
 
         // 1. Verify PaginationCoreOptionsValidator is registered
-        services.Should().ContainSingle(s => 
-            s.ServiceType == typeof(Microsoft.Extensions.Options.IValidateOptions<PaginationCoreOptions>) && 
+        services.Should().ContainSingle(s =>
+            s.ServiceType == typeof(Microsoft.Extensions.Options.IValidateOptions<PaginationCoreOptions>) &&
             s.ImplementationType == typeof(PaginationCoreOptionsValidator));
 
         // 2. Verify ValidateOnStart is registered (it adds an IHostedService for validation, or IStartupValidator)
         // Since .NET uses an internal OptionsValidationHostedService or IStartupValidator, we just assert that
         // at least one IHostedService or IStartupValidator was added by this call.
-        services.Should().Contain(s => 
+        services.Should().Contain(s =>
             s.ServiceType.Name == "IHostedService" || s.ServiceType.Name == "IStartupValidator");
 
         var provider = services.BuildServiceProvider();
@@ -81,11 +81,11 @@ public class PaginationServiceCollectionExtensionsTests
         // Check encoder
         var encoder = provider.GetRequiredService<ICursorEncoder>();
         encoder.Should().BeOfType<HmacCursorEncoder>();
-        
+
         // Options should not be configured explicitly by this method (it won't throw because Options uses open generics, but it will have default ctor values)
         var options = provider.GetService<IOptions<PaginationCoreOptions>>();
         options.Should().BeNull();
-        
+
         // No MVC options configured
         var mvcOptions = provider.GetService<IOptions<MvcOptions>>();
         mvcOptions.Should().BeNull();

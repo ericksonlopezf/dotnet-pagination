@@ -4,8 +4,12 @@ using EricksonLopez.Pagination;
 using EricksonLopez.Pagination.Abstractions;
 using MediatR;
 
-#pragma warning disable CS1591
 namespace DemoApp.Application;
 
+/// <summary>
+/// Query to retrieve a paginated list of products.
+/// </summary>
+/// <param name="Pagination">The offset pagination parameters.</param>
+/// <param name="SearchTerm">Optional search term to filter products by name.</param>
 public record GetProductsQuery(PaginationParameters Pagination, string? SearchTerm) : IRequest<IPagedList<Product>>;
 

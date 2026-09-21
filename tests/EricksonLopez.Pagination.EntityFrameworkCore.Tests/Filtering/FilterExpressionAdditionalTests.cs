@@ -9,7 +9,7 @@ namespace EricksonLopez.Pagination.EntityFrameworkCore.Tests;
 public class FilterExpressionAdditionalTests
 {
     private enum TestStatus { Alpha, Beta }
-    
+
     private sealed class ComplexEntity
     {
         public int Id { get; set; }
@@ -83,7 +83,7 @@ public class FilterExpressionAdditionalTests
         func(new ComplexEntity { Id = 5 }).Should().BeFalse();
         func(new ComplexEntity { Id = 6 }).Should().BeTrue();
     }
-    
+
     [Fact]
     public void Build_NegationOnStringMethods_Works()
     {
@@ -152,7 +152,7 @@ public class FilterExpressionAdditionalTests
         var func = FilterExpression.Build<ComplexEntity>(parameters)!.Compile();
         func(new ComplexEntity { CreatedAt = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc) }).Should().BeTrue();
     }
-    
+
     [Fact]
     public void Build_TypeCoercion_DateTimeOffset()
     {
@@ -160,7 +160,7 @@ public class FilterExpressionAdditionalTests
         var func = FilterExpression.Build<ComplexEntity>(parameters)!.Compile();
         func(new ComplexEntity { UpdatedAt = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero) }).Should().BeTrue();
     }
-    
+
     [Fact]
     public void Build_TypeCoercion_DateOnly()
     {
@@ -209,7 +209,7 @@ public class FilterExpressionAdditionalTests
         var expr = FilterExpression.Build<ComplexEntity>(parameters, unknownFieldBehavior: FilterUnknownFieldBehavior.Ignore);
         expr.Should().BeNull();
     }
-    
+
     [Fact]
     public void Build_StringMethods_OnNonStringProperty_ReturnsNull()
     {

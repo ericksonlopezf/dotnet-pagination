@@ -13,7 +13,7 @@ public class PaginationBlazorServiceCollectionExtensionsTests
     public void AddPaginationBlazor_RegistersOptions()
     {
         var services = new ServiceCollection();
-        services.AddPaginationBlazor(options => 
+        services.AddPaginationBlazor(options =>
         {
             options.ContainerClass = "test-container";
         });

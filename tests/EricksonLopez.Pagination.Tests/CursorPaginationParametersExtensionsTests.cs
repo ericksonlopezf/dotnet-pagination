@@ -1,9 +1,9 @@
 // Copyright © Erickson Lopez. MIT License.
-using EricksonLopez.Pagination.Tests.Builders;
 using System;
 using AwesomeAssertions;
 using EricksonLopez.Pagination;
 using EricksonLopez.Pagination.Abstractions;
+using EricksonLopez.Pagination.Tests.Builders;
 using Xunit;
 
 namespace EricksonLopez.Pagination.Tests;
@@ -15,7 +15,7 @@ public class CursorPaginationParametersExtensionsTests
         public Func<string, string> DecodeFunc { get; set; } = s => $"decoded_{s}";
         public Func<string, string> EncodeFunc { get; set; } = s => $"encoded_{s}";
         public string? Encode(string? rawCursor) => rawCursor is null ? null : EncodeFunc(rawCursor);
-        public string? Decode(string? opaqueCursor) 
+        public string? Decode(string? opaqueCursor)
         {
             if (string.IsNullOrEmpty(opaqueCursor))
                 throw new ArgumentException("Should not reach encoder with null or empty cursor.");
@@ -85,13 +85,13 @@ public class CursorPaginationParametersExtensionsTests
     public void DecodeAfter_WithCustomEncoderAndEmptyDecodedString_ThrowsInvalidPaginationCursorException()
     {
         var encoder = new MockCursorEncoder { DecodeFunc = _ => string.Empty };
-        
+
         var p = new CursorPaginationParametersBuilder().WithAfter("opaque").Build();
-        
+
         var act = () => p.DecodeAfter<int>(encoder);
         act.Should().Throw<InvalidPaginationCursorException>().WithMessage("Decoded cursor is empty.");
     }
-    
+
     private struct CustomType { public int Value; }
 
     [Fact]
@@ -99,10 +99,10 @@ public class CursorPaginationParametersExtensionsTests
     {
         var registry = new InMemoryCursorDecoderRegistry();
         registry.Register(s => new CustomType { Value = s.Length });
-        
+
         var p = new CursorPaginationParametersBuilder().WithAfter("abc").Build(); // base64 decoded string
         var encoder = new MockCursorEncoder { DecodeFunc = _ => "resolved" };
-        
+
         var result = p.DecodeAfter<CustomType>(encoder, registry);
         result.Should().Be(new CustomType { Value = "resolved".Length });
     }
@@ -112,7 +112,7 @@ public class CursorPaginationParametersExtensionsTests
     {
         var encoder = new MockCursorEncoder { DecodeFunc = _ => "A" };
         var p = new CursorPaginationParametersBuilder().WithAfter("opaque").Build();
-        
+
         var result = p.DecodeAfter<char>(encoder);
         result.Should().Be('A');
     }
@@ -122,18 +122,18 @@ public class CursorPaginationParametersExtensionsTests
     {
         var encoder = new MockCursorEncoder { DecodeFunc = _ => "not-a-number" };
         var p = new CursorPaginationParametersBuilder().WithAfter("opaque").Build();
-        
+
         var act = () => p.DecodeAfter<double>(encoder);
         act.Should().Throw<InvalidPaginationCursorException>()
             .WithMessage("Failed to parse decoded cursor 'not-a-number' to type Double.");
     }
-    
+
     [Fact]
     public void DecodeBefore_WithConvertChangeTypeFailing_ThrowsInvalidPaginationCursorException()
     {
         var encoder = new MockCursorEncoder { DecodeFunc = _ => "not-a-guid" };
         var p = new CursorPaginationParametersBuilder().WithBefore("opaque").Build();
-        
+
         var act = () => p.DecodeBefore<Guid>(encoder);
         act.Should().Throw<InvalidPaginationCursorException>();
     }
@@ -179,7 +179,7 @@ public class CursorPaginationParametersExtensionsTests
         var p = new CursorPaginationParametersBuilder().WithAfter("opaque").Build();
         p.DecodeAfter<DateTimeOffset>(encoder).Should().Be(dt);
     }
-    
+
     [Fact]
     public void DecodeAfterString_WithNullEncoder_UsesDefaultEncoder()
     {
@@ -193,7 +193,7 @@ public class CursorPaginationParametersExtensionsTests
         var p = new CursorPaginationParametersBuilder().WithBefore(HmacCursorEncoder.DevelopmentDefault.Encode("test2")).Build();
         p.DecodeBeforeString().Should().Be("test2");
     }
-    
+
     [Fact]
     public void DecodeAfter_WithNullEncoder_UsesDefaultEncoder()
     {
@@ -213,7 +213,7 @@ public class CursorPaginationParametersExtensionsTests
     {
         var encoder = new MockCursorEncoder { DecodeFunc = _ => "M|value1|value2" };
         var p = new CursorPaginationParametersBuilder().WithAfter("opaque").Build();
-        
+
         var act = () => p.DecodeAfter<int>(encoder);
         act.Should().Throw<InvalidPaginationCursorException>()
            .WithMessage("Cursor format is invalid. Expected a single-column keyset cursor, but received a multi-column cursor.");
@@ -224,7 +224,7 @@ public class CursorPaginationParametersExtensionsTests
     {
         var encoder = new MockCursorEncoder { DecodeFunc = _ => "S|123" };
         var p = new CursorPaginationParametersBuilder().WithAfter("opaque").Build();
-        
+
         p.DecodeAfter<int>(encoder).Should().Be(123);
     }
 
@@ -233,7 +233,7 @@ public class CursorPaginationParametersExtensionsTests
     {
         var encoder = new MockCursorEncoder { DecodeFunc = _ => "my_string" };
         var p = new CursorPaginationParametersBuilder().WithAfter("opaque").Build();
-        
+
         p.DecodeAfterReference<string>(encoder).Should().Be("my_string");
     }
 
@@ -242,7 +242,7 @@ public class CursorPaginationParametersExtensionsTests
     {
         var encoder = new MockCursorEncoder { DecodeFunc = _ => "my_string2" };
         var p = new CursorPaginationParametersBuilder().WithBefore("opaque").Build();
-        
+
         p.DecodeBeforeReference<string>(encoder).Should().Be("my_string2");
     }
 
@@ -341,7 +341,7 @@ public class CursorPaginationParametersExtensionsTests
     {
         var encoder = new MockCursorEncoder { DecodeFunc = _ => "123" };
         var p = new CursorPaginationParametersBuilder().WithAfter("opaque").Build();
-        
+
         var result = p.TryDecodeAfter<int>(out var value, encoder);
         result.Should().BeTrue();
         value.Should().Be(123);
@@ -361,7 +361,7 @@ public class CursorPaginationParametersExtensionsTests
     {
         var encoder = new MockCursorEncoder { DecodeFunc = _ => "456" };
         var p = new CursorPaginationParametersBuilder().WithBefore("opaque").Build();
-        
+
         var result = p.TryDecodeBefore<int>(out var value, encoder);
         result.Should().BeTrue();
         value.Should().Be(456);

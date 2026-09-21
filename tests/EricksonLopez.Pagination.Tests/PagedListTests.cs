@@ -1,10 +1,10 @@
 // Copyright © Erickson Lopez. MIT License.
-using EricksonLopez.Pagination.Tests.Builders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using AwesomeAssertions;
 using EricksonLopez.Pagination.Abstractions;
+using EricksonLopez.Pagination.Tests.Builders;
 using Xunit;
 
 namespace EricksonLopez.Pagination.Tests;
@@ -242,6 +242,20 @@ public class PagedListTests
         var pagedList = new PagedList<int>(null!, totalCount: 0, page: 1, pageSize: 10);
         pagedList.Count.Should().Be(0);
         pagedList.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TotalPages_WhenTotalCountNearLongMaxValue_DoesNotOverflow()
+    {
+        long totalCount = long.MaxValue - 2L;
+        int pageSize = 10;
+        var parameters = PaginationParameters.Create(1, pageSize);
+        var pagedList = PagedList<int>.WithCount(new int[10], parameters, totalCount);
+
+        pagedList.TotalPages.Should().NotBeNull();
+        pagedList.TotalPages!.Value.Should().BePositive();
+        pagedList.TotalPages.Value.Should().Be(922337203685477581L);
+        pagedList.HasNextPage.Should().BeTrue();
     }
 }
 

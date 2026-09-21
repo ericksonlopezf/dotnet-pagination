@@ -90,7 +90,7 @@ public class PaginationParametersModelBinderTests
         context.ModelState.ContainsKey(expectedErrorKey).Should().BeTrue();
         context.ModelState[expectedErrorKey]!.Errors.Should().Contain(e => !string.IsNullOrEmpty(e.ErrorMessage));
     }
-    
+
     [Fact]
     public async Task BindModelAsync_LogsWarning_WhenOffsetExceedsThreshold()
     {
@@ -102,9 +102,9 @@ public class PaginationParametersModelBinderTests
         };
 
         await binder.BindModelAsync(context);
-        
+
         context.Result.IsModelSet.Should().BeTrue();
-        
+
         _logger.Received().Log(
             LogLevel.Warning,
             Arg.Any<EventId>(),
@@ -159,7 +159,7 @@ public class PaginationParametersModelBinderTests
         };
 
         await binder.BindModelAsync(context);
-        
+
         context.Result.IsModelSet.Should().BeTrue();
         _logger.DidNotReceiveWithAnyArgs().Log(default, default, default, default, default!);
     }
@@ -173,7 +173,7 @@ public class PaginationParametersModelBinderTests
             MaxPageSize = 100,
             DeepOffsetWarningThreshold = -1
         });
-        
+
         var binder = new PaginationParametersModelBinder(_optionsSnapshot, _logger);
         var context = new DefaultModelBindingContext
         {
@@ -182,7 +182,7 @@ public class PaginationParametersModelBinderTests
         };
 
         await binder.BindModelAsync(context);
-        
+
         context.Result.IsModelSet.Should().BeTrue();
     }
 
@@ -195,7 +195,7 @@ public class PaginationParametersModelBinderTests
             MaxPageSize = 100,
             DeepOffsetWarningThreshold = 0 // 0 means disabled
         });
-        
+
         var binder = new PaginationParametersModelBinder(_optionsSnapshot, _logger);
         var context = new DefaultModelBindingContext
         {
@@ -204,7 +204,7 @@ public class PaginationParametersModelBinderTests
         };
 
         await binder.BindModelAsync(context);
-        
+
         context.Result.IsModelSet.Should().BeTrue();
         _logger.DidNotReceiveWithAnyArgs().Log(default, default, default, default, default!);
     }
@@ -288,57 +288,57 @@ public class PaginationParametersModelBinderTests
         context.ModelState.ContainsKey(expectedErrorKey).Should().BeTrue();
         context.ModelState[expectedErrorKey]!.Errors.Should().Contain(e => !string.IsNullOrEmpty(e.ErrorMessage));
     }
-    
+
     [Fact]
     public void Provider_ReturnsBinder_ForPaginationParameters()
     {
         var provider = new PaginationParametersModelBinderProvider();
         var context = new DefaultModelBinderProviderContext(typeof(PaginationParameters));
-        
+
         var binder = provider.GetBinder(context);
         binder.Should().BeOfType<BinderTypeModelBinder>();
     }
-    
+
     [Fact]
     public void Provider_ReturnsBinder_ForCursorPaginationParameters()
     {
         var provider = new PaginationParametersModelBinderProvider();
         var context = new DefaultModelBinderProviderContext(typeof(CursorPaginationParameters));
-        
+
         var binder = provider.GetBinder(context);
         binder.Should().BeOfType<BinderTypeModelBinder>();
     }
-    
+
     [Fact]
     public void Provider_ReturnsNull_ForOtherTypes()
     {
         var provider = new PaginationParametersModelBinderProvider();
         var context = new DefaultModelBinderProviderContext(typeof(string));
-        
+
         var binder = provider.GetBinder(context);
         binder.Should().BeNull();
     }
-    
+
     [Fact]
     public void Provider_ReturnsBinder_ForFilterParameters()
     {
         var provider = new PaginationParametersModelBinderProvider();
         var context = new DefaultModelBinderProviderContext(typeof(FilterParameters));
-        
+
         var binder = provider.GetBinder(context);
         binder.Should().BeOfType<BinderTypeModelBinder>();
     }
-    
+
     [Fact]
     public void Provider_ReturnsBinder_ForSortParameters()
     {
         var provider = new PaginationParametersModelBinderProvider();
         var context = new DefaultModelBinderProviderContext(typeof(SortParameters));
-        
+
         var binder = provider.GetBinder(context);
         binder.Should().BeOfType<BinderTypeModelBinder>();
     }
-    
+
     [Fact]
     public void Provider_Throws_WhenContextIsNull()
     {
@@ -367,7 +367,7 @@ public class PaginationParametersModelBinderTests
             return ValueProviderResult.None;
         }
     }
-    
+
     private sealed class CursorValueProvider : IValueProvider
     {
         private readonly string? _first;
@@ -394,16 +394,16 @@ public class PaginationParametersModelBinderTests
             return ValueProviderResult.None;
         }
     }
-    
+
     private sealed class DefaultModelBinderProviderContext : ModelBinderProviderContext
     {
         private readonly ModelMetadata _metadata;
-        
+
         public DefaultModelBinderProviderContext(Type modelType)
         {
             _metadata = Substitute.For<ModelMetadata>(ModelMetadataIdentity.ForType(modelType));
         }
-        
+
         public override BindingInfo BindingInfo => new BindingInfo();
         public override IModelMetadataProvider MetadataProvider => null!;
         public override ModelMetadata Metadata => _metadata;

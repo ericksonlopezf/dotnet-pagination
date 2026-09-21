@@ -15,7 +15,7 @@ public class ExpressionCacheTests
 {
     private sealed class TestEntity
     {
-        public TestEntity() {}
+        public TestEntity() { }
         public int Id { get; set; }
         public string Name { get; set; } = "";
         public decimal Amount { get; set; }
@@ -71,7 +71,7 @@ public class ExpressionCacheTests
 
         // The first ones should have been evicted. We can't directly check the internal cache,
         // but this ensures the eviction logic is run.
-        
+
         // Let's get the 0th one again. It should be a new instance because it was evicted.
         var param0 = Expression.Parameter(typeof(TestEntity), "x");
         var property0 = Expression.Property(param0, nameof(TestEntity.Id));
@@ -81,7 +81,7 @@ public class ExpressionCacheTests
 
         var func1 = PaginationExpressionCache.GetOrCompile(lambda0);
         var func2 = PaginationExpressionCache.GetOrCompile(lambda0);
-        
+
         func1.Should().BeSameAs(func2);
     }
 
@@ -109,27 +109,27 @@ public class ExpressionCacheTests
         var func2 = PaginationExpressionCache.GetOrCompile(lambda);
         func1.Should().BeSameAs(func2);
     }
-    
+
     [Fact]
     public void FilterCacheKey_Equals_ChecksAllowedProperties()
     {
         var props1 = new string[] { "Id" };
         var props2 = new string[] { "Id" };
         var props3 = new string[] { "Name" };
-        
+
         var key1 = new PaginationExpressionCache.FilterCacheKey(typeof(TestEntity), "Id=1", FilterUnknownFieldBehavior.Ignore, 100, new HashSet<string>(props1), 1000);
         var key2 = new PaginationExpressionCache.FilterCacheKey(typeof(TestEntity), "Id=1", FilterUnknownFieldBehavior.Ignore, 100, new HashSet<string>(props2), 1000);
         var key3 = new PaginationExpressionCache.FilterCacheKey(typeof(TestEntity), "Id=1", FilterUnknownFieldBehavior.Ignore, 100, new HashSet<string>(props3), 1000);
         var keyNull = new PaginationExpressionCache.FilterCacheKey(typeof(TestEntity), "Id=1", FilterUnknownFieldBehavior.Ignore, 100, null, 1000);
         var keyNull2 = new PaginationExpressionCache.FilterCacheKey(typeof(TestEntity), "Id=1", FilterUnknownFieldBehavior.Ignore, 100, null, 1000);
-        
+
         key1.Equals(key2).Should().BeTrue();
         key1.Equals(key3).Should().BeFalse();
         key1.Equals(keyNull).Should().BeFalse();
         keyNull.Equals(key1).Should().BeFalse();
         keyNull.Equals(keyNull2).Should().BeTrue();
     }
-    
+
     [Fact]
     public void SortCacheKey_Equals_ChecksEntityTypeAndColumnName()
     {
@@ -137,24 +137,24 @@ public class ExpressionCacheTests
         var key2 = new PaginationExpressionCache.SortCacheKey(typeof(TestEntity), "Id");
         var key3 = new PaginationExpressionCache.SortCacheKey(typeof(TestEntity), "Name");
         var key4 = new PaginationExpressionCache.SortCacheKey(typeof(string), "Id");
-        
+
         key1.Equals(key2).Should().BeTrue();
         key1.Equals(key3).Should().BeFalse();
         key1.Equals(key4).Should().BeFalse();
     }
-    
+
     [Fact]
     public void DelegateCacheKey_Equals_ChecksProperties()
     {
         Expression<Func<TestEntity, int>> expr1 = x => x.Id;
         Expression<Func<TestEntity, string>> expr2 = x => x.Name;
         Expression<Func<string, int>> expr3 = x => x.Length;
-        
+
         var key1 = new PaginationExpressionCache.DelegateCacheKey(typeof(TestEntity), typeof(int), expr1);
         var key2 = new PaginationExpressionCache.DelegateCacheKey(typeof(TestEntity), typeof(int), expr1);
         var key3 = new PaginationExpressionCache.DelegateCacheKey(typeof(TestEntity), typeof(string), expr2);
         var key4 = new PaginationExpressionCache.DelegateCacheKey(typeof(string), typeof(int), expr3);
-        
+
         key1.Equals(key2).Should().BeTrue();
         key1.Equals(key3).Should().BeFalse();
         key1.Equals(key4).Should().BeFalse();

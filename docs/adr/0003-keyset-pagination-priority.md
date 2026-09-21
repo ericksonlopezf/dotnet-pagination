@@ -3,6 +3,9 @@
 ## Status
 Accepted
 
+## Date
+2026-09-04
+
 ## Context
 Standard offset pagination (`Skip` and `Take`, or `OFFSET/FETCH`) suffers from severe performance degradation as the page depth increases. Database engines must scan and discard all preceding rows before returning the requested page, leading to O(N) complexity where N is the offset size. This causes catastrophic timeouts on large datasets (e.g., millions of records).
 

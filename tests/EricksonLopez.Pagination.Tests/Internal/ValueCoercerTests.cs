@@ -9,7 +9,7 @@ namespace EricksonLopez.Pagination.Tests.Internal;
 public class ValueCoercerTests
 {
     private enum TestEnum { A, B }
-    
+
     [Theory]
     [InlineData("True", typeof(bool), true)]
     [InlineData("123", typeof(int), 123)]
@@ -21,9 +21,9 @@ public class ValueCoercerTests
     {
         // For decimal, the expected type in attribute might be boxed as double, so we need a workaround
         if (type == typeof(decimal)) expected = 12.34m;
-        
+
         var result = ValueCoercer.TryCoerce(value, type, out var coerced);
-        
+
         result.Should().BeTrue();
         coerced.Should().BeEquivalentTo(expected);
     }
@@ -43,7 +43,7 @@ public class ValueCoercerTests
         result.Should().BeTrue();
         coerced.Should().Be(TestEnum.B);
     }
-    
+
     [Fact]
     public void TryCoerce_InvalidEnum_ReturnsFalse()
     {
@@ -60,7 +60,7 @@ public class ValueCoercerTests
         result.Should().BeTrue();
         coerced.Should().Be(guid);
     }
-    
+
     [Fact]
     public void TryCoerce_InvalidGuid_ReturnsFalse()
     {
@@ -77,7 +77,7 @@ public class ValueCoercerTests
         result.Should().BeTrue();
         coerced.Should().Be(dt);
     }
-    
+
     [Fact]
     public void TryCoerce_DateTimeOffset_ReturnsTrue()
     {
@@ -86,7 +86,7 @@ public class ValueCoercerTests
         result.Should().BeTrue();
         coerced.Should().Be(dto);
     }
-    
+
     [Fact]
     public void TryCoerce_TimeSpan_ReturnsTrue()
     {
@@ -95,7 +95,7 @@ public class ValueCoercerTests
         result.Should().BeTrue();
         coerced.Should().Be(ts);
     }
-    
+
 #if NET6_0_OR_GREATER
     [Fact]
     public void TryCoerce_DateOnly_ReturnsTrue()
